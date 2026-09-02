@@ -98,6 +98,10 @@ final class Data {
 			'list_style'           => 'cards',
 			'type_indicator'       => 'auto',
 			'list_position'        => 'left',
+			'filters_position'     => 'top',
+			'filters_map_position' => 'top-right',
+			'show_map_legend'      => 0,
+			'map_legend_position'  => 'top-right',
 			'show_search'          => 1,
 			'show_type_filter'     => 1,
 			'show_country_filter'  => 0,
@@ -144,6 +148,8 @@ final class Data {
 		$tile_providers = array( 'openstreetmap', 'carto_positron', 'carto_positron_nolabels', 'carto_voyager' );
 		$appearances    = array( 'default', 'grayscale', 'soft', 'dark', 'contrast', 'muted', 'warm', 'cool', 'sepia', 'blueprint' );
 		$positions      = array( 'left', 'right', 'top', 'bottom' );
+		$filter_positions = array( 'top', 'panel', 'bottom', 'map' );
+		$map_positions  = array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' );
 		$list_styles    = array( 'cards', 'compact', 'legend', 'grouped' );
 		$type_indicators = array( 'auto', 'icon', 'color' );
 
@@ -159,6 +165,10 @@ final class Data {
 			'list_style'          => in_array( $input['list_style'] ?? '', $list_styles, true ) ? $input['list_style'] : $defaults['list_style'],
 			'type_indicator'      => in_array( $input['type_indicator'] ?? '', $type_indicators, true ) ? $input['type_indicator'] : $defaults['type_indicator'],
 			'list_position'       => in_array( $input['list_position'] ?? '', $positions, true ) ? $input['list_position'] : $defaults['list_position'],
+			'filters_position'    => in_array( $input['filters_position'] ?? '', $filter_positions, true ) ? $input['filters_position'] : $defaults['filters_position'],
+			'filters_map_position' => in_array( $input['filters_map_position'] ?? '', $map_positions, true ) ? $input['filters_map_position'] : $defaults['filters_map_position'],
+			'show_map_legend'     => ! empty( $input['show_map_legend'] ) ? 1 : 0,
+			'map_legend_position' => in_array( $input['map_legend_position'] ?? '', $map_positions, true ) ? $input['map_legend_position'] : $defaults['map_legend_position'],
 			'show_search'         => ! empty( $input['show_search'] ) ? 1 : 0,
 			'show_type_filter'    => ! empty( $input['show_type_filter'] ) ? 1 : 0,
 			'show_country_filter' => ! empty( $input['show_country_filter'] ) ? 1 : 0,

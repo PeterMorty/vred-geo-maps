@@ -570,3 +570,48 @@ msgstr ""
 
 msgid "You do not have permission to manage Geo Maps."
 msgstr ""
+
+msgid "Above the map"
+msgstr ""
+
+msgid "Below the map"
+msgstr ""
+
+msgid "Bottom left"
+msgstr ""
+
+msgid "Bottom right"
+msgstr ""
+
+msgid "Filters"
+msgstr ""
+
+msgid "Filters position"
+msgstr ""
+
+msgid "In the list area"
+msgstr ""
+
+msgid "List"
+msgstr ""
+
+msgid "Map position"
+msgstr ""
+
+msgid "On the map"
+msgstr ""
+
+msgid "On-map legend"
+msgstr ""
+
+msgid "Position"
+msgstr ""
+
+msgid "Show Location Types legend on map"
+msgstr ""
+
+msgid "Top left"
+msgstr ""
+
+msgid "Top right"
+msgstr ""

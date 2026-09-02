@@ -14,14 +14,30 @@
 	let draggingCard = null;
 	const geocodeRequests = new WeakMap();
 	const listStyleSetting = root.querySelector('[data-vred-geo-list-style-setting]');
+	const listPositionSetting = root.querySelector('[data-vred-geo-list-position-setting]');
+	const listWidthField = root.querySelector('[data-vred-geo-list-width-field]');
+	const filtersPositionSetting = root.querySelector('[data-vred-geo-filters-position-setting]');
+	const filtersMapPositionField = root.querySelector('[data-vred-geo-filters-map-position-field]');
+	const showMapLegendSetting = root.querySelector('[data-vred-geo-show-map-legend-setting]');
+	const mapLegendPositionField = root.querySelector('[data-vred-geo-map-legend-position-field]');
 	const typeIndicatorField = root.querySelector('[data-vred-geo-type-indicator-field]');
 
-	const syncListStyleSettings = () => {
-		if (!listStyleSetting || !typeIndicatorField) {
-			return;
+	const syncLayoutSettings = () => {
+		if (typeIndicatorField) {
+			typeIndicatorField.hidden = !showMapLegendSetting?.checked && !['legend', 'grouped'].includes(listStyleSetting?.value || '');
 		}
 
-		typeIndicatorField.hidden = !['legend', 'grouped'].includes(listStyleSetting.value);
+		if (listWidthField) {
+			listWidthField.hidden = !['left', 'right'].includes(listPositionSetting?.value || '');
+		}
+
+		if (filtersMapPositionField) {
+			filtersMapPositionField.hidden = filtersPositionSetting?.value !== 'map';
+		}
+
+		if (mapLegendPositionField) {
+			mapLegendPositionField.hidden = !showMapLegendSetting?.checked;
+		}
 	};
 
 	const setStatus = (message = '', isError = false) => {
@@ -716,7 +732,9 @@
 
 	root.querySelectorAll('[data-vred-geo-edit-form]').forEach(syncActionFields);
 	root.querySelectorAll('[data-vred-geo-override-toggle]').forEach(syncOverride);
-	syncListStyleSettings();
-	listStyleSetting?.addEventListener('change', syncListStyleSettings);
+	syncLayoutSettings();
+	[listStyleSetting, listPositionSetting, filtersPositionSetting, showMapLegendSetting].forEach((setting) => {
+		setting?.addEventListener('change', syncLayoutSettings);
+	});
 	updateEmptyState();
 })();

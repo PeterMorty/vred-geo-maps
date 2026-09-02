@@ -169,6 +169,9 @@ final class Renderer {
 		$show_region_filter  = ! empty( $settings['show_region_filter'] ) && self::has_location_value( $locations, 'region' );
 		$show_city_filter    = ! empty( $settings['show_city_filter'] ) && self::has_location_value( $locations, 'city' );
 		$show_filters        = ! empty( $settings['show_search'] ) || ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) || $show_country_filter || $show_region_filter || $show_city_filter;
+		$filters_position    = $settings['filters_position'];
+		$has_panel           = ! empty( $settings['show_list'] ) || ( $show_filters && 'panel' === $filters_position );
+		$has_map_overlays    = ( $show_filters && 'map' === $filters_position ) || ! empty( $settings['show_map_legend'] );
 
 		$config = array(
 			'id'           => $instance_id,
@@ -188,6 +191,7 @@ final class Renderer {
 			'vred-geo-maps',
 			'vred-geo-maps--' . sanitize_html_class( $settings['list_position'] ),
 			'vred-geo-maps--list-' . sanitize_html_class( $settings['list_style'] ),
+			'vred-geo-maps--filters-' . sanitize_html_class( $filters_position ),
 			'vred-geo-maps--appearance-' . sanitize_html_class( $settings['appearance'] ),
 		);
 
@@ -195,77 +199,55 @@ final class Renderer {
 			$classes[] = 'vred-geo-maps--no-list';
 		}
 
+		if ( ! $has_panel ) {
+			$classes[] = 'vred-geo-maps--no-panel';
+		}
+
 		ob_start();
 		?>
 		<section id="<?php echo esc_attr( $instance_id ); ?>" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" style="<?php echo esc_attr( $styles ); ?>" data-vred-geo-maps>
-			<?php if ( $show_filters ) : ?>
-				<div class="vred-geo-maps__filters">
-					<div class="vred-geo-maps__filter-controls">
-						<?php if ( ! empty( $settings['show_search'] ) ) : ?>
-							<label class="vred-geo-maps__field">
-								<span><?php esc_html_e( 'Search', 'vred-geo-maps' ); ?></span>
-								<input type="search" placeholder="<?php echo esc_attr__( 'Search by name or address…', 'vred-geo-maps' ); ?>" data-vred-geo-search>
-							</label>
-						<?php endif; ?>
-						<?php if ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) : ?>
-							<label class="vred-geo-maps__field">
-								<span><?php esc_html_e( 'Location type', 'vred-geo-maps' ); ?></span>
-								<select data-vred-geo-type-filter>
-									<option value=""><?php esc_html_e( 'All types', 'vred-geo-maps' ); ?></option>
-									<?php foreach ( $types as $type ) : ?>
-										<option value="<?php echo esc_attr( (string) $type['id'] ); ?>"><?php echo esc_html( $type['name'] ); ?></option>
-									<?php endforeach; ?>
-								</select>
-							</label>
-						<?php endif; ?>
-						<?php if ( $show_country_filter ) : ?>
-							<label class="vred-geo-maps__field">
-								<span><?php esc_html_e( 'Country', 'vred-geo-maps' ); ?></span>
-								<select data-vred-geo-country-filter>
-									<option value=""><?php esc_html_e( 'All countries', 'vred-geo-maps' ); ?></option>
-								</select>
-							</label>
-						<?php endif; ?>
-						<?php if ( $show_region_filter ) : ?>
-							<label class="vred-geo-maps__field">
-								<span><?php esc_html_e( 'Province / region', 'vred-geo-maps' ); ?></span>
-								<select data-vred-geo-region-filter>
-									<option value=""><?php esc_html_e( 'All provinces / regions', 'vred-geo-maps' ); ?></option>
-								</select>
-							</label>
-						<?php endif; ?>
-						<?php if ( $show_city_filter ) : ?>
-							<label class="vred-geo-maps__field">
-								<span><?php esc_html_e( 'City', 'vred-geo-maps' ); ?></span>
-								<select data-vred-geo-city-filter>
-									<option value=""><?php esc_html_e( 'All cities', 'vred-geo-maps' ); ?></option>
-								</select>
-							</label>
-						<?php endif; ?>
-					</div>
-					<div class="vred-geo-maps__filter-meta">
-						<button type="button" class="vred-geo-maps__reset" data-vred-geo-reset aria-label="<?php echo esc_attr__( 'Reset filters', 'vred-geo-maps' ); ?>" title="<?php echo esc_attr__( 'Reset filters', 'vred-geo-maps' ); ?>">
-							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-								<path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
-								<path d="M3 3v5h5"></path>
-							</svg>
-						</button>
-					</div>
-				</div>
+			<?php if ( $show_filters && 'top' === $filters_position ) : ?>
+				<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter ); ?>
 			<?php endif; ?>
 
 			<div class="vred-geo-maps__content">
-				<?php if ( ! empty( $settings['show_list'] ) ) : ?>
-					<div class="vred-geo-maps__list" data-vred-geo-list>
-						<?php self::render_locations_list( $locations, $types, $settings['list_style'], $settings['list_position'], $settings['type_indicator'] ); ?>
-						<p class="vred-geo-maps__no-results" data-vred-geo-no-results hidden><?php esc_html_e( 'No locations match the filters.', 'vred-geo-maps' ); ?></p>
+				<?php if ( $has_panel ) : ?>
+					<div class="vred-geo-maps__panel">
+						<?php if ( $show_filters && 'panel' === $filters_position ) : ?>
+							<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter, 'panel' ); ?>
+						<?php endif; ?>
+						<?php if ( ! empty( $settings['show_list'] ) ) : ?>
+							<div class="vred-geo-maps__list" data-vred-geo-list>
+								<?php self::render_locations_list( $locations, $types, $settings['list_style'], $settings['list_position'], $settings['type_indicator'] ); ?>
+								<p class="vred-geo-maps__no-results" data-vred-geo-no-results hidden><?php esc_html_e( 'No locations match the filters.', 'vred-geo-maps' ); ?></p>
+							</div>
+						<?php endif; ?>
 					</div>
 				<?php endif; ?>
 
 				<div class="vred-geo-maps__map-wrap">
 					<div class="vred-geo-maps__map" data-vred-geo-canvas aria-label="<?php echo esc_attr__( 'Interactive locations map', 'vred-geo-maps' ); ?>"></div>
+					<?php if ( $has_map_overlays ) : ?>
+						<?php foreach ( array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ) as $overlay_position ) : ?>
+							<?php $has_overlay_slot = ( $show_filters && 'map' === $filters_position && $settings['filters_map_position'] === $overlay_position ) || ( ! empty( $settings['show_map_legend'] ) && $settings['map_legend_position'] === $overlay_position ); ?>
+							<?php if ( $has_overlay_slot ) : ?>
+								<div class="vred-geo-maps__overlay-slot vred-geo-maps__overlay-slot--<?php echo esc_attr( $overlay_position ); ?>" data-vred-geo-overlay-slot data-position="<?php echo esc_attr( $overlay_position ); ?>">
+									<?php if ( $show_filters && 'map' === $filters_position && $settings['filters_map_position'] === $overlay_position ) : ?>
+										<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter, 'map' ); ?>
+									<?php endif; ?>
+									<?php if ( ! empty( $settings['show_map_legend'] ) && $settings['map_legend_position'] === $overlay_position ) : ?>
+										<?php self::render_map_legend( $locations, $types, $settings['type_indicator'] ); ?>
+									<?php endif; ?>
+								</div>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					<?php endif; ?>
 				</div>
 			</div>
+
+			<?php if ( $show_filters && 'bottom' === $filters_position ) : ?>
+				<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter ); ?>
+			<?php endif; ?>
 
 			<script type="application/json" data-vred-geo-config><?php echo wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
 		</section>
@@ -288,6 +270,10 @@ final class Renderer {
 			'list_style',
 			'type_indicator',
 			'list_position',
+			'filters_position',
+			'filters_map_position',
+			'show_map_legend',
+			'map_legend_position',
 			'show_search',
 			'show_type_filter',
 			'show_country_filter',
@@ -313,6 +299,9 @@ final class Renderer {
 
 		$settings['list_style']          = in_array( $settings['list_style'], array( 'cards', 'compact', 'legend', 'grouped' ), true ) ? $settings['list_style'] : 'cards';
 		$settings['type_indicator']      = in_array( $settings['type_indicator'], array( 'auto', 'icon', 'color' ), true ) ? $settings['type_indicator'] : 'auto';
+		$settings['filters_position']    = in_array( $settings['filters_position'], array( 'top', 'panel', 'bottom', 'map' ), true ) ? $settings['filters_position'] : 'top';
+		$settings['filters_map_position'] = in_array( $settings['filters_map_position'], array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ), true ) ? $settings['filters_map_position'] : 'top-right';
+		$settings['map_legend_position'] = in_array( $settings['map_legend_position'], array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ), true ) ? $settings['map_legend_position'] : 'top-right';
 		$settings['map_height']          = Data::clamp_int( $settings['map_height'], 240, 900 );
 		$settings['map_border_radius']   = Data::clamp_int( $settings['map_border_radius'], 0, 40 );
 		$settings['initial_zoom']        = Data::clamp_int( $settings['initial_zoom'], 1, 19 );
@@ -348,6 +337,89 @@ final class Renderer {
 				'--vred-geo-popup-width:' . (int) $settings['popup_width'] . 'px',
 			)
 		);
+	}
+
+	/** Render the single configured filters block. */
+	private static function render_filters( array $types, array $settings, bool $show_country_filter, bool $show_region_filter, bool $show_city_filter, string $context = 'flow' ): void {
+		$classes = 'vred-geo-maps__filters vred-geo-maps__filters--' . sanitize_html_class( $context );
+		?>
+		<div class="<?php echo esc_attr( $classes ); ?>"<?php echo 'map' === $context ? ' data-vred-geo-overlay-block' : ''; ?>>
+			<div class="vred-geo-maps__filter-controls">
+				<?php if ( ! empty( $settings['show_search'] ) ) : ?>
+					<label class="vred-geo-maps__field">
+						<span><?php esc_html_e( 'Search', 'vred-geo-maps' ); ?></span>
+						<input type="search" placeholder="<?php echo esc_attr__( 'Search by name or address…', 'vred-geo-maps' ); ?>" data-vred-geo-search>
+					</label>
+				<?php endif; ?>
+				<?php if ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) : ?>
+					<label class="vred-geo-maps__field">
+						<span><?php esc_html_e( 'Location type', 'vred-geo-maps' ); ?></span>
+						<select data-vred-geo-type-filter>
+							<option value=""><?php esc_html_e( 'All types', 'vred-geo-maps' ); ?></option>
+							<?php foreach ( $types as $type ) : ?>
+								<option value="<?php echo esc_attr( (string) $type['id'] ); ?>"><?php echo esc_html( $type['name'] ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</label>
+				<?php endif; ?>
+				<?php if ( $show_country_filter ) : ?>
+					<label class="vred-geo-maps__field">
+						<span><?php esc_html_e( 'Country', 'vred-geo-maps' ); ?></span>
+						<select data-vred-geo-country-filter>
+							<option value=""><?php esc_html_e( 'All countries', 'vred-geo-maps' ); ?></option>
+						</select>
+					</label>
+				<?php endif; ?>
+				<?php if ( $show_region_filter ) : ?>
+					<label class="vred-geo-maps__field">
+						<span><?php esc_html_e( 'Province / region', 'vred-geo-maps' ); ?></span>
+						<select data-vred-geo-region-filter>
+							<option value=""><?php esc_html_e( 'All provinces / regions', 'vred-geo-maps' ); ?></option>
+						</select>
+					</label>
+				<?php endif; ?>
+				<?php if ( $show_city_filter ) : ?>
+					<label class="vred-geo-maps__field">
+						<span><?php esc_html_e( 'City', 'vred-geo-maps' ); ?></span>
+						<select data-vred-geo-city-filter>
+							<option value=""><?php esc_html_e( 'All cities', 'vred-geo-maps' ); ?></option>
+						</select>
+					</label>
+				<?php endif; ?>
+			</div>
+			<div class="vred-geo-maps__filter-meta">
+				<button type="button" class="vred-geo-maps__reset" data-vred-geo-reset aria-label="<?php echo esc_attr__( 'Reset filters', 'vred-geo-maps' ); ?>" title="<?php echo esc_attr__( 'Reset filters', 'vred-geo-maps' ); ?>">
+					<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+						<path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+						<path d="M3 3v5h5"></path>
+					</svg>
+				</button>
+			</div>
+		</div>
+		<?php
+	}
+
+	/** Render the independent Location Types legend shown over the map. */
+	private static function render_map_legend( array $locations, array $types, string $type_indicator ): void {
+		$groups = self::get_location_type_groups( $locations, $types );
+		?>
+		<aside class="vred-geo-maps__map-legend" data-vred-geo-overlay-block aria-label="<?php echo esc_attr__( 'Location Types', 'vred-geo-maps' ); ?>">
+			<strong class="vred-geo-maps__map-legend-title"><?php esc_html_e( 'Location Types', 'vred-geo-maps' ); ?></strong>
+			<div class="vred-geo-maps__map-legend-items" aria-live="polite">
+				<?php foreach ( $groups as $group ) : ?>
+					<?php if ( ! empty( $group['locations'] ) ) : ?>
+						<div class="vred-geo-maps__map-legend-item" data-vred-geo-map-legend-item data-type-id="<?php echo esc_attr( (string) $group['id'] ); ?>">
+							<span class="vred-geo-maps__legend-heading">
+								<?php self::render_type_indicator( $group, $type_indicator ); ?>
+								<span><?php echo esc_html( $group['name'] ); ?></span>
+							</span>
+							<span class="vred-geo-maps__map-legend-count" data-vred-geo-map-legend-count><?php echo esc_html( (string) count( $group['locations'] ) ); ?></span>
+						</div>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			</div>
+		</aside>
+		<?php
 	}
 
 	/** Render the configured locations list style. */
@@ -446,42 +518,7 @@ final class Renderer {
 
 	/** Render locations grouped by Location Type. */
 	private static function render_grouped_list( array $locations, array $types, string $list_position, string $type_indicator, bool $show_addresses ): void {
-		$groups = array();
-
-		foreach ( $types as $type ) {
-			$groups[ (int) $type['id'] ] = array(
-				'id'          => (int) $type['id'],
-				'name'        => $type['name'],
-				'color'       => sanitize_hex_color( $type['marker']['color'] ?? '' ) ?: '#2f6fed',
-				'marker'      => $type['marker'],
-				'custom_icon' => $type['custom_icon'] ?? array(),
-				'locations'   => array(),
-			);
-		}
-
-		$untyped = array();
-
-		foreach ( $locations as $location ) {
-			$type_id = (int) $location['type_id'];
-
-			if ( $type_id > 0 && isset( $groups[ $type_id ] ) ) {
-				$groups[ $type_id ]['locations'][] = $location;
-				continue;
-			}
-
-			$untyped[] = $location;
-		}
-
-		if ( $untyped ) {
-			$groups[0] = array(
-				'id'          => 0,
-				'name'        => __( 'Other locations', 'vred-geo-maps' ),
-				'color'       => sanitize_hex_color( $untyped[0]['marker']['color'] ?? '' ) ?: '#2f6fed',
-				'marker'      => $untyped[0]['marker'],
-				'custom_icon' => array(),
-				'locations'   => $untyped,
-			);
-		}
+		$groups = self::get_location_type_groups( $locations, $types );
 
 		$group_index   = 0;
 		$static_groups = in_array( $list_position, array( 'top', 'bottom' ), true );
@@ -528,6 +565,48 @@ final class Renderer {
 			<?php endif; ?>
 			<?php
 		}
+	}
+
+	/** Build ordered Location Type groups shared by lists and the map legend. */
+	private static function get_location_type_groups( array $locations, array $types ): array {
+		$groups = array();
+
+		foreach ( $types as $type ) {
+			$groups[ (int) $type['id'] ] = array(
+				'id'          => (int) $type['id'],
+				'name'        => $type['name'],
+				'color'       => sanitize_hex_color( $type['marker']['color'] ?? '' ) ?: '#2f6fed',
+				'marker'      => $type['marker'],
+				'custom_icon' => $type['custom_icon'] ?? array(),
+				'locations'   => array(),
+			);
+		}
+
+		$untyped = array();
+
+		foreach ( $locations as $location ) {
+			$type_id = (int) $location['type_id'];
+
+			if ( $type_id > 0 && isset( $groups[ $type_id ] ) ) {
+				$groups[ $type_id ]['locations'][] = $location;
+				continue;
+			}
+
+			$untyped[] = $location;
+		}
+
+		if ( $untyped ) {
+			$groups[0] = array(
+				'id'          => 0,
+				'name'        => __( 'Other locations', 'vred-geo-maps' ),
+				'color'       => sanitize_hex_color( $untyped[0]['marker']['color'] ?? '' ) ?: '#2f6fed',
+				'marker'      => $untyped[0]['marker'],
+				'custom_icon' => array(),
+				'locations'   => $untyped,
+			);
+		}
+
+		return $groups;
 	}
 
 	/** Render one grouped list heading. */

@@ -478,6 +478,10 @@ final class Admin {
 
 			<section class="vred-geo-admin-settings__section">
 				<h2><?php esc_html_e( 'Layout and filters', 'vred-geo-maps' ); ?></h2>
+				<h3><?php esc_html_e( 'List', 'vred-geo-maps' ); ?></h3>
+				<div class="vred-geo-admin-checks">
+					<?php self::settings_checkbox( 'show_list', __( 'Show locations list', 'vred-geo-maps' ), $settings['show_list'] ); ?>
+				</div>
 				<div class="vred-geo-admin-settings-fields">
 					<label class="vred-geo-admin-field vred-geo-admin-field--select">
 						<span><?php esc_html_e( 'List style', 'vred-geo-maps' ); ?></span>
@@ -488,7 +492,7 @@ final class Admin {
 							<option value="grouped" <?php selected( $settings['list_style'], 'grouped' ); ?>><?php esc_html_e( 'Grouped', 'vred-geo-maps' ); ?></option>
 						</select>
 					</label>
-					<label class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-type-indicator-field<?php echo in_array( $settings['list_style'], array( 'legend', 'grouped' ), true ) ? '' : ' hidden'; ?>>
+					<label class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-type-indicator-field<?php echo in_array( $settings['list_style'], array( 'legend', 'grouped' ), true ) || ! empty( $settings['show_map_legend'] ) ? '' : ' hidden'; ?>>
 						<span><?php esc_html_e( 'Type indicator', 'vred-geo-maps' ); ?></span>
 						<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[type_indicator]">
 							<option value="auto" <?php selected( $settings['type_indicator'], 'auto' ); ?>><?php esc_html_e( 'Automatic', 'vred-geo-maps' ); ?></option>
@@ -498,25 +502,66 @@ final class Admin {
 					</label>
 					<label class="vred-geo-admin-field vred-geo-admin-field--select">
 						<span><?php esc_html_e( 'List position', 'vred-geo-maps' ); ?></span>
-						<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[list_position]">
+						<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[list_position]" data-vred-geo-list-position-setting>
 							<option value="left" <?php selected( $settings['list_position'], 'left' ); ?>><?php esc_html_e( 'Left', 'vred-geo-maps' ); ?></option>
 							<option value="right" <?php selected( $settings['list_position'], 'right' ); ?>><?php esc_html_e( 'Right', 'vred-geo-maps' ); ?></option>
 							<option value="top" <?php selected( $settings['list_position'], 'top' ); ?>><?php esc_html_e( 'Top', 'vred-geo-maps' ); ?></option>
 							<option value="bottom" <?php selected( $settings['list_position'], 'bottom' ); ?>><?php esc_html_e( 'Bottom', 'vred-geo-maps' ); ?></option>
 						</select>
 					</label>
-					<?php self::settings_number( 'list_width', __( 'List width', 'vred-geo-maps' ), $settings['list_width'], 260, 560, 'px' ); ?>
+					<label class="vred-geo-admin-field vred-geo-admin-field--number" data-vred-geo-list-width-field<?php echo in_array( $settings['list_position'], array( 'left', 'right' ), true ) ? '' : ' hidden'; ?>>
+						<span><?php esc_html_e( 'List width', 'vred-geo-maps' ); ?></span>
+						<div class="vred-geo-admin-input-group">
+							<input type="number" min="260" max="560" step="1" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[list_width]" value="<?php echo esc_attr( (string) $settings['list_width'] ); ?>">
+							<span>px</span>
+						</div>
+					</label>
 					<?php self::settings_number( 'gap', __( 'Spacing', 'vred-geo-maps' ), $settings['gap'], 0, 80, 'px' ); ?>
 					<?php self::settings_number( 'filters_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['filters_border_radius'], 0, 40, 'px' ); ?>
 					<?php self::settings_number( 'card_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['card_radius'], 0, 40, 'px' ); ?>
 				</div>
+				<h3><?php esc_html_e( 'Filters', 'vred-geo-maps' ); ?></h3>
+				<div class="vred-geo-admin-settings-fields">
+					<label class="vred-geo-admin-field vred-geo-admin-field--select">
+						<span><?php esc_html_e( 'Filters position', 'vred-geo-maps' ); ?></span>
+						<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[filters_position]" data-vred-geo-filters-position-setting>
+							<option value="top" <?php selected( $settings['filters_position'], 'top' ); ?>><?php esc_html_e( 'Above the map', 'vred-geo-maps' ); ?></option>
+							<option value="panel" <?php selected( $settings['filters_position'], 'panel' ); ?>><?php esc_html_e( 'In the list area', 'vred-geo-maps' ); ?></option>
+							<option value="bottom" <?php selected( $settings['filters_position'], 'bottom' ); ?>><?php esc_html_e( 'Below the map', 'vred-geo-maps' ); ?></option>
+							<option value="map" <?php selected( $settings['filters_position'], 'map' ); ?>><?php esc_html_e( 'On the map', 'vred-geo-maps' ); ?></option>
+						</select>
+					</label>
+					<label class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-filters-map-position-field<?php echo 'map' === $settings['filters_position'] ? '' : ' hidden'; ?>>
+						<span><?php esc_html_e( 'Map position', 'vred-geo-maps' ); ?></span>
+						<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[filters_map_position]">
+							<option value="top-left" <?php selected( $settings['filters_map_position'], 'top-left' ); ?>><?php esc_html_e( 'Top left', 'vred-geo-maps' ); ?></option>
+							<option value="top-right" <?php selected( $settings['filters_map_position'], 'top-right' ); ?>><?php esc_html_e( 'Top right', 'vred-geo-maps' ); ?></option>
+							<option value="bottom-left" <?php selected( $settings['filters_map_position'], 'bottom-left' ); ?>><?php esc_html_e( 'Bottom left', 'vred-geo-maps' ); ?></option>
+							<option value="bottom-right" <?php selected( $settings['filters_map_position'], 'bottom-right' ); ?>><?php esc_html_e( 'Bottom right', 'vred-geo-maps' ); ?></option>
+						</select>
+					</label>
+				</div>
 				<div class="vred-geo-admin-checks">
-					<?php self::settings_checkbox( 'show_list', __( 'Show locations list', 'vred-geo-maps' ), $settings['show_list'] ); ?>
 					<?php self::settings_checkbox( 'show_search', __( 'Show text search', 'vred-geo-maps' ), $settings['show_search'] ); ?>
 					<?php self::settings_checkbox( 'show_type_filter', __( 'Show Location Type filter', 'vred-geo-maps' ), $settings['show_type_filter'] ); ?>
 					<?php self::settings_checkbox( 'show_country_filter', __( 'Show Country filter', 'vred-geo-maps' ), $settings['show_country_filter'] ); ?>
 					<?php self::settings_checkbox( 'show_region_filter', __( 'Show Province / region filter', 'vred-geo-maps' ), $settings['show_region_filter'] ); ?>
 					<?php self::settings_checkbox( 'show_city_filter', __( 'Show City filter', 'vred-geo-maps' ), $settings['show_city_filter'] ); ?>
+				</div>
+				<h3><?php esc_html_e( 'On-map legend', 'vred-geo-maps' ); ?></h3>
+				<div class="vred-geo-admin-checks">
+					<label><input type="checkbox" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[show_map_legend]" value="1" <?php checked( ! empty( $settings['show_map_legend'] ) ); ?> data-vred-geo-show-map-legend-setting> <?php esc_html_e( 'Show Location Types legend on map', 'vred-geo-maps' ); ?></label>
+				</div>
+				<div class="vred-geo-admin-settings-fields">
+					<label class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-map-legend-position-field<?php echo ! empty( $settings['show_map_legend'] ) ? '' : ' hidden'; ?>>
+						<span><?php esc_html_e( 'Position', 'vred-geo-maps' ); ?></span>
+						<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[map_legend_position]">
+							<option value="top-left" <?php selected( $settings['map_legend_position'], 'top-left' ); ?>><?php esc_html_e( 'Top left', 'vred-geo-maps' ); ?></option>
+							<option value="top-right" <?php selected( $settings['map_legend_position'], 'top-right' ); ?>><?php esc_html_e( 'Top right', 'vred-geo-maps' ); ?></option>
+							<option value="bottom-left" <?php selected( $settings['map_legend_position'], 'bottom-left' ); ?>><?php esc_html_e( 'Bottom left', 'vred-geo-maps' ); ?></option>
+							<option value="bottom-right" <?php selected( $settings['map_legend_position'], 'bottom-right' ); ?>><?php esc_html_e( 'Bottom right', 'vred-geo-maps' ); ?></option>
+						</select>
+					</label>
 				</div>
 			</section>
 

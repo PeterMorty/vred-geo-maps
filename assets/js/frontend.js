@@ -155,26 +155,79 @@
 		}
 	};
 
-	const fitVisible = (map, visibleEntries, initialZoom) => {
+	const getOverlayPadding = (root, canvas) => {
+		const canvasRect = canvas.getBoundingClientRect();
+		const padding = { top: 28, right: 28, bottom: 28, left: 28 };
+
+		root.querySelectorAll('[data-vred-geo-overlay-slot]').forEach((slot) => {
+			if (window.getComputedStyle(slot).position !== 'absolute') {
+				return;
+			}
+
+			const rect = slot.getBoundingClientRect();
+			const overlapsCanvas = rect.right > canvasRect.left && rect.left < canvasRect.right
+				&& rect.bottom > canvasRect.top && rect.top < canvasRect.bottom;
+
+			if (!overlapsCanvas) {
+				return;
+			}
+
+			const position = slot.dataset.position || '';
+
+			if (position.startsWith('top-')) {
+				padding.top = Math.max(padding.top, rect.bottom - canvasRect.top + 16);
+			} else {
+				padding.bottom = Math.max(padding.bottom, canvasRect.bottom - rect.top + 16);
+			}
+
+			if (position.endsWith('-left')) {
+				padding.left = Math.max(padding.left, rect.right - canvasRect.left + 16);
+			} else {
+				padding.right = Math.max(padding.right, canvasRect.right - rect.left + 16);
+			}
+		});
+
+		padding.left = Math.min(padding.left, canvasRect.width * 0.45);
+		padding.right = Math.min(padding.right, canvasRect.width * 0.45);
+		padding.top = Math.min(padding.top, canvasRect.height * 0.45);
+		padding.bottom = Math.min(padding.bottom, canvasRect.height * 0.45);
+
+		return padding;
+	};
+
+	const panToVisibleArea = (map, latLng, padding) => {
+		map.panTo(latLng, { animate: false });
+		map.panBy([
+			(padding.right - padding.left) / 2,
+			(padding.bottom - padding.top) / 2
+		], { animate: true });
+	};
+
+	const fitVisible = (map, visibleEntries, initialZoom, padding) => {
 		if (!visibleEntries.length) {
 			return;
 		}
 
 		if (visibleEntries.length === 1) {
 			map.setView(visibleEntries[0].marker.getLatLng(), Math.max(10, initialZoom || 10));
+			panToVisibleArea(map, visibleEntries[0].marker.getLatLng(), padding);
 			return;
 		}
 
 		const bounds = window.L.latLngBounds(visibleEntries.map((entry) => entry.marker.getLatLng()));
 
 		if (bounds.isValid()) {
-			map.fitBounds(bounds, { padding: [28, 28], maxZoom: 15 });
+			map.fitBounds(bounds, {
+				paddingTopLeft: [padding.left, padding.top],
+				paddingBottomRight: [padding.right, padding.bottom],
+				maxZoom: 15
+			});
 		}
 	};
 
-	const revealMarker = (map, layerGroup, entry) => {
+	const revealMarker = (map, layerGroup, entry, padding) => {
 		const open = () => {
-			map.panTo(entry.marker.getLatLng(), { animate: true });
+			panToVisibleArea(map, entry.marker.getLatLng(), padding());
 			if (entry.location.action === 'popup' && entry.location.popupHtml) {
 				entry.marker.openPopup();
 			}
@@ -287,7 +340,14 @@
 		const cityFilter = root.querySelector('[data-vred-geo-city-filter]');
 		const resetButton = root.querySelector('[data-vred-geo-reset]');
 		const noResults = root.querySelector('[data-vred-geo-no-results]');
+		const mapLegendItems = root.querySelectorAll('[data-vred-geo-map-legend-item]');
+		const getMapPadding = () => getOverlayPadding(root, canvas);
 		let searchTimer = null;
+
+		root.querySelectorAll('[data-vred-geo-overlay-block]').forEach((block) => {
+			window.L.DomEvent.disableClickPropagation(block);
+			window.L.DomEvent.disableScrollPropagation(block);
+		});
 
 		const updateGeographicOptions = () => {
 			syncGeographicSelect(countryFilter, getGeographicOptions(config.locations, 'country'));
@@ -306,6 +366,7 @@
 			const region = String(regionFilter?.value || '');
 			const city = String(cityFilter?.value || '');
 			const visibleEntries = [];
+			const visibleTypeCounts = new Map();
 
 			layerGroup.clearLayers();
 
@@ -329,6 +390,8 @@
 				if (visible) {
 					layerGroup.addLayer(entry.marker);
 					visibleEntries.push(entry);
+					const visibleTypeId = String(entry.location.typeId || 0);
+					visibleTypeCounts.set(visibleTypeId, (visibleTypeCounts.get(visibleTypeId) || 0) + 1);
 				}
 			});
 
@@ -348,13 +411,20 @@
 				}
 			});
 
+			mapLegendItems.forEach((item) => {
+				const countNode = item.querySelector('[data-vred-geo-map-legend-count]');
+
+				if (countNode) {
+					countNode.textContent = String(visibleTypeCounts.get(String(item.dataset.typeId || '0')) || 0);
+				}
+			});
 
 			if (noResults) {
 				noResults.hidden = visibleEntries.length > 0;
 			}
 
 			if (fitMap && visibleEntries.length) {
-				fitVisible(map, visibleEntries, Number.parseInt(config.zoom, 10));
+				fitVisible(map, visibleEntries, Number.parseInt(config.zoom, 10), getMapPadding());
 			}
 		};
 
@@ -385,7 +455,7 @@
 			}
 
 			setActiveLocation(root, markers, entry.location.id, { scroll: false });
-			revealMarker(map, layerGroup, entry);
+			revealMarker(map, layerGroup, entry, getMapPadding);
 		});
 
 		if (searchInput) {
@@ -429,13 +499,23 @@
 		const allEntries = Array.from(markers.values());
 
 		if (config.autoFit) {
-			fitVisible(map, allEntries, Number.parseInt(config.zoom, 10));
+			fitVisible(map, allEntries, Number.parseInt(config.zoom, 10), getMapPadding());
 		} else {
 			const first = allEntries[0];
 			map.setView(first.marker.getLatLng(), Number.parseInt(config.zoom, 10) || 6);
+			panToVisibleArea(map, first.marker.getLatLng(), getMapPadding());
 		}
 
 		window.setTimeout(() => map.invalidateSize(), 0);
+
+		if (typeof window.ResizeObserver === 'function') {
+			let resizeFrame = null;
+			const resizeObserver = new window.ResizeObserver(() => {
+				window.cancelAnimationFrame(resizeFrame);
+				resizeFrame = window.requestAnimationFrame(() => map.invalidateSize({ pan: false }));
+			});
+			resizeObserver.observe(canvas);
+		}
 	};
 
 	const initScope = (scope = document) => {
