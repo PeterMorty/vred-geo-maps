@@ -1,0 +1,126 @@
+name: Release plugin update
+
+on:
+  workflow_dispatch:
+    inputs:
+      requires_wp:
+        description: WordPress minimum version
+        required: true
+        default: '6.6'
+      tested_wp:
+        description: WordPress tested up to
+        required: true
+        default: '7.1'
+      requires_php:
+        description: Minimum PHP version
+        required: true
+        default: '8.1'
+      changelog:
+        description: Changelog text stored in the update JSON
+        required: false
+        default: ''
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VRED_GEO_MAPS_UPDATES_BASE_URL: ${{ vars.VRED_GEO_MAPS_UPDATES_BASE_URL }}
+      VRED_GEO_MAPS_UPDATES_REMOTE_DIR: ${{ vars.VRED_GEO_MAPS_UPDATES_REMOTE_DIR }}
+      VRED_GEO_MAPS_PLUGIN_HOMEPAGE: ${{ vars.VRED_GEO_MAPS_PLUGIN_HOMEPAGE }}
+      VRED_GEO_MAPS_DEPLOY_HOST: ${{ secrets.VRED_GEO_MAPS_DEPLOY_HOST }}
+      VRED_GEO_MAPS_DEPLOY_PORT: ${{ secrets.VRED_GEO_MAPS_DEPLOY_PORT }}
+      VRED_GEO_MAPS_DEPLOY_USERNAME: ${{ secrets.VRED_GEO_MAPS_DEPLOY_USERNAME }}
+      VRED_GEO_MAPS_DEPLOY_PASSWORD: ${{ secrets.VRED_GEO_MAPS_DEPLOY_PASSWORD }}
+      VRED_GEO_MAPS_REQUIRES_WP: ${{ inputs.requires_wp }}
+      VRED_GEO_MAPS_TESTED_WP: ${{ inputs.tested_wp }}
+      VRED_GEO_MAPS_REQUIRES_PHP: ${{ inputs.requires_php }}
+      VRED_GEO_MAPS_CHANGELOG: ${{ inputs.changelog }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install release tooling
+        run: sudo apt-get update && sudo apt-get install -y zip curl
+
+      - name: Read plugin version
+        id: version
+        shell: bash
+        run: |
+          version=$(php -r '$source = file_get_contents("vred-geo-maps.php"); preg_match("/^ \\* Version:\\s*(.+)$/m", $source, $match); echo trim($match[1] ?? "");')
+          if [ -z "$version" ]; then
+            echo "Unable to read plugin version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Validate PHP files
+        shell: bash
+        run: find . -path './.git' -prune -o -path './build' -prune -o -path './dist' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Build release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/package/vred-geo-maps dist
+          cp -R assets build/package/vred-geo-maps/
+          cp -R includes build/package/vred-geo-maps/
+          cp -R languages build/package/vred-geo-maps/
+          cp uninstall.php build/package/vred-geo-maps/
+          cp readme.txt build/package/vred-geo-maps/
+          cp vred-geo-maps.php build/package/vred-geo-maps/
+          if [ -f LICENSE ]; then
+            cp LICENSE build/package/vred-geo-maps/
+          fi
+          cd build/package
+          zip -rq "../vred-geo-maps-v${{ steps.version.outputs.version }}.zip" vred-geo-maps
+          mv "../vred-geo-maps-v${{ steps.version.outputs.version }}.zip" "$GITHUB_WORKSPACE/dist/"
+
+      - name: Generate update manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          VRED_GEO_MAPS_MANIFEST_OUTPUT="$GITHUB_WORKSPACE/dist/vred-geo-maps.json" php scripts/build-update-manifest.php
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vred-geo-maps-v${{ steps.version.outputs.version }}
+          path: |
+            dist/vred-geo-maps-v${{ steps.version.outputs.version }}.zip
+            dist/vred-geo-maps.json
+
+      - name: Validate deploy configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          for value in VRED_GEO_MAPS_UPDATES_BASE_URL VRED_GEO_MAPS_UPDATES_REMOTE_DIR VRED_GEO_MAPS_DEPLOY_HOST VRED_GEO_MAPS_DEPLOY_PORT VRED_GEO_MAPS_DEPLOY_USERNAME VRED_GEO_MAPS_DEPLOY_PASSWORD; do
+            if [ -z "${!value:-}" ]; then
+              echo "Missing required configuration: $value" >&2
+              exit 1
+            fi
+          done
+
+      - name: Deploy ZIP and manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_base="ftp://$VRED_GEO_MAPS_DEPLOY_HOST:$VRED_GEO_MAPS_DEPLOY_PORT${VRED_GEO_MAPS_UPDATES_REMOTE_DIR%/}"
+          zip_name="vred-geo-maps-v${{ steps.version.outputs.version }}.zip"
+
+          curl --fail --show-error --silent --disable-epsv --ftp-create-dirs \
+            --user "$VRED_GEO_MAPS_DEPLOY_USERNAME:$VRED_GEO_MAPS_DEPLOY_PASSWORD" \
+            --upload-file "dist/$zip_name" \
+            "$remote_base/$zip_name"
+
+          curl --fail --show-error --silent --disable-epsv --ftp-create-dirs \
+            --user "$VRED_GEO_MAPS_DEPLOY_USERNAME:$VRED_GEO_MAPS_DEPLOY_PASSWORD" \
+            --upload-file "dist/vred-geo-maps.json" \
+            "$remote_base/vred-geo-maps.json"
