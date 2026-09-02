@@ -65,6 +65,15 @@ msgstr ""
 msgid "Address"
 msgstr "Dirección"
 
+msgid "All cities"
+msgstr "Todas las ciudades"
+
+msgid "All countries"
+msgstr "Todos los países"
+
+msgid "All provinces / regions"
+msgstr "Todas las provincias / regiones"
+
 msgid "All types"
 msgstr "Todos los tipos"
 
@@ -104,6 +113,9 @@ msgstr "Tarjetas"
 msgid "Check updates"
 msgstr "Comprobar actualizaciones"
 
+msgid "City"
+msgstr "Ciudad"
+
 msgid "Clear the search before reordering."
 msgstr "Borra la búsqueda antes de reordenar."
 
@@ -137,6 +149,9 @@ msgstr "Contraste"
 
 msgid "Cool"
 msgstr "Frío"
+
+msgid "Country"
+msgstr "País"
 
 msgid "Coordinates could not be retrieved right now."
 msgstr "No se han podido obtener las coordenadas en este momento."
@@ -211,6 +226,9 @@ msgstr "Corregida la persistencia de la acción del marcador y la inicializació
 
 msgid "Grayscale"
 msgstr "Escala de grises"
+
+msgid "Get directions"
+msgstr "Cómo llegar"
 
 msgid "Grouped"
 msgstr "Grupos"
@@ -365,6 +383,9 @@ msgstr "Popup"
 msgid "Press Enter or click the location icon to find coordinates."
 msgstr "Pulsa Enter o haz clic en el icono de ubicación para obtener las coordenadas."
 
+msgid "Province / region"
+msgstr "Provincia / región"
+
 msgid "Refined Legend behavior for horizontal layouts, simplified filter controls and tightened admin add/geocoding controls."
 msgstr ""
 "Se ha refinado el comportamiento de Leyenda en diseños horizontales, simplificado los controles de filtro y ajustado "
@@ -457,11 +478,23 @@ msgstr "Ajustes"
 msgid "Shortcode"
 msgstr "Shortcode"
 
+msgid "Show \"Get directions\" link"
+msgstr "Mostrar el enlace «Cómo llegar»"
+
+msgid "Show City filter"
+msgstr "Mostrar filtro de ciudad"
+
+msgid "Show Country filter"
+msgstr "Mostrar filtro de país"
+
 msgid "Show Location Type filter"
 msgstr "Mostrar filtro de tipos de ubicación"
 
 msgid "Show locations list"
 msgstr "Mostrar listado de ubicaciones"
+
+msgid "Show Province / region filter"
+msgstr "Mostrar filtro de provincia / región"
 
 msgid "Show specific location IDs"
 msgstr "Mostrar IDs de ubicaciones concretas"
@@ -553,4 +586,3 @@ msgstr ""
 
 msgid "You do not have permission to manage Geo Maps."
 msgstr "No tienes permisos para gestionar Geo Maps."
-

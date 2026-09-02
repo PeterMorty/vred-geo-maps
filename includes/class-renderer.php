@@ -124,7 +124,7 @@ final class Renderer {
 				continue;
 			}
 
-			$location = Data::normalize_location( $post );
+			$location = Data::normalize_location( $post, ! empty( $settings['show_directions_link'] ) );
 
 			if ( null !== $location ) {
 				$locations[] = $location;
@@ -165,6 +165,11 @@ final class Renderer {
 			}
 		);
 
+		$show_country_filter = ! empty( $settings['show_country_filter'] ) && self::has_location_value( $locations, 'country' );
+		$show_region_filter  = ! empty( $settings['show_region_filter'] ) && self::has_location_value( $locations, 'region' );
+		$show_city_filter    = ! empty( $settings['show_city_filter'] ) && self::has_location_value( $locations, 'city' );
+		$show_filters        = ! empty( $settings['show_search'] ) || ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) || $show_country_filter || $show_region_filter || $show_city_filter;
+
 		$config = array(
 			'id'           => $instance_id,
 			'tileProvider' => $settings['tile_provider'],
@@ -193,7 +198,7 @@ final class Renderer {
 		ob_start();
 		?>
 		<section id="<?php echo esc_attr( $instance_id ); ?>" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" style="<?php echo esc_attr( $styles ); ?>" data-vred-geo-maps>
-			<?php if ( ! empty( $settings['show_search'] ) || ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) ) : ?>
+			<?php if ( $show_filters ) : ?>
 				<div class="vred-geo-maps__filters">
 					<div class="vred-geo-maps__filter-controls">
 						<?php if ( ! empty( $settings['show_search'] ) ) : ?>
@@ -210,6 +215,30 @@ final class Renderer {
 									<?php foreach ( $types as $type ) : ?>
 										<option value="<?php echo esc_attr( (string) $type['id'] ); ?>"><?php echo esc_html( $type['name'] ); ?></option>
 									<?php endforeach; ?>
+								</select>
+							</label>
+						<?php endif; ?>
+						<?php if ( $show_country_filter ) : ?>
+							<label class="vred-geo-maps__field">
+								<span><?php esc_html_e( 'Country', 'vred-geo-maps' ); ?></span>
+								<select data-vred-geo-country-filter>
+									<option value=""><?php esc_html_e( 'All countries', 'vred-geo-maps' ); ?></option>
+								</select>
+							</label>
+						<?php endif; ?>
+						<?php if ( $show_region_filter ) : ?>
+							<label class="vred-geo-maps__field">
+								<span><?php esc_html_e( 'Province / region', 'vred-geo-maps' ); ?></span>
+								<select data-vred-geo-region-filter>
+									<option value=""><?php esc_html_e( 'All provinces / regions', 'vred-geo-maps' ); ?></option>
+								</select>
+							</label>
+						<?php endif; ?>
+						<?php if ( $show_city_filter ) : ?>
+							<label class="vred-geo-maps__field">
+								<span><?php esc_html_e( 'City', 'vred-geo-maps' ); ?></span>
+								<select data-vred-geo-city-filter>
+									<option value=""><?php esc_html_e( 'All cities', 'vred-geo-maps' ); ?></option>
 								</select>
 							</label>
 						<?php endif; ?>
@@ -261,6 +290,10 @@ final class Renderer {
 			'list_position',
 			'show_search',
 			'show_type_filter',
+			'show_country_filter',
+			'show_region_filter',
+			'show_city_filter',
+			'show_directions_link',
 			'list_width',
 			'gap',
 			'filters_border_radius',
@@ -337,7 +370,7 @@ final class Renderer {
 	/** Render one card-style location item. */
 	private static function render_location_card( array $location ): void {
 		$marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed';
-		$has_details  = '' !== $location['phone'] || '' !== $location['email'] || '' !== $location['website'];
+		$has_details  = '' !== $location['phone'] || '' !== $location['email'] || '' !== $location['website'] || '' !== $location['directions_url'];
 		$card_classes = 'vred-geo-maps__card' . ( $has_details ? ' has-details' : '' );
 		?>
 		<?php if ( $has_details ) : ?>
@@ -365,6 +398,12 @@ final class Renderer {
 						<div class="vred-geo-maps__card-detail vred-geo-maps__card-detail--web">
 							<dt><?php esc_html_e( 'Web', 'vred-geo-maps' ); ?>:</dt>
 							<dd><a href="<?php echo esc_url( $location['website'] ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $location['website'] ); ?></a></dd>
+						</div>
+					<?php endif; ?>
+					<?php if ( '' !== $location['directions_url'] ) : ?>
+						<div class="vred-geo-maps__card-detail vred-geo-maps__card-detail--directions">
+							<dt><?php esc_html_e( 'Address', 'vred-geo-maps' ); ?>:</dt>
+							<dd><?php self::render_directions_link( $location['directions_url'] ); ?></dd>
 						</div>
 					<?php endif; ?>
 				</dl>
@@ -398,6 +437,9 @@ final class Renderer {
 					<?php endif; ?>
 				</span>
 			</a>
+			<?php if ( '' !== $location['directions_url'] ) : ?>
+				<?php self::render_directions_link( $location['directions_url'], 'vred-geo-maps__directions-link--compact' ); ?>
+			<?php endif; ?>
 		</article>
 		<?php
 	}
@@ -465,12 +507,18 @@ final class Renderer {
 				<div class="vred-geo-maps__legend-items">
 					<?php foreach ( $group['locations'] as $location ) : ?>
 						<?php $marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed'; ?>
-						<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" <?php self::render_location_item_attributes( $location, $marker_color ); ?> data-vred-geo-location-select>
-							<span class="vred-geo-maps__legend-item-title"><?php echo esc_html( $location['title'] ); ?></span>
-							<?php if ( $show_addresses && '' !== $location['address'] ) : ?>
-								<span class="vred-geo-maps__legend-item-address"><?php echo esc_html( $location['address'] ); ?></span>
-							<?php endif; ?>
-						</a>
+						<?php if ( '' !== $location['directions_url'] ) : ?>
+							<div class="vred-geo-maps__legend-location" <?php self::render_location_item_attributes( $location, $marker_color ); ?>>
+								<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" data-vred-geo-location-select>
+									<?php self::render_grouped_location_content( $location, $show_addresses ); ?>
+								</a>
+								<?php self::render_directions_link( $location['directions_url'], 'vred-geo-maps__directions-link--legend' ); ?>
+							</div>
+						<?php else : ?>
+							<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" <?php self::render_location_item_attributes( $location, $marker_color ); ?> data-vred-geo-location-select>
+								<?php self::render_grouped_location_content( $location, $show_addresses ); ?>
+							</a>
+						<?php endif; ?>
 					<?php endforeach; ?>
 				</div>
 			<?php if ( $static_groups ) : ?>
@@ -495,6 +543,16 @@ final class Renderer {
 				<span class="vred-geo-maps__legend-toggle" aria-hidden="true"></span>
 			<?php endif; ?>
 		</span>
+		<?php
+	}
+
+	/** Render the shared title and optional address for grouped list items. */
+	private static function render_grouped_location_content( array $location, bool $show_address ): void {
+		?>
+		<span class="vred-geo-maps__legend-item-title"><?php echo esc_html( $location['title'] ); ?></span>
+		<?php if ( $show_address && '' !== $location['address'] ) : ?>
+			<span class="vred-geo-maps__legend-item-address"><?php echo esc_html( $location['address'] ); ?></span>
+		<?php endif; ?>
 		<?php
 	}
 
@@ -561,6 +619,25 @@ final class Renderer {
 		<?php
 	}
 
+	/** Render a safe external directions link without affecting location selection. */
+	private static function render_directions_link( string $url, string $class = '' ): void {
+		$classes = trim( 'vred-geo-maps__directions-link ' . $class );
+		?>
+		<a class="<?php echo esc_attr( $classes ); ?>" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get directions', 'vred-geo-maps' ); ?></a>
+		<?php
+	}
+
+	/** Return whether at least one rendered location has a value for a field. */
+	private static function has_location_value( array $locations, string $key ): bool {
+		foreach ( $locations as $location ) {
+			if ( '' !== trim( (string) ( $location[ $key ] ?? '' ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/** Render data attributes shared by all list modes. */
 	private static function render_location_item_attributes( array $location, string $marker_color ): void {
 		printf(
@@ -580,6 +657,9 @@ final class Renderer {
 			'latitude'    => (float) $location['latitude'],
 			'longitude'   => (float) $location['longitude'],
 			'typeId'      => (int) $location['type_id'],
+			'city'        => $location['city'],
+			'region'      => $location['region'],
+			'country'     => $location['country'],
 			'searchText'  => $location['search_text'],
 			'marker'      => $location['marker'],
 			'action'      => $location['action'],

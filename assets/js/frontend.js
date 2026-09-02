@@ -46,6 +46,48 @@
 		.replace(/\s+/g, ' ')
 		.trim();
 
+	const getGeographicOptions = (locations, key, constraints = {}) => {
+		const options = new Map();
+
+		locations.forEach((location) => {
+			const matchesConstraints = Object.entries(constraints).every(([constraintKey, selected]) => (
+				!selected || normalizeSearchText(location[constraintKey]) === selected
+			));
+
+			if (!matchesConstraints) {
+				return;
+			}
+
+			const label = String(location[key] || '').trim();
+			const value = normalizeSearchText(label);
+
+			if (value && !options.has(value)) {
+				options.set(value, label);
+			}
+		});
+
+		return Array.from(options, ([value, label]) => ({ value, label }))
+			.sort((first, second) => first.label.localeCompare(second.label, undefined, { sensitivity: 'base' }));
+	};
+
+	const syncGeographicSelect = (select, options) => {
+		if (!select) {
+			return;
+		}
+
+		const selected = select.value;
+		select.querySelectorAll('option:not(:first-child)').forEach((option) => option.remove());
+
+		options.forEach(({ value, label }) => {
+			const option = document.createElement('option');
+			option.value = value;
+			option.textContent = label;
+			select.append(option);
+		});
+
+		select.value = options.some((option) => option.value === selected) ? selected : '';
+	};
+
 	const getConfig = (root) => {
 		const node = root.querySelector('[data-vred-geo-config]');
 
@@ -240,14 +282,29 @@
 
 		const searchInput = root.querySelector('[data-vred-geo-search]');
 		const typeFilter = root.querySelector('[data-vred-geo-type-filter]');
+		const countryFilter = root.querySelector('[data-vred-geo-country-filter]');
+		const regionFilter = root.querySelector('[data-vred-geo-region-filter]');
+		const cityFilter = root.querySelector('[data-vred-geo-city-filter]');
 		const resetButton = root.querySelector('[data-vred-geo-reset]');
 		const noResults = root.querySelector('[data-vred-geo-no-results]');
 		let searchTimer = null;
 
+		const updateGeographicOptions = () => {
+			syncGeographicSelect(countryFilter, getGeographicOptions(config.locations, 'country'));
+
+			const country = String(countryFilter?.value || '');
+			syncGeographicSelect(regionFilter, getGeographicOptions(config.locations, 'region', { country }));
+
+			const region = String(regionFilter?.value || '');
+			syncGeographicSelect(cityFilter, getGeographicOptions(config.locations, 'city', { country, region }));
+		};
 
 		const applyFilters = (fitMap = true) => {
 			const search = normalizeSearchText(searchInput?.value || '');
 			const typeId = String(typeFilter?.value || '');
+			const country = String(countryFilter?.value || '');
+			const region = String(regionFilter?.value || '');
+			const city = String(cityFilter?.value || '');
 			const visibleEntries = [];
 
 			layerGroup.clearLayers();
@@ -255,7 +312,10 @@
 			markers.forEach((entry) => {
 				const matchesSearch = !search || normalizeSearchText(entry.location.searchText).includes(search);
 				const matchesType = !typeId || String(entry.location.typeId) === typeId;
-				const visible = matchesSearch && matchesType;
+				const matchesCountry = !country || normalizeSearchText(entry.location.country) === country;
+				const matchesRegion = !region || normalizeSearchText(entry.location.region) === region;
+				const matchesCity = !city || normalizeSearchText(entry.location.city) === city;
+				const visible = matchesSearch && matchesType && matchesCountry && matchesRegion && matchesCity;
 				const item = root.querySelector(`[data-vred-geo-location-item][data-location-id="${CSS.escape(String(entry.location.id))}"]`);
 
 				if (item) {
@@ -283,7 +343,7 @@
 					countNode.textContent = String(visibleCount);
 				}
 
-				if (visibleCount > 0 && (search || typeId) && group instanceof HTMLDetailsElement) {
+				if (visibleCount > 0 && (search || typeId || country || region || city) && group instanceof HTMLDetailsElement) {
 					group.open = true;
 				}
 			});
@@ -339,6 +399,13 @@
 			typeFilter.addEventListener('change', () => applyFilters(true));
 		}
 
+		[countryFilter, regionFilter, cityFilter].forEach((filter) => {
+			filter?.addEventListener('change', () => {
+				updateGeographicOptions();
+				applyFilters(true);
+			});
+		});
+
 		if (resetButton) {
 			resetButton.addEventListener('click', () => {
 				if (searchInput) {
@@ -347,9 +414,17 @@
 				if (typeFilter) {
 					typeFilter.value = '';
 				}
+				[countryFilter, regionFilter, cityFilter].forEach((filter) => {
+					if (filter) {
+						filter.value = '';
+					}
+				});
+				updateGeographicOptions();
 				applyFilters(true);
 			});
 		}
+
+		updateGeographicOptions();
 
 		const allEntries = Array.from(markers.values());
 

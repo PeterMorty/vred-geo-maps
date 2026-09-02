@@ -196,6 +196,9 @@ final class Admin {
 		$address           = (string) get_post_meta( $location->ID, Data::META_ADDRESS, true );
 		$latitude          = (string) get_post_meta( $location->ID, Data::META_LATITUDE, true );
 		$longitude         = (string) get_post_meta( $location->ID, Data::META_LONGITUDE, true );
+		$city              = (string) get_post_meta( $location->ID, Data::META_CITY, true );
+		$region            = (string) get_post_meta( $location->ID, Data::META_REGION, true );
+		$country           = (string) get_post_meta( $location->ID, Data::META_COUNTRY, true );
 		$phone             = (string) get_post_meta( $location->ID, Data::META_PHONE, true );
 		$email             = (string) get_post_meta( $location->ID, Data::META_EMAIL, true );
 		$website           = (string) get_post_meta( $location->ID, Data::META_WEBSITE, true );
@@ -206,7 +209,7 @@ final class Admin {
 		$marker_image_id   = Data::sanitize_attachment_id( get_post_meta( $location->ID, Data::META_MARKER_IMAGE_ID, true ) );
 		$marker_color      = (string) get_post_meta( $location->ID, Data::META_MARKER_COLOR, true );
 		$marker_size       = (string) get_post_meta( $location->ID, Data::META_MARKER_SIZE, true );
-		$search            = trim( $location->post_title . ' ' . $address . ' ' . ( $type ? $type->name : '' ) );
+		$search            = trim( implode( ' ', array( $location->post_title, $address, $city, $region, $country, $type ? $type->name : '' ) ) );
 		$editor_id         = 'vred-geo-popup-content-' . $location->ID;
 		?>
 		<article class="vred-geo-admin-card" data-vred-geo-card data-id="<?php echo esc_attr( (string) $location->ID ); ?>" data-search="<?php echo esc_attr( $search ); ?>">
@@ -236,6 +239,9 @@ final class Admin {
 							</select>
 						</label>
 						<?php self::address_field( $address ); ?>
+						<?php self::text_field( 'city', __( 'City', 'vred-geo-maps' ), $city ); ?>
+						<?php self::text_field( 'region', __( 'Province / region', 'vred-geo-maps' ), $region ); ?>
+						<?php self::text_field( 'country', __( 'Country', 'vred-geo-maps' ), $country ); ?>
 						<?php self::text_field( 'latitude', __( 'Latitude', 'vred-geo-maps' ), $latitude ); ?>
 						<?php self::text_field( 'longitude', __( 'Longitude', 'vred-geo-maps' ), $longitude ); ?>
 					</div>
@@ -496,6 +502,9 @@ final class Admin {
 					<?php self::settings_checkbox( 'show_list', __( 'Show locations list', 'vred-geo-maps' ), $settings['show_list'] ); ?>
 					<?php self::settings_checkbox( 'show_search', __( 'Show text search', 'vred-geo-maps' ), $settings['show_search'] ); ?>
 					<?php self::settings_checkbox( 'show_type_filter', __( 'Show Location Type filter', 'vred-geo-maps' ), $settings['show_type_filter'] ); ?>
+					<?php self::settings_checkbox( 'show_country_filter', __( 'Show Country filter', 'vred-geo-maps' ), $settings['show_country_filter'] ); ?>
+					<?php self::settings_checkbox( 'show_region_filter', __( 'Show Province / region filter', 'vred-geo-maps' ), $settings['show_region_filter'] ); ?>
+					<?php self::settings_checkbox( 'show_city_filter', __( 'Show City filter', 'vred-geo-maps' ), $settings['show_city_filter'] ); ?>
 				</div>
 			</section>
 
@@ -507,6 +516,9 @@ final class Admin {
 					<?php self::settings_color( 'popup_border_color', __( 'Border color', 'vred-geo-maps' ), $settings['popup_border_color'] ); ?>
 					<?php self::settings_number( 'popup_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['popup_border_radius'], 0, 40, 'px' ); ?>
 					<?php self::settings_number( 'popup_width', __( 'Maximum width', 'vred-geo-maps' ), $settings['popup_width'], 180, 520, 'px' ); ?>
+				</div>
+				<div class="vred-geo-admin-checks">
+					<?php self::settings_checkbox( 'show_directions_link', __( 'Show "Get directions" link', 'vred-geo-maps' ), $settings['show_directions_link'] ); ?>
 				</div>
 			</section>
 
@@ -595,10 +607,11 @@ final class Admin {
 			wp_send_json_error( array( 'message' => __( 'Enter a more complete address.', 'vred-geo-maps' ) ), 400 );
 		}
 
-		$cache_key = 'vred_geo_maps_geocode_' . md5( strtolower( $address ) );
+		$language  = str_replace( '_', '-', determine_locale() );
+		$cache_key = 'vred_geo_maps_geocode_v2_' . md5( strtolower( $address . '|' . $language ) );
 		$cached    = get_transient( $cache_key );
 
-		if ( is_array( $cached ) && isset( $cached['latitude'], $cached['longitude'] ) ) {
+		if ( is_array( $cached ) && isset( $cached['latitude'], $cached['longitude'] ) && array_key_exists( 'city', $cached ) && array_key_exists( 'region', $cached ) && array_key_exists( 'country', $cached ) ) {
 			wp_send_json_success( $cached );
 		}
 
@@ -613,9 +626,10 @@ final class Admin {
 
 		$url = add_query_arg(
 			array(
-				'q'      => $address,
-				'format' => 'jsonv2',
-				'limit'  => 1,
+				'q'              => $address,
+				'format'         => 'jsonv2',
+				'limit'          => 1,
+				'addressdetails' => 1,
 			),
 			'https://nominatim.openstreetmap.org/search'
 		);
@@ -627,7 +641,7 @@ final class Admin {
 				'redirection' => 0,
 				'headers'     => array(
 					'Accept'          => 'application/json',
-					'Accept-Language' => str_replace( '_', '-', determine_locale() ),
+					'Accept-Language' => $language,
 					'User-Agent'      => 'VRED Geo Maps/' . VRED_GEO_MAPS_VERSION . ' (+https://viviendoenred.com)',
 				),
 			)
@@ -645,6 +659,7 @@ final class Admin {
 
 		$latitude  = Data::sanitize_coordinate( $data[0]['lat'], -90, 90 );
 		$longitude = Data::sanitize_coordinate( $data[0]['lon'], -180, 180 );
+		$details   = is_array( $data[0]['address'] ?? null ) ? $data[0]['address'] : array();
 
 		if ( null === $latitude || null === $longitude ) {
 			wp_send_json_error( array( 'message' => __( 'The geocoding service returned invalid coordinates.', 'vred-geo-maps' ) ), 502 );
@@ -653,6 +668,9 @@ final class Admin {
 		$result = array(
 			'latitude'  => (string) $latitude,
 			'longitude' => (string) $longitude,
+			'city'      => self::get_nominatim_address_value( $details, array( 'city', 'town', 'village', 'municipality', 'hamlet', 'locality' ) ),
+			'region'    => self::get_nominatim_address_value( $details, array( 'state', 'province', 'region', 'state_district', 'county' ) ),
+			'country'   => self::get_nominatim_address_value( $details, array( 'country' ) ),
 		);
 
 		set_transient( $cache_key, $result, 30 * DAY_IN_SECONDS );
@@ -682,6 +700,9 @@ final class Admin {
 		}
 
 		$address       = self::post_text( 'address' );
+		$city          = self::post_text( 'city' );
+		$region        = self::post_text( 'region' );
+		$country       = self::post_text( 'country' );
 		$latitude_raw  = self::post_text( 'latitude' );
 		$longitude_raw = self::post_text( 'longitude' );
 		$latitude      = Data::sanitize_coordinate( $latitude_raw, -90, 90 );
@@ -694,6 +715,9 @@ final class Admin {
 		update_post_meta( $post_id, Data::META_ADDRESS, $address );
 		self::update_coordinate_meta( $post_id, Data::META_LATITUDE, $latitude );
 		self::update_coordinate_meta( $post_id, Data::META_LONGITUDE, $longitude );
+		update_post_meta( $post_id, Data::META_CITY, $city );
+		update_post_meta( $post_id, Data::META_REGION, $region );
+		update_post_meta( $post_id, Data::META_COUNTRY, $country );
 		delete_post_meta( $post_id, Data::META_SUBTITLE );
 		update_post_meta( $post_id, Data::META_PHONE, self::post_text( 'phone' ) );
 		update_post_meta( $post_id, Data::META_EMAIL, sanitize_email( self::post_text( 'email' ) ) );
@@ -728,7 +752,7 @@ final class Admin {
 				'summary' => array(
 					'title' => $title,
 					'meta'  => self::get_location_summary( $address, $type ),
-					'search'=> trim( $title . ' ' . $address . ' ' . ( $type ? $type->name : '' ) ),
+					'search' => trim( implode( ' ', array( $title, $address, $city, $region, $country, $type ? $type->name : '' ) ) ),
 				),
 			)
 		);
@@ -993,12 +1017,28 @@ final class Admin {
 		return sanitize_text_field( self::post_raw( $key ) );
 	}
 
+	/** Return the first usable structured address value from Nominatim. */
+	private static function get_nominatim_address_value( array $details, array $keys ): string {
+		foreach ( $keys as $key ) {
+			$value = sanitize_text_field( (string) ( $details[ $key ] ?? '' ) );
+
+			if ( '' !== $value ) {
+				return $value;
+			}
+		}
+
+		return '';
+	}
+
 	/** Return all location meta keys copied by duplicate. */
 	private static function get_location_meta_keys(): array {
 		return array(
 			Data::META_ADDRESS,
 			Data::META_LATITUDE,
 			Data::META_LONGITUDE,
+			Data::META_CITY,
+			Data::META_REGION,
+			Data::META_COUNTRY,
 			Data::META_PHONE,
 			Data::META_EMAIL,
 			Data::META_WEBSITE,

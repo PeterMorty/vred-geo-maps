@@ -197,6 +197,9 @@
 		const addressInput = form?.querySelector('[data-vred-geo-address]');
 		const latitudeInput = form?.querySelector('[name="latitude"]');
 		const longitudeInput = form?.querySelector('[name="longitude"]');
+		const cityInput = form?.querySelector('[name="city"]');
+		const regionInput = form?.querySelector('[name="region"]');
+		const countryInput = form?.querySelector('[name="country"]');
 
 		if (!addressInput || !latitudeInput || !longitudeInput) {
 			return false;
@@ -241,6 +244,15 @@
 			.then((result) => {
 				latitudeInput.value = result.latitude || '';
 				longitudeInput.value = result.longitude || '';
+				if (cityInput) {
+					cityInput.value = result.city || '';
+				}
+				if (regionInput) {
+					regionInput.value = result.region || '';
+				}
+				if (countryInput) {
+					countryInput.value = result.country || '';
+				}
 				addressInput.dataset.geocodedAddress = address;
 				form.dataset.manualCoordinates = '';
 				setGeocodeStatus(form, config.strings?.coordinatesUpdated || '');

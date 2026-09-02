@@ -401,10 +401,33 @@
 	overflow-wrap: anywhere
 }
 
-.vred-geo-maps__card-detail--web a {
+.vred-geo-maps__card-detail--web a, .vred-geo-maps__card-detail--directions a {
 	text-decoration: underline;
 	text-decoration-thickness: 1px;
 	text-underline-offset: 2px
+}
+
+.vred-geo-maps__directions-link {
+	padding: 0 !important;
+
+	font: inherit;
+	color: inherit !important;
+	text-decoration: underline !important;
+	text-decoration-thickness: 1px !important;
+	text-underline-offset: 2px;
+
+	border: 0 !important;
+	background: transparent !important;
+	box-shadow: none !important
+}
+
+.vred-geo-maps__directions-link:hover, .vred-geo-maps__directions-link:focus, .vred-geo-maps__directions-link:active {
+	color: inherit !important;
+	text-decoration: underline !important;
+
+	background: transparent !important;
+	box-shadow: none !important;
+	transform: none !important
 }
 
 
@@ -457,6 +480,14 @@
 .vred-geo-maps__compact-link:focus-visible {
 	outline: 2px solid #2271b1;
 	outline-offset: -2px
+}
+
+.vred-geo-maps__directions-link--compact {
+	display: inline-block;
+
+	margin: -4px 13px 10px 32px;
+
+	font-size: 12px
 }
 
 .vred-geo-maps__compact-dot {
@@ -658,6 +689,31 @@
 
 .vred-geo-maps__legend-item:first-child {
 	border-top: 0
+}
+
+.vred-geo-maps__legend-location {
+	border-top: 1px solid #f1f3f2;
+	background: transparent
+}
+
+.vred-geo-maps__legend-location:first-child {
+	border-top: 0
+}
+
+.vred-geo-maps__legend-location .vred-geo-maps__legend-item {
+	border-top: 0
+}
+
+.vred-geo-maps__legend-location.is-active {
+	background: #f6f7f7
+}
+
+.vred-geo-maps__directions-link--legend {
+	display: inline-block;
+
+	margin: -3px 13px 8px 31px;
+
+	font-size: 12px
 }
 
 .vred-geo-maps__legend-item:hover, .vred-geo-maps__legend-item:focus, .vred-geo-maps__legend-item:active {

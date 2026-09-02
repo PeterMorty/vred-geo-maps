@@ -52,6 +52,12 @@ final class Shortcode {
 			$visible = 'yes' === $atts['filters'] ? 1 : 0;
 			$overrides['show_search'] = $visible;
 			$overrides['show_type_filter'] = $visible;
+
+			if ( ! $visible ) {
+				$overrides['show_country_filter'] = 0;
+				$overrides['show_region_filter']  = 0;
+				$overrides['show_city_filter']    = 0;
+			}
 		}
 
 		if ( in_array( $atts['cluster'], array( 'yes', 'no' ), true ) ) {

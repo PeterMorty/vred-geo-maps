@@ -59,6 +59,15 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
+msgid "All cities"
+msgstr ""
+
+msgid "All countries"
+msgstr ""
+
+msgid "All provinces / regions"
+msgstr ""
+
 msgid "All types"
 msgstr ""
 
@@ -98,6 +107,9 @@ msgstr ""
 msgid "Check updates"
 msgstr ""
 
+msgid "City"
+msgstr ""
+
 msgid "Clear the search before reordering."
 msgstr ""
 
@@ -126,6 +138,9 @@ msgid "Contrast"
 msgstr ""
 
 msgid "Cool"
+msgstr ""
+
+msgid "Country"
 msgstr ""
 
 msgid "Coordinates could not be retrieved right now."
@@ -198,6 +213,9 @@ msgid "Fixed marker action persistence and marker clustering initialization."
 msgstr ""
 
 msgid "Grayscale"
+msgstr ""
+
+msgid "Get directions"
 msgstr ""
 
 msgid "Grouped"
@@ -353,6 +371,9 @@ msgstr ""
 msgid "Press Enter or click the location icon to find coordinates."
 msgstr ""
 
+msgid "Province / region"
+msgstr ""
+
 msgid "Refined Legend behavior for horizontal layouts, simplified filter controls and tightened admin add/geocoding controls."
 msgstr ""
 
@@ -433,10 +454,22 @@ msgstr ""
 msgid "Shortcode"
 msgstr ""
 
+msgid "Show \"Get directions\" link"
+msgstr ""
+
+msgid "Show City filter"
+msgstr ""
+
+msgid "Show Country filter"
+msgstr ""
+
 msgid "Show Location Type filter"
 msgstr ""
 
 msgid "Show locations list"
+msgstr ""
+
+msgid "Show Province / region filter"
 msgstr ""
 
 msgid "Show specific location IDs"
@@ -525,4 +558,3 @@ msgstr ""
 
 msgid "You do not have permission to manage Geo Maps."
 msgstr ""
-

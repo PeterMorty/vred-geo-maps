@@ -18,6 +18,9 @@ final class Data {
 	public const META_ADDRESS = '_vred_geo_address';
 	public const META_LATITUDE = '_vred_geo_latitude';
 	public const META_LONGITUDE = '_vred_geo_longitude';
+	public const META_CITY = '_vred_geo_city';
+	public const META_REGION = '_vred_geo_region';
+	public const META_COUNTRY = '_vred_geo_country';
 	public const META_SUBTITLE = '_vred_geo_subtitle';
 	public const META_PHONE = '_vred_geo_phone';
 	public const META_EMAIL = '_vred_geo_email';
@@ -97,6 +100,10 @@ final class Data {
 			'list_position'        => 'left',
 			'show_search'          => 1,
 			'show_type_filter'     => 1,
+			'show_country_filter'  => 0,
+			'show_region_filter'   => 0,
+			'show_city_filter'     => 0,
+			'show_directions_link' => 1,
 			'list_width'           => 360,
 			'gap'                  => 20,
 			'filters_border_radius' => 16,
@@ -154,6 +161,10 @@ final class Data {
 			'list_position'       => in_array( $input['list_position'] ?? '', $positions, true ) ? $input['list_position'] : $defaults['list_position'],
 			'show_search'         => ! empty( $input['show_search'] ) ? 1 : 0,
 			'show_type_filter'    => ! empty( $input['show_type_filter'] ) ? 1 : 0,
+			'show_country_filter' => ! empty( $input['show_country_filter'] ) ? 1 : 0,
+			'show_region_filter'  => ! empty( $input['show_region_filter'] ) ? 1 : 0,
+			'show_city_filter'    => ! empty( $input['show_city_filter'] ) ? 1 : 0,
+			'show_directions_link' => ! empty( $input['show_directions_link'] ) ? 1 : 0,
 			'list_width'          => self::clamp_int( $input['list_width'] ?? $defaults['list_width'], 260, 560 ),
 			'gap'                 => self::clamp_int( $input['gap'] ?? $defaults['gap'], 0, 80 ),
 			'filters_border_radius' => self::clamp_int( $input['filters_border_radius'] ?? $defaults['filters_border_radius'], 0, 40 ),
@@ -324,7 +335,7 @@ final class Data {
 	}
 
 	/** Normalize one location for the shared renderer. */
-	public static function normalize_location( \WP_Post $post ): ?array {
+	public static function normalize_location( \WP_Post $post, bool $show_directions_link = true ): ?array {
 		$latitude  = self::sanitize_coordinate( get_post_meta( $post->ID, self::META_LATITUDE, true ), -90, 90 );
 		$longitude = self::sanitize_coordinate( get_post_meta( $post->ID, self::META_LONGITUDE, true ), -180, 180 );
 
@@ -336,6 +347,9 @@ final class Data {
 		$type_id     = $type ? (int) $type->term_id : 0;
 		$marker      = self::resolve_marker( $post->ID, $type_id );
 		$address     = (string) get_post_meta( $post->ID, self::META_ADDRESS, true );
+		$city        = sanitize_text_field( (string) get_post_meta( $post->ID, self::META_CITY, true ) );
+		$region      = sanitize_text_field( (string) get_post_meta( $post->ID, self::META_REGION, true ) );
+		$country     = sanitize_text_field( (string) get_post_meta( $post->ID, self::META_COUNTRY, true ) );
 		$phone       = (string) get_post_meta( $post->ID, self::META_PHONE, true );
 		$email       = (string) get_post_meta( $post->ID, self::META_EMAIL, true );
 		$website     = (string) get_post_meta( $post->ID, self::META_WEBSITE, true );
@@ -348,8 +362,10 @@ final class Data {
 			$action = 'popup';
 		}
 
+		$directions_url = $show_directions_link && '' !== trim( $address ) ? self::get_directions_url( $latitude, $longitude ) : '';
+
 		if ( ! $popup_custom || '' === trim( $popup ) ) {
-			$popup = self::build_default_popup( $post->post_title, $address, $phone, $email, $website );
+			$popup = self::build_default_popup( $post->post_title, $address, $phone, $email, $website, $directions_url );
 		}
 
 		$search_text = implode(
@@ -358,6 +374,9 @@ final class Data {
 				array(
 					$post->post_title,
 					$address,
+					$city,
+					$region,
+					$country,
 					$type ? $type->name : '',
 				)
 			)
@@ -367,6 +386,9 @@ final class Data {
 			'id'          => (int) $post->ID,
 			'title'       => $post->post_title,
 			'address'     => $address,
+			'city'        => $city,
+			'region'      => $region,
+			'country'     => $country,
 			'latitude'    => $latitude,
 			'longitude'   => $longitude,
 			'phone'       => $phone,
@@ -377,6 +399,7 @@ final class Data {
 			'type_slug'   => $type ? $type->slug : '',
 			'marker'      => $marker,
 			'action'      => $action,
+			'directions_url' => $directions_url,
 			'popup_html'  => wp_kses_post( $popup ),
 			'search_text' => wp_strip_all_tags( $search_text ),
 		);
@@ -586,8 +609,20 @@ final class Data {
 		return $value;
 	}
 
+	/** Build the official Google Maps directions URL for normalized coordinates. */
+	public static function get_directions_url( mixed $latitude, mixed $longitude ): string {
+		$latitude  = self::sanitize_coordinate( $latitude, -90, 90 );
+		$longitude = self::sanitize_coordinate( $longitude, -180, 180 );
+
+		if ( null === $latitude || null === $longitude ) {
+			return '';
+		}
+
+		return 'https://www.google.com/maps/dir/?api=1&destination=' . rawurlencode( (string) $latitude ) . ',' . rawurlencode( (string) $longitude );
+	}
+
 	/** Build a useful default popup when custom content is empty. */
-	private static function build_default_popup( string $title, string $address, string $phone, string $email, string $website ): string {
+	private static function build_default_popup( string $title, string $address, string $phone, string $email, string $website, string $directions_url ): string {
 		$html = '<div class="vred-geo-maps__popup-content">';
 		$html .= '<strong>' . esc_html( $title ) . '</strong>';
 
@@ -605,6 +640,10 @@ final class Data {
 
 		if ( esc_url_raw( $website ) ) {
 			$html .= '<p><a href="' . esc_url( $website ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Website', 'vred-geo-maps' ) . '</a></p>';
+		}
+
+		if ( '' !== $directions_url ) {
+			$html .= '<p><a href="' . esc_url( $directions_url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Get directions', 'vred-geo-maps' ) . '</a></p>';
 		}
 
 		$html .= '</div>';
