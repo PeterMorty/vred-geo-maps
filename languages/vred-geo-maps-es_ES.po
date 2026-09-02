@@ -65,6 +65,9 @@ msgstr ""
 msgid "Address"
 msgstr "Dirección"
 
+msgid "Automatically filled when locating the address. You can edit these values manually."
+msgstr "Se rellenan automáticamente al localizar la dirección. Puedes corregirlos manualmente."
+
 msgid "All cities"
 msgstr "Todas las ciudades"
 
@@ -153,6 +156,12 @@ msgstr "Frío"
 msgid "Country"
 msgstr "País"
 
+msgid "Coordinates"
+msgstr "Coordenadas"
+
+msgid "Coordinates and geographic data updated."
+msgstr "Coordenadas y datos geográficos actualizados."
+
 msgid "Coordinates could not be retrieved right now."
 msgstr "No se han podido obtener las coordenadas en este momento."
 
@@ -229,6 +238,9 @@ msgstr "Escala de grises"
 
 msgid "Get directions"
 msgstr "Cómo llegar"
+
+msgid "Geographic data"
+msgstr "Datos geográficos"
 
 msgid "Grouped"
 msgstr "Grupos"

@@ -59,6 +59,9 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
+msgid "Automatically filled when locating the address. You can edit these values manually."
+msgstr ""
+
 msgid "All cities"
 msgstr ""
 
@@ -143,6 +146,12 @@ msgstr ""
 msgid "Country"
 msgstr ""
 
+msgid "Coordinates"
+msgstr ""
+
+msgid "Coordinates and geographic data updated."
+msgstr ""
+
 msgid "Coordinates could not be retrieved right now."
 msgstr ""
 
@@ -216,6 +225,9 @@ msgid "Grayscale"
 msgstr ""
 
 msgid "Get directions"
+msgstr ""
+
+msgid "Geographic data"
 msgstr ""
 
 msgid "Grouped"

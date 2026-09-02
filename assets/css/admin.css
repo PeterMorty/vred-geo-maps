@@ -598,6 +598,42 @@
 	gap: 10px 12px
 }
 
+.vred-geo-admin-field--address, .vred-geo-admin-location-fields {
+	margin-top: 10px
+}
+
+.vred-geo-admin-location-fields {
+	padding: 0;
+	min-width: 0;
+
+	border: 0
+}
+
+.vred-geo-admin-location-fields legend {
+	margin-bottom: 8px;
+	padding: 0;
+
+	font-size: 14px;
+	font-weight: 700
+}
+
+.vred-geo-admin-geographic-grid, .vred-geo-admin-coordinate-grid {
+	display: grid;
+	gap: 12px
+}
+
+.vred-geo-admin-geographic-grid {
+	grid-template-columns: repeat(3, minmax(0, 1fr))
+}
+
+.vred-geo-admin-coordinate-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr))
+}
+
+.vred-geo-admin-location-fields > .description {
+	margin: 7px 0 0
+}
+
 .vred-geo-admin-contact-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -883,7 +919,7 @@
 		padding: 12px
 	}
 
-	.vred-geo-admin-contact-grid {
+	.vred-geo-admin-geographic-grid, .vred-geo-admin-coordinate-grid, .vred-geo-admin-contact-grid {
 		grid-template-columns: minmax(0, 1fr)
 	}
 

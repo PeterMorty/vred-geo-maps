@@ -103,6 +103,7 @@ final class Admin {
 					'reorderDisabled'    => __( 'Clear the search before reordering.', 'vred-geo-maps' ),
 					'findingCoordinates' => __( 'Finding coordinates…', 'vred-geo-maps' ),
 					'coordinatesUpdated' => __( 'Coordinates updated.', 'vred-geo-maps' ),
+					'coordinatesAndGeographicDataUpdated' => __( 'Coordinates and geographic data updated.', 'vred-geo-maps' ),
 					'coordinatesNotFound' => __( 'No coordinates were found for this address.', 'vred-geo-maps' ),
 					'addressTooShort'      => __( 'Enter a more complete address.', 'vred-geo-maps' ),
 					'selectImage'         => __( 'Select image', 'vred-geo-maps' ),
@@ -238,13 +239,24 @@ final class Admin {
 								<?php endforeach; ?>
 							</select>
 						</label>
-						<?php self::address_field( $address ); ?>
-						<?php self::text_field( 'city', __( 'City', 'vred-geo-maps' ), $city ); ?>
-						<?php self::text_field( 'region', __( 'Province / region', 'vred-geo-maps' ), $region ); ?>
-						<?php self::text_field( 'country', __( 'Country', 'vred-geo-maps' ), $country ); ?>
-						<?php self::text_field( 'latitude', __( 'Latitude', 'vred-geo-maps' ), $latitude ); ?>
-						<?php self::text_field( 'longitude', __( 'Longitude', 'vred-geo-maps' ), $longitude ); ?>
 					</div>
+					<?php self::address_field( $address ); ?>
+					<fieldset class="vred-geo-admin-location-fields">
+						<legend><?php esc_html_e( 'Geographic data', 'vred-geo-maps' ); ?></legend>
+						<div class="vred-geo-admin-geographic-grid">
+							<?php self::text_field( 'city', __( 'City', 'vred-geo-maps' ), $city ); ?>
+							<?php self::text_field( 'region', __( 'Province / region', 'vred-geo-maps' ), $region ); ?>
+							<?php self::text_field( 'country', __( 'Country', 'vred-geo-maps' ), $country ); ?>
+						</div>
+						<p class="description"><?php esc_html_e( 'Automatically filled when locating the address. You can edit these values manually.', 'vred-geo-maps' ); ?></p>
+					</fieldset>
+					<fieldset class="vred-geo-admin-location-fields">
+						<legend><?php esc_html_e( 'Coordinates', 'vred-geo-maps' ); ?></legend>
+						<div class="vred-geo-admin-coordinate-grid">
+							<?php self::text_field( 'latitude', __( 'Latitude', 'vred-geo-maps' ), $latitude ); ?>
+							<?php self::text_field( 'longitude', __( 'Longitude', 'vred-geo-maps' ), $longitude ); ?>
+						</div>
+					</fieldset>
 					<div class="vred-geo-admin-contact-grid">
 						<?php self::text_field( 'phone', __( 'Phone', 'vred-geo-maps' ), $phone ); ?>
 						<?php self::text_field( 'email', __( 'Email', 'vred-geo-maps' ), $email, false, '', 'email' ); ?>
@@ -1062,7 +1074,7 @@ final class Admin {
 	private static function address_field( string $value ): void {
 		$help = __( 'Press Enter or click the location icon to find coordinates.', 'vred-geo-maps' );
 		?>
-		<label class="vred-geo-admin-field vred-geo-admin-field--wide">
+		<label class="vred-geo-admin-field vred-geo-admin-field--wide vred-geo-admin-field--address">
 			<span class="vred-geo-admin-field__label">
 				<?php esc_html_e( 'Address', 'vred-geo-maps' ); ?>
 				<span class="dashicons dashicons-editor-help vred-geo-admin-field__help" role="img" aria-label="<?php echo esc_attr( $help ); ?>" title="<?php echo esc_attr( $help ); ?>"></span>

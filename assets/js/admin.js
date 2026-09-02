@@ -242,6 +242,8 @@
 
 		const promise = ajax('vred_geo_maps_geocode_address', data)
 			.then((result) => {
+				const hasGeographicData = Boolean(result.city || result.region || result.country);
+
 				latitudeInput.value = result.latitude || '';
 				longitudeInput.value = result.longitude || '';
 				if (cityInput) {
@@ -255,7 +257,12 @@
 				}
 				addressInput.dataset.geocodedAddress = address;
 				form.dataset.manualCoordinates = '';
-				setGeocodeStatus(form, config.strings?.coordinatesUpdated || '');
+				setGeocodeStatus(
+					form,
+					hasGeographicData
+						? config.strings?.coordinatesAndGeographicDataUpdated || config.strings?.coordinatesUpdated || ''
+						: config.strings?.coordinatesUpdated || ''
+				);
 				return true;
 			})
 			.catch((error) => {
