@@ -59,12 +59,14 @@ When the user explicitly asks only for analysis:
 For normal implementation tasks:
 1. Inspect the controlling code and only the applicable instruction files.
 2. Make the minimum safe change.
-3. Run the narrowest useful validation for the touched area.
-4. Review `git diff` and `git status`.
-5. Stage only files related to the task; never use `git add .` blindly.
-6. Commit with a short English message.
-7. Push the commit to the current working branch, normally `main`.
-8. Do not inspect GitHub Actions, FTP completion or the remote WordPress site unless the user explicitly asks.
+3. Increment the fourth numeric component of the plugin version exactly once for the task.
+4. Keep the `Version:` header and `VRED_GEO_MAPS_VERSION` synchronized.
+5. Run the narrowest useful validation for the touched area.
+6. Review `git diff` and `git status`.
+7. Stage only files related to the task; never use `git add .` blindly.
+8. Commit with a short English message.
+9. Push the commit to the current working branch, normally `main`.
+10. Do not inspect GitHub Actions, FTP completion or the remote WordPress site unless the user explicitly asks.
 
 The user does not use a local WordPress installation. Local checks validate code only; the user validates real behavior on the server after push.
 
@@ -78,8 +80,15 @@ After a successful push, report concisely that the push was completed and that d
 - If Git explicitly fails because of `index.lock`, wait 5 seconds and retry the same command once. If it fails again, stop and report the exact error. Never delete the lock without explicit user instruction.
 
 ## Versioning And Releases
-- Do not bump the plugin version just because a normal implementation task is committed and pushed unless the task or current repository instructions require it.
-- When a version change is requested, keep the `Version:` header and `VRED_GEO_MAPS_VERSION` synchronized.
+- Every normal implementation task that ends in commit and push must increment the fourth numeric version component exactly once.
+- If the current version is `A.B.C`, the first development change becomes `A.B.C.1`.
+- If the current version is `A.B.C.N`, the next development change becomes `A.B.C.(N+1)`.
+- Example sequence: `1.0.0` → `1.0.0.1` → `1.0.0.2` → `1.0.0.3`.
+- Never change the first three components during normal implementation work.
+- Base versions such as `1.0.1`, `1.1.0` or `2.0.0` are explicit release decisions only.
+- After a new base release, the next normal implementation starts again at `.1`, for example `1.0.1.1`.
+- Keep the plugin `Version:` header and `VRED_GEO_MAPS_VERSION` synchronized on every version bump.
+- Analysis-only tasks do not change version.
 - Do not alter updater or release behavior unless the task explicitly concerns those areas.
 - Release/update tasks must follow the matching `.github/instructions/` files.
 
@@ -97,6 +106,7 @@ Do not present static checks as proof that the remote site works; server validat
 ## Final Response
 Keep the result short and practical. Use this order:
 1. change made;
-2. validation run;
-3. commit/push result;
-4. remaining server-side check or risk, if any.
+2. version bump;
+3. validation run;
+4. commit/push result;
+5. remaining server-side check or risk, if any.
