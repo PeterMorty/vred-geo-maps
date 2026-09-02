@@ -29,6 +29,7 @@
 - Avoid broad refactors, framework-style abstractions and unnecessary helpers.
 - Reuse the existing renderer, data flow, settings and WordPress APIs instead of creating parallel paths.
 - Do not add dependencies unless there is a clear requirement that cannot be solved cleanly with the current stack.
+- Do not hardcode values that already have an existing source of truth, setting, constant, CSS variable, helper or configuration path. Keep configurable values flowing from a single source of truth.
 
 ## WordPress And Frontend Rules
 - WordPress native APIs first.
@@ -44,6 +45,7 @@
 ## Formatting
 - Code, comments, identifiers and commit messages in English.
 - User-facing UI remains translatable; Spanish translations must stay synchronized when visible strings change.
+- When touching user-facing strings, translations or non-ASCII text, check the resulting diff for mojibake patterns such as `Ã`, `Â` and `â`.
 - Use real TAB characters for indentation where the existing project style uses tabs.
 - CSS must follow the repository CSS instruction file when CSS is touched.
 
@@ -98,6 +100,7 @@ Run only checks relevant to the change, for example:
 - `node --check` for touched JavaScript files;
 - JSON validation for changed JSON;
 - gettext/translation compilation checks when translations change;
+- mojibake checks for changed user-facing strings, translations or non-ASCII text;
 - `git diff --check` before commit;
 - targeted checks for shortcode rendering, asset gating, clustering, settings persistence or updater behavior when those areas are touched.
 
