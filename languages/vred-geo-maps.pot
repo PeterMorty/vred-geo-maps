@@ -1,0 +1,528 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version: VRED Geo Maps 0.1.16\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-08-25 21:45+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#, python-format
+msgid "%d location"
+msgid_plural "%d locations"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%d locations"
+msgstr ""
+
+#, python-format
+msgid "%s copy"
+msgstr ""
+
+msgid "1 location"
+msgstr ""
+
+msgid "A location name is required."
+msgstr ""
+
+msgid "A type name is required."
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Add location"
+msgstr ""
+
+msgid "Add type"
+msgstr ""
+
+msgid "Added a grouped list style with addresses and configurable type indicators for grouped views."
+msgstr ""
+
+msgid "Added optional uninstall cleanup, simplified location links and marker controls, and bundled map libraries locally."
+msgstr ""
+
+msgid "Added selectable Cards, Compact and Legend list styles while keeping map data and interactions shared."
+msgstr ""
+
+msgid "Address"
+msgstr ""
+
+msgid "All types"
+msgstr ""
+
+msgid "Appearance"
+msgstr ""
+
+msgid "Automatic"
+msgstr ""
+
+msgid "Automatically fit visible locations"
+msgstr ""
+
+msgid "Background"
+msgstr ""
+
+msgid "Basic map"
+msgstr ""
+
+msgid "Blueprint"
+msgstr ""
+
+msgid "Border color"
+msgstr ""
+
+msgid "Border radius"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
+msgid "CARTO tile styles use external CARTO tiles with visible attribution and are subject to CARTO terms."
+msgstr ""
+
+msgid "Cards"
+msgstr ""
+
+msgid "Check updates"
+msgstr ""
+
+msgid "Clear the search before reordering."
+msgstr ""
+
+msgid "Cluster nearby markers"
+msgstr ""
+
+msgid "Collapse all"
+msgstr ""
+
+msgid "Color"
+msgstr ""
+
+msgid "Common options"
+msgstr ""
+
+msgid "Compact"
+msgstr ""
+
+msgid "Compacted global settings controls and tightened marker override spacing for a more consistent admin layout."
+msgstr ""
+
+msgid "Compacted location editing, added explicit address geocoding controls and optional rich popup content."
+msgstr ""
+
+msgid "Contrast"
+msgstr ""
+
+msgid "Cool"
+msgstr ""
+
+msgid "Coordinates could not be retrieved right now."
+msgstr ""
+
+msgid "Coordinates updated."
+msgstr ""
+
+msgid "Custom content"
+msgstr ""
+
+msgid "Custom marker"
+msgstr ""
+
+msgid "Dark"
+msgstr ""
+
+msgid "Data"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Default marker"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete all data on uninstall"
+msgstr ""
+
+msgid "Delete this item?"
+msgstr ""
+
+msgid "Delete this location permanently?"
+msgstr ""
+
+msgid "Delete this location type? Assigned locations will become uncategorized."
+msgstr ""
+
+msgid "Drag to reorder"
+msgstr ""
+
+msgid "Duplicate"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Enter a more complete address."
+msgstr ""
+
+msgid "Expand all"
+msgstr ""
+
+msgid "Filter by Location Type slugs"
+msgstr ""
+
+msgid "Finalized admin controls, marker override labels, save actions and update status presentation."
+msgstr ""
+
+msgid "Find coordinates"
+msgstr ""
+
+msgid "Finding coordinates…"
+msgstr ""
+
+msgid "Fixed marker action persistence and marker clustering initialization."
+msgstr ""
+
+msgid "Grayscale"
+msgstr ""
+
+msgid "Grouped"
+msgstr ""
+
+msgid "Icon"
+msgstr ""
+
+msgid "Improved custom markers, list scrolling and shortcode guidance."
+msgstr ""
+
+msgid "Initial development version."
+msgstr ""
+
+msgid "Initial zoom"
+msgstr ""
+
+msgid "Interactive locations map"
+msgstr ""
+
+msgid "Latitude"
+msgstr ""
+
+msgid "Latitude and longitude must both be valid decimal coordinates."
+msgstr ""
+
+msgid "Layout and filters"
+msgstr ""
+
+msgid "Left"
+msgstr ""
+
+msgid "Legend"
+msgstr ""
+
+msgid "Link"
+msgstr ""
+
+msgid "List position"
+msgstr ""
+
+msgid "List style"
+msgstr ""
+
+msgid "List width"
+msgstr ""
+
+msgid "Localized AJAX network failures and audited user-facing strings."
+msgstr ""
+
+msgid "Location"
+msgstr ""
+
+msgid "Location Type"
+msgstr ""
+
+msgid "Location Types"
+msgstr ""
+
+msgid "Location Types and individual Locations can override these properties independently."
+msgstr ""
+
+msgid "Location not found."
+msgstr ""
+
+msgid "Location saved."
+msgstr ""
+
+msgid "Location type"
+msgstr ""
+
+msgid "Location type not found."
+msgstr ""
+
+msgid "Location type saved."
+msgstr ""
+
+msgid "Locations"
+msgstr ""
+
+msgid "Longitude"
+msgstr ""
+
+msgid "Manage reusable locations, location types and shared map defaults."
+msgstr ""
+
+msgid "Map"
+msgstr ""
+
+msgid "Map height"
+msgstr ""
+
+msgid "Marker action"
+msgstr ""
+
+msgid "Maximum width"
+msgstr ""
+
+msgid "Muted"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Network error. Check your connection and try again."
+msgstr ""
+
+msgid "New location name"
+msgstr ""
+
+msgid "New location type"
+msgstr ""
+
+msgid "New location type name"
+msgstr ""
+
+msgid "No address or type yet"
+msgstr ""
+
+msgid "No coordinates were found for this address."
+msgstr ""
+
+msgid "No location types yet. They are optional."
+msgstr ""
+
+msgid "No locations match the filters."
+msgstr ""
+
+msgid "No locations with valid coordinates were found."
+msgstr ""
+
+msgid "No locations yet. Add the first one above."
+msgstr ""
+
+msgid "No type"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Other locations"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Plugin"
+msgstr ""
+
+msgid "Popup"
+msgstr ""
+
+msgid "Press Enter or click the location icon to find coordinates."
+msgstr ""
+
+msgid "Refined Legend behavior for horizontal layouts, simplified filter controls and tightened admin add/geocoding controls."
+msgstr ""
+
+msgid "Refined admin experience and plugin integration."
+msgstr ""
+
+msgid "Refined admin field spacing, compacted card contact details, and normalized Leaflet attribution typography."
+msgstr ""
+
+msgid "Refined admin fieldset headings and redesigned frontend location cards as compact neutral accordions."
+msgstr ""
+
+msgid ""
+"Refined frontend card details and Leaflet controls, removed accent color styling, and finalized admin spacing and "
+"labels."
+msgstr ""
+
+msgid "Refined marker override controls, popup option visibility, geocoding feedback and admin status styling."
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Removed the dedicated Elementor integration and simplified the frontend to a shortcode-first architecture."
+msgstr ""
+
+msgid "Replace image"
+msgstr ""
+
+msgid "Reset"
+msgstr ""
+
+msgid "Reset filters"
+msgstr ""
+
+msgid "Right"
+msgstr ""
+
+msgid "Save changes"
+msgstr ""
+
+msgid "Save settings"
+msgstr ""
+
+msgid "Saved."
+msgstr ""
+
+msgid "Saving…"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Search by name or address…"
+msgstr ""
+
+msgid "Search location types"
+msgstr ""
+
+msgid "Search locations"
+msgstr ""
+
+msgid "Search locations…"
+msgstr ""
+
+msgid "Search types…"
+msgstr ""
+
+msgid "Select image"
+msgstr ""
+
+msgid "Sepia"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Shortcode"
+msgstr ""
+
+msgid "Show Location Type filter"
+msgstr ""
+
+msgid "Show locations list"
+msgstr ""
+
+msgid "Show specific location IDs"
+msgstr ""
+
+msgid "Show text search"
+msgstr ""
+
+msgid "Size"
+msgstr ""
+
+msgid "Slug"
+msgstr ""
+
+msgid "Soft"
+msgstr ""
+
+msgid "Something went wrong."
+msgstr ""
+
+msgid "Spacing"
+msgstr ""
+
+msgid "Text color"
+msgstr ""
+
+msgid "The geocoding service returned invalid coordinates."
+msgstr ""
+
+msgid "The location could not be deleted."
+msgstr ""
+
+msgid "The location type could not be deleted."
+msgstr ""
+
+msgid "Tile provider"
+msgstr ""
+
+msgid "Top"
+msgstr ""
+
+msgid "Type indicator"
+msgstr ""
+
+#, python-format
+msgid "Update available: %s"
+msgstr ""
+
+msgid "Update check completed."
+msgstr ""
+
+msgid "Upload and activate the plugin, then configure locations under Settings > VRED Geo Maps."
+msgstr ""
+
+msgid ""
+"Use the shortcode anywhere WordPress processes shortcodes. Global settings are inherited unless an option below "
+"overrides them."
+msgstr ""
+
+msgid "VRED Geo Maps"
+msgstr ""
+
+msgid "VRED Geo Maps manages reusable locations and displays them on Leaflet maps via shortcode."
+msgstr ""
+
+msgid "VRED Geo Maps: marker clustering is enabled but Leaflet.markercluster is unavailable."
+msgstr ""
+
+#, python-format
+msgid "Version %s"
+msgstr ""
+
+msgid "Warm"
+msgstr ""
+
+msgid "Web"
+msgstr ""
+
+msgid "Website"
+msgstr ""
+
+msgid ""
+"When enabled, uninstalling VRED Geo Maps permanently removes all Locations, Location Types and plugin settings. "
+"Deactivating the plugin never removes data."
+msgstr ""
+
+msgid "You do not have permission to manage Geo Maps."
+msgstr ""
+

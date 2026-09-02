@@ -1,0 +1,584 @@
+<?php
+/**
+ * Shared shortcode renderer.
+ *
+ * @package VRED_Geo_Maps
+ */
+
+namespace VRED\GeoMaps;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+final class Renderer {
+	private const LEAFLET_VERSION = '1.9.4';
+	private const CLUSTER_VERSION = '1.5.3';
+
+	// Share the VRED Leaflet handle to avoid loading two global Leaflet instances when VRED Elements is active.
+	private const LEAFLET_STYLE = 'vred-elements-leaflet';
+	private const LEAFLET_SCRIPT = 'vred-elements-leaflet';
+	private const CLUSTER_STYLE = 'vred-geo-maps-cluster';
+	private const CLUSTER_DEFAULT_STYLE = 'vred-geo-maps-cluster-default';
+	private const CLUSTER_SCRIPT = 'vred-geo-maps-cluster';
+	private const FRONTEND_STYLE = 'vred-geo-maps-frontend';
+	private const FRONTEND_SCRIPT = 'vred-geo-maps-frontend';
+
+	private static int $instance_counter = 0;
+
+	/** Register reusable assets without globally enqueuing them. */
+	public static function register_assets(): void {
+		if ( ! wp_style_is( self::LEAFLET_STYLE, 'registered' ) ) {
+			wp_register_style(
+				self::LEAFLET_STYLE,
+				VRED_GEO_MAPS_URL . 'assets/vendor/leaflet/leaflet.css',
+				array(),
+				self::LEAFLET_VERSION
+			);
+		}
+
+		if ( ! wp_script_is( self::LEAFLET_SCRIPT, 'registered' ) ) {
+			wp_register_script(
+				self::LEAFLET_SCRIPT,
+				VRED_GEO_MAPS_URL . 'assets/vendor/leaflet/leaflet.js',
+				array(),
+				self::LEAFLET_VERSION,
+				true
+			);
+		}
+
+		if ( ! wp_style_is( self::CLUSTER_STYLE, 'registered' ) ) {
+			wp_register_style(
+				self::CLUSTER_STYLE,
+				VRED_GEO_MAPS_URL . 'assets/vendor/leaflet-markercluster/MarkerCluster.css',
+				array( self::LEAFLET_STYLE ),
+				self::CLUSTER_VERSION
+			);
+		}
+
+		if ( ! wp_style_is( self::CLUSTER_DEFAULT_STYLE, 'registered' ) ) {
+			wp_register_style(
+				self::CLUSTER_DEFAULT_STYLE,
+				VRED_GEO_MAPS_URL . 'assets/vendor/leaflet-markercluster/MarkerCluster.Default.css',
+				array( self::CLUSTER_STYLE ),
+				self::CLUSTER_VERSION
+			);
+		}
+
+		if ( ! wp_script_is( self::CLUSTER_SCRIPT, 'registered' ) ) {
+			wp_register_script(
+				self::CLUSTER_SCRIPT,
+				VRED_GEO_MAPS_URL . 'assets/vendor/leaflet-markercluster/leaflet.markercluster.js',
+				array( self::LEAFLET_SCRIPT ),
+				self::CLUSTER_VERSION,
+				true
+			);
+		}
+
+		if ( ! wp_style_is( self::FRONTEND_STYLE, 'registered' ) ) {
+			wp_register_style(
+				self::FRONTEND_STYLE,
+				VRED_GEO_MAPS_URL . 'assets/css/frontend.css',
+				array( self::LEAFLET_STYLE ),
+				VRED_GEO_MAPS_VERSION
+			);
+		}
+
+		if ( ! wp_script_is( self::FRONTEND_SCRIPT, 'registered' ) ) {
+			wp_register_script(
+				self::FRONTEND_SCRIPT,
+				VRED_GEO_MAPS_URL . 'assets/js/frontend.js',
+				array( self::LEAFLET_SCRIPT ),
+				VRED_GEO_MAPS_VERSION,
+				true
+			);
+		}
+	}
+
+	/** Enqueue only assets needed by an actual map consumer. */
+	public static function enqueue_assets( bool $clustering = true ): void {
+		self::register_assets();
+
+		wp_enqueue_style( self::LEAFLET_STYLE );
+		wp_enqueue_style( self::FRONTEND_STYLE );
+		wp_enqueue_script( self::LEAFLET_SCRIPT );
+
+		if ( $clustering ) {
+			wp_enqueue_style( self::CLUSTER_STYLE );
+			wp_enqueue_style( self::CLUSTER_DEFAULT_STYLE );
+			wp_enqueue_script( self::CLUSTER_SCRIPT );
+		}
+
+		wp_enqueue_script( self::FRONTEND_SCRIPT );
+	}
+
+	/** Render one map instance. */
+	public static function render( array $query = array(), array $overrides = array() ): string {
+		$settings = self::get_effective_settings( $overrides );
+		$posts    = Data::get_locations( $query );
+
+		$locations = array();
+
+		foreach ( $posts as $post ) {
+			if ( ! $post instanceof \WP_Post ) {
+				continue;
+			}
+
+			$location = Data::normalize_location( $post );
+
+			if ( null !== $location ) {
+				$locations[] = $location;
+			}
+		}
+
+		if ( empty( $locations ) ) {
+			return '<div class="vred-geo-maps-empty">' . esc_html__( 'No locations with valid coordinates were found.', 'vred-geo-maps' ) . '</div>';
+		}
+
+		self::enqueue_assets( ! empty( $settings['clustering'] ) );
+		self::$instance_counter++;
+		$instance_id = 'vred-geo-map-' . self::$instance_counter;
+
+		$types_by_id = array();
+
+		foreach ( $locations as $location ) {
+			$type_id = (int) $location['type_id'];
+
+			if ( $type_id <= 0 || isset( $types_by_id[ $type_id ] ) ) {
+				continue;
+			}
+
+			$term = get_term( $type_id, Data::TAXONOMY );
+
+			if ( $term instanceof \WP_Term ) {
+				$types_by_id[ $type_id ] = Data::normalize_type( $term );
+			}
+		}
+
+		$types = array_values( $types_by_id );
+		usort(
+			$types,
+			static function ( array $a, array $b ): int {
+				$order_a = (int) get_term_meta( $a['id'], Data::TERM_META_ORDER, true );
+				$order_b = (int) get_term_meta( $b['id'], Data::TERM_META_ORDER, true );
+				return $order_a === $order_b ? strcasecmp( $a['name'], $b['name'] ) : $order_a <=> $order_b;
+			}
+		);
+
+		$config = array(
+			'id'           => $instance_id,
+			'tileProvider' => $settings['tile_provider'],
+			'appearance'   => $settings['appearance'],
+			'zoom'         => (int) $settings['initial_zoom'],
+			'autoFit'      => ! empty( $settings['auto_fit'] ),
+			'clustering'   => ! empty( $settings['clustering'] ),
+			'locations'    => array_map( array( self::class, 'get_js_location' ), $locations ),
+			'strings'      => array(
+				'clusterUnavailable' => __( 'VRED Geo Maps: marker clustering is enabled but Leaflet.markercluster is unavailable.', 'vred-geo-maps' ),
+			),
+		);
+
+		$styles = self::build_style_attribute( $settings );
+		$classes = array(
+			'vred-geo-maps',
+			'vred-geo-maps--' . sanitize_html_class( $settings['list_position'] ),
+			'vred-geo-maps--list-' . sanitize_html_class( $settings['list_style'] ),
+			'vred-geo-maps--appearance-' . sanitize_html_class( $settings['appearance'] ),
+		);
+
+		if ( empty( $settings['show_list'] ) ) {
+			$classes[] = 'vred-geo-maps--no-list';
+		}
+
+		ob_start();
+		?>
+		<section id="<?php echo esc_attr( $instance_id ); ?>" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" style="<?php echo esc_attr( $styles ); ?>" data-vred-geo-maps>
+			<?php if ( ! empty( $settings['show_search'] ) || ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) ) : ?>
+				<div class="vred-geo-maps__filters">
+					<div class="vred-geo-maps__filter-controls">
+						<?php if ( ! empty( $settings['show_search'] ) ) : ?>
+							<label class="vred-geo-maps__field">
+								<span><?php esc_html_e( 'Search', 'vred-geo-maps' ); ?></span>
+								<input type="search" placeholder="<?php echo esc_attr__( 'Search by name or address…', 'vred-geo-maps' ); ?>" data-vred-geo-search>
+							</label>
+						<?php endif; ?>
+						<?php if ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) : ?>
+							<label class="vred-geo-maps__field">
+								<span><?php esc_html_e( 'Location type', 'vred-geo-maps' ); ?></span>
+								<select data-vred-geo-type-filter>
+									<option value=""><?php esc_html_e( 'All types', 'vred-geo-maps' ); ?></option>
+									<?php foreach ( $types as $type ) : ?>
+										<option value="<?php echo esc_attr( (string) $type['id'] ); ?>"><?php echo esc_html( $type['name'] ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</label>
+						<?php endif; ?>
+					</div>
+					<div class="vred-geo-maps__filter-meta">
+						<button type="button" class="vred-geo-maps__reset" data-vred-geo-reset aria-label="<?php echo esc_attr__( 'Reset filters', 'vred-geo-maps' ); ?>" title="<?php echo esc_attr__( 'Reset filters', 'vred-geo-maps' ); ?>">
+							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+								<path d="M3 3v5h5"></path>
+							</svg>
+						</button>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<div class="vred-geo-maps__content">
+				<?php if ( ! empty( $settings['show_list'] ) ) : ?>
+					<div class="vred-geo-maps__list" data-vred-geo-list>
+						<?php self::render_locations_list( $locations, $types, $settings['list_style'], $settings['list_position'], $settings['type_indicator'] ); ?>
+						<p class="vred-geo-maps__no-results" data-vred-geo-no-results hidden><?php esc_html_e( 'No locations match the filters.', 'vred-geo-maps' ); ?></p>
+					</div>
+				<?php endif; ?>
+
+				<div class="vred-geo-maps__map-wrap">
+					<div class="vred-geo-maps__map" data-vred-geo-canvas aria-label="<?php echo esc_attr__( 'Interactive locations map', 'vred-geo-maps' ); ?>"></div>
+				</div>
+			</div>
+
+			<script type="application/json" data-vred-geo-config><?php echo wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
+		</section>
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	/** Merge global settings with shortcode overrides. */
+	private static function get_effective_settings( array $overrides ): array {
+		$settings = Data::get_settings();
+		$keys = array(
+			'tile_provider',
+			'appearance',
+			'map_height',
+			'initial_zoom',
+			'auto_fit',
+			'clustering',
+			'show_list',
+			'list_style',
+			'type_indicator',
+			'list_position',
+			'show_search',
+			'show_type_filter',
+			'list_width',
+			'gap',
+			'card_radius',
+			'popup_text_color',
+			'popup_background',
+			'popup_border_color',
+			'popup_border_radius',
+			'popup_width',
+		);
+
+		foreach ( $keys as $key ) {
+			if ( array_key_exists( $key, $overrides ) && '' !== $overrides[ $key ] && null !== $overrides[ $key ] && 'inherit' !== $overrides[ $key ] ) {
+				$settings[ $key ] = $overrides[ $key ];
+			}
+		}
+
+		$settings['list_style']          = in_array( $settings['list_style'], array( 'cards', 'compact', 'legend', 'grouped' ), true ) ? $settings['list_style'] : 'cards';
+		$settings['type_indicator']      = in_array( $settings['type_indicator'], array( 'auto', 'icon', 'color' ), true ) ? $settings['type_indicator'] : 'auto';
+		$settings['map_height']          = Data::clamp_int( $settings['map_height'], 240, 900 );
+		$settings['initial_zoom']        = Data::clamp_int( $settings['initial_zoom'], 1, 19 );
+		$settings['list_width']          = Data::clamp_int( $settings['list_width'], 260, 560 );
+		$settings['gap']                 = Data::clamp_int( $settings['gap'], 0, 80 );
+		$settings['card_radius']         = Data::clamp_int( $settings['card_radius'], 0, 40 );
+		$settings['popup_border_radius'] = Data::clamp_int( $settings['popup_border_radius'], 0, 40 );
+		$settings['popup_width']         = Data::clamp_int( $settings['popup_width'], 180, 520 );
+
+		foreach ( array( 'popup_text_color', 'popup_background', 'popup_border_color' ) as $color_key ) {
+			$settings[ $color_key ] = sanitize_hex_color( $settings[ $color_key ] ) ?: Data::get_default_settings()[ $color_key ];
+		}
+
+		return $settings;
+	}
+
+	/** Build scoped CSS variables for one instance. */
+	private static function build_style_attribute( array $settings ): string {
+		return implode(
+			';',
+			array(
+				'--vred-geo-map-height:' . (int) $settings['map_height'] . 'px',
+				'--vred-geo-list-width:' . (int) $settings['list_width'] . 'px',
+				'--vred-geo-gap:' . (int) $settings['gap'] . 'px',
+				'--vred-geo-card-radius:' . (int) $settings['card_radius'] . 'px',
+				'--vred-geo-popup-text:' . $settings['popup_text_color'],
+				'--vred-geo-popup-bg:' . $settings['popup_background'],
+				'--vred-geo-popup-border:' . $settings['popup_border_color'],
+				'--vred-geo-popup-radius:' . (int) $settings['popup_border_radius'] . 'px',
+				'--vred-geo-popup-width:' . (int) $settings['popup_width'] . 'px',
+			)
+		);
+	}
+
+	/** Render the configured locations list style. */
+	private static function render_locations_list( array $locations, array $types, string $list_style, string $list_position, string $type_indicator ): void {
+		if ( in_array( $list_style, array( 'legend', 'grouped' ), true ) ) {
+			self::render_grouped_list( $locations, $types, $list_position, $type_indicator, 'grouped' === $list_style );
+			return;
+		}
+
+		foreach ( $locations as $location ) {
+			if ( 'compact' === $list_style ) {
+				self::render_compact_location( $location );
+				continue;
+			}
+
+			self::render_location_card( $location );
+		}
+	}
+
+	/** Render one card-style location item. */
+	private static function render_location_card( array $location ): void {
+		$marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed';
+		$has_details  = '' !== $location['phone'] || '' !== $location['email'] || '' !== $location['website'];
+		$card_classes = 'vred-geo-maps__card' . ( $has_details ? ' has-details' : '' );
+		?>
+		<?php if ( $has_details ) : ?>
+			<details class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location, $marker_color ); ?>>
+				<summary class="vred-geo-maps__card-summary" data-vred-geo-location-select>
+					<span class="vred-geo-maps__card-copy">
+						<?php self::render_location_identity( $location ); ?>
+					</span>
+					<span class="vred-geo-maps__card-chevron" aria-hidden="true"></span>
+				</summary>
+				<dl class="vred-geo-maps__card-details">
+					<?php if ( '' !== $location['phone'] ) : ?>
+						<div class="vred-geo-maps__card-detail">
+							<dt><?php esc_html_e( 'Phone', 'vred-geo-maps' ); ?>:</dt>
+							<dd><a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $location['phone'] ) ); ?>"><?php echo esc_html( $location['phone'] ); ?></a></dd>
+						</div>
+					<?php endif; ?>
+					<?php if ( '' !== $location['email'] ) : ?>
+						<div class="vred-geo-maps__card-detail">
+							<dt><?php esc_html_e( 'Email', 'vred-geo-maps' ); ?>:</dt>
+							<dd><a href="mailto:<?php echo esc_attr( $location['email'] ); ?>"><?php echo esc_html( $location['email'] ); ?></a></dd>
+						</div>
+					<?php endif; ?>
+					<?php if ( '' !== $location['website'] ) : ?>
+						<div class="vred-geo-maps__card-detail vred-geo-maps__card-detail--web">
+							<dt><?php esc_html_e( 'Web', 'vred-geo-maps' ); ?>:</dt>
+							<dd><a href="<?php echo esc_url( $location['website'] ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $location['website'] ); ?></a></dd>
+						</div>
+					<?php endif; ?>
+				</dl>
+			</details>
+		<?php else : ?>
+			<article class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location, $marker_color ); ?>>
+				<a href="#" class="vred-geo-maps__card-summary" data-vred-geo-location-select>
+					<span class="vred-geo-maps__card-copy">
+						<?php self::render_location_identity( $location ); ?>
+					</span>
+				</a>
+			</article>
+		<?php endif; ?>
+		<?php
+	}
+
+	/** Render one compact location row. */
+	private static function render_compact_location( array $location ): void {
+		$marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed';
+		?>
+		<article class="vred-geo-maps__compact-item" <?php self::render_location_item_attributes( $location, $marker_color ); ?>>
+			<a href="#" class="vred-geo-maps__compact-link" data-vred-geo-location-select>
+				<span class="vred-geo-maps__compact-dot" aria-hidden="true"></span>
+				<span class="vred-geo-maps__compact-copy">
+					<?php if ( '' !== $location['type_name'] ) : ?>
+						<span class="vred-geo-maps__compact-type"><?php echo esc_html( $location['type_name'] ); ?></span>
+					<?php endif; ?>
+					<strong class="vred-geo-maps__compact-title"><?php echo esc_html( $location['title'] ); ?></strong>
+					<?php if ( '' !== $location['address'] ) : ?>
+						<span class="vred-geo-maps__compact-address"><?php echo esc_html( $location['address'] ); ?></span>
+					<?php endif; ?>
+				</span>
+			</a>
+		</article>
+		<?php
+	}
+
+	/** Render locations grouped by Location Type. */
+	private static function render_grouped_list( array $locations, array $types, string $list_position, string $type_indicator, bool $show_addresses ): void {
+		$groups = array();
+
+		foreach ( $types as $type ) {
+			$groups[ (int) $type['id'] ] = array(
+				'id'          => (int) $type['id'],
+				'name'        => $type['name'],
+				'color'       => sanitize_hex_color( $type['marker']['color'] ?? '' ) ?: '#2f6fed',
+				'marker'      => $type['marker'],
+				'custom_icon' => $type['custom_icon'] ?? array(),
+				'locations'   => array(),
+			);
+		}
+
+		$untyped = array();
+
+		foreach ( $locations as $location ) {
+			$type_id = (int) $location['type_id'];
+
+			if ( $type_id > 0 && isset( $groups[ $type_id ] ) ) {
+				$groups[ $type_id ]['locations'][] = $location;
+				continue;
+			}
+
+			$untyped[] = $location;
+		}
+
+		if ( $untyped ) {
+			$groups[0] = array(
+				'id'          => 0,
+				'name'        => __( 'Other locations', 'vred-geo-maps' ),
+				'color'       => sanitize_hex_color( $untyped[0]['marker']['color'] ?? '' ) ?: '#2f6fed',
+				'marker'      => $untyped[0]['marker'],
+				'custom_icon' => array(),
+				'locations'   => $untyped,
+			);
+		}
+
+		$group_index   = 0;
+		$static_groups = in_array( $list_position, array( 'top', 'bottom' ), true );
+
+		foreach ( $groups as $group ) {
+			if ( empty( $group['locations'] ) ) {
+				continue;
+			}
+
+			$group_index++;
+			?>
+			<?php if ( $static_groups ) : ?>
+				<div class="vred-geo-maps__legend-group is-static<?php echo $show_addresses ? ' is-detailed' : ''; ?>" data-vred-geo-legend-group data-type-id="<?php echo esc_attr( (string) $group['id'] ); ?>">
+					<div class="vred-geo-maps__legend-summary">
+						<?php self::render_group_heading( $group, $type_indicator ); ?>
+					</div>
+			<?php else : ?>
+				<details class="vred-geo-maps__legend-group<?php echo $show_addresses ? ' is-detailed' : ''; ?>" data-vred-geo-legend-group data-type-id="<?php echo esc_attr( (string) $group['id'] ); ?>"<?php echo 1 === $group_index ? ' open' : ''; ?>>
+					<summary class="vred-geo-maps__legend-summary">
+						<?php self::render_group_heading( $group, $type_indicator, true ); ?>
+					</summary>
+			<?php endif; ?>
+				<div class="vred-geo-maps__legend-items">
+					<?php foreach ( $group['locations'] as $location ) : ?>
+						<?php $marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed'; ?>
+						<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" <?php self::render_location_item_attributes( $location, $marker_color ); ?> data-vred-geo-location-select>
+							<span class="vred-geo-maps__legend-item-title"><?php echo esc_html( $location['title'] ); ?></span>
+							<?php if ( $show_addresses && '' !== $location['address'] ) : ?>
+								<span class="vred-geo-maps__legend-item-address"><?php echo esc_html( $location['address'] ); ?></span>
+							<?php endif; ?>
+						</a>
+					<?php endforeach; ?>
+				</div>
+			<?php if ( $static_groups ) : ?>
+				</div>
+			<?php else : ?>
+				</details>
+			<?php endif; ?>
+			<?php
+		}
+	}
+
+	/** Render one grouped list heading. */
+	private static function render_group_heading( array $group, string $type_indicator, bool $show_toggle = false ): void {
+		?>
+		<span class="vred-geo-maps__legend-heading">
+			<?php self::render_type_indicator( $group, $type_indicator ); ?>
+			<strong><?php echo esc_html( $group['name'] ); ?></strong>
+		</span>
+		<span class="vred-geo-maps__legend-meta">
+			<span class="vred-geo-maps__legend-count" data-vred-geo-legend-count><?php echo esc_html( (string) count( $group['locations'] ) ); ?></span>
+			<?php if ( $show_toggle ) : ?>
+				<span class="vred-geo-maps__legend-toggle" aria-hidden="true"></span>
+			<?php endif; ?>
+		</span>
+		<?php
+	}
+
+	/** Render the visual indicator used by grouped list headings. */
+	private static function render_type_indicator( array $group, string $type_indicator ): void {
+		$custom_icon = is_array( $group['custom_icon'] ?? null ) ? $group['custom_icon'] : array();
+		$marker      = is_array( $group['marker'] ?? null ) ? $group['marker'] : array();
+		$custom_url  = esc_url_raw( $custom_icon['image_url'] ?? '' );
+		$custom_svg  = Data::sanitize_svg( $custom_icon['svg'] ?? '' );
+		$marker_url  = esc_url_raw( $marker['image_url'] ?? '' );
+		$marker_svg  = Data::sanitize_svg( $marker['svg'] ?? '' );
+		$color       = sanitize_hex_color( $group['color'] ?? '' ) ?: '#2f6fed';
+
+		if ( 'color' === $type_indicator ) {
+			self::render_type_color_indicator( $color );
+			return;
+		}
+
+		if ( 'auto' === $type_indicator ) {
+			if ( '' !== $custom_url || '' !== $custom_svg ) {
+				self::render_type_icon_indicator( $custom_url, $custom_svg, $color );
+				return;
+			}
+
+			self::render_type_color_indicator( $color );
+			return;
+		}
+
+		self::render_type_icon_indicator( $marker_url, $marker_svg, $color );
+	}
+
+	/** Render a grouped list color indicator. */
+	private static function render_type_color_indicator( string $color ): void {
+		?>
+		<span class="vred-geo-maps__legend-dot" aria-hidden="true" style="--vred-geo-legend-color:<?php echo esc_attr( $color ); ?>"></span>
+		<?php
+	}
+
+	/** Render a grouped list icon indicator with a built-in fallback. */
+	private static function render_type_icon_indicator( string $image_url, string $svg, string $color ): void {
+		?>
+		<span class="vred-geo-maps__legend-icon" aria-hidden="true" style="--vred-geo-legend-color:<?php echo esc_attr( $color ); ?>">
+			<?php if ( '' !== $image_url ) : ?>
+				<img src="<?php echo esc_url( $image_url ); ?>" alt="">
+			<?php elseif ( '' !== $svg ) : ?>
+				<?php echo $svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sanitized by Data::sanitize_svg(). ?>
+			<?php else : ?>
+				<svg viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"></path></svg>
+			<?php endif; ?>
+		</span>
+		<?php
+	}
+
+	/** Render shared location identity for card-style items. */
+	private static function render_location_identity( array $location ): void {
+		?>
+		<?php if ( '' !== $location['type_name'] ) : ?>
+			<span class="vred-geo-maps__card-type"><span class="vred-geo-maps__card-dot" aria-hidden="true"></span><?php echo esc_html( $location['type_name'] ); ?></span>
+		<?php endif; ?>
+		<strong class="vred-geo-maps__card-title"><?php echo esc_html( $location['title'] ); ?></strong>
+		<?php if ( '' !== $location['address'] ) : ?>
+			<span class="vred-geo-maps__card-address"><?php echo esc_html( $location['address'] ); ?></span>
+		<?php endif; ?>
+		<?php
+	}
+
+	/** Render data attributes shared by all list modes. */
+	private static function render_location_item_attributes( array $location, string $marker_color ): void {
+		printf(
+			'data-vred-geo-location-item data-location-id="%1$s" data-type-id="%2$s" data-search="%3$s" style="--vred-geo-card-marker-color:%4$s"',
+			esc_attr( (string) $location['id'] ),
+			esc_attr( (string) $location['type_id'] ),
+			esc_attr( $location['search_text'] ),
+			esc_attr( $marker_color )
+		);
+	}
+
+	/** Return only data needed by JavaScript. */
+	private static function get_js_location( array $location ): array {
+		return array(
+			'id'          => (int) $location['id'],
+			'title'       => $location['title'],
+			'latitude'    => (float) $location['latitude'],
+			'longitude'   => (float) $location['longitude'],
+			'typeId'      => (int) $location['type_id'],
+			'searchText'  => $location['search_text'],
+			'marker'      => $location['marker'],
+			'action'      => $location['action'],
+			'website'     => $location['website'],
+			'popupHtml'   => $location['popup_html'],
+		);
+	}
+}

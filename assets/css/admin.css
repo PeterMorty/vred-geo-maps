@@ -1,0 +1,914 @@
+/**
+ * VRED Geo Maps admin
+ */
+.vred-geo-admin {
+	max-width: 1180px
+}
+
+.vred-geo-admin__heading {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 20px;
+
+	margin: 18px 0 16px
+}
+
+.vred-geo-admin__heading h1 {
+	margin: 0 0 6px;
+	padding: 0
+}
+
+.vred-geo-admin__heading p {
+	margin: 0;
+
+	color: #646970
+}
+
+
+.vred-geo-admin__tabs {
+	margin-bottom: 18px
+}
+
+.vred-geo-admin__panel {
+	min-width: 0
+}
+
+.vred-geo-admin__toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	flex-wrap: wrap;
+
+	margin-bottom: 14px
+}
+
+.vred-geo-admin__add-form, .vred-geo-admin__tools {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap
+}
+
+.vred-geo-admin__add-form input[type="text"] {
+	width: min(340px, 70vw)
+}
+
+.vred-geo-admin__search input {
+	width: min(280px, 62vw)
+}
+
+.vred-geo-admin__notice {
+	min-height: 20px;
+	margin: 0 0 8px;
+
+	font-size: 13px;
+	color: #00a32a
+}
+
+.vred-geo-admin__notice.is-error {
+	color: #b32d2e
+}
+
+.vred-geo-admin__cards {
+	display: flex;
+	flex-direction: column;
+	gap: 10px
+}
+
+.vred-geo-admin__cards.is-filtered .vred-geo-admin-card__drag {
+	opacity: .35;
+	cursor: not-allowed
+}
+
+.vred-geo-admin-card {
+	position: relative;
+	overflow: hidden;
+
+	border: 1px solid #dcdcde;
+	border-radius: 10px;
+	background: #fff
+}
+
+.vred-geo-admin-card.is-dragging {
+	opacity: .55;
+	box-shadow: 0 8px 22px rgba(0, 0, 0, .12)
+}
+
+.vred-geo-admin-card__header {
+	display: grid;
+	grid-template-columns: 34px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 8px;
+
+	min-height: 56px;
+	padding: 7px 10px
+}
+
+.vred-geo-admin-card__drag {
+	padding: 0;
+	width: 34px;
+	height: 34px;
+
+	font-size: 18px;
+	line-height: 1;
+	color: #787c82;
+
+	border: 0;
+	background: transparent;
+
+	cursor: grab
+}
+
+.vred-geo-admin-card__drag:active {
+	cursor: grabbing
+}
+
+.vred-geo-admin-card__toggle {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+
+	padding: 6px;
+	min-width: 0;
+
+	text-align: left;
+	color: #1d2327;
+
+	border: 0;
+	background: transparent;
+
+	cursor: pointer
+}
+
+.vred-geo-admin-card__toggle strong {
+	overflow: hidden;
+	width: 100%;
+
+	font-size: 14px;
+	text-overflow: ellipsis;
+	white-space: nowrap
+}
+
+.vred-geo-admin-card__summary {
+	overflow: hidden;
+	width: 100%;
+
+	font-size: 12px;
+	color: #646970;
+	text-overflow: ellipsis;
+	white-space: nowrap
+}
+
+.vred-geo-admin-card__actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+
+	padding-right: 4px
+}
+
+.vred-geo-admin-card__body {
+	padding: 18px;
+
+	border-top: 1px solid #ececec;
+	background: #fbfbfc
+}
+
+.vred-geo-admin-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px
+}
+
+.vred-geo-admin-field {
+	display: grid;
+	gap: 5px;
+	min-width: 0
+}
+
+.vred-geo-admin-field--wide {
+	grid-column: 1 / -1
+}
+
+.vred-geo-admin-field > span, .vred-geo-admin-field label > span {
+	font-weight: 600
+}
+
+.vred-geo-admin-field input:not([type="checkbox"]):not([type="color"]), .vred-geo-admin-field select, .vred-geo-admin-field textarea, .vred-geo-admin-override textarea, .vred-geo-admin-override input[type="number"] {
+	width: 100%;
+	max-width: none
+}
+
+.vred-geo-admin-field textarea, .vred-geo-admin-override textarea {
+	font-family: inherit
+}
+
+.vred-geo-admin-field input[type="color"], .vred-geo-admin-override input[type="color"] {
+	padding: 2px;
+	width: 54px;
+	height: 36px
+}
+
+.vred-geo-admin-group {
+	position: relative;
+
+	margin: 45px 0 0;
+	padding: 16px;
+
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	background: #fff
+}
+
+.vred-geo-admin-group legend {
+	position: absolute;
+	top: -29px;
+	left: 0;
+
+	margin: 0;
+	padding: 0;
+
+	font-size: 14px;
+	font-weight: 700
+}
+
+.vred-geo-admin-group > .description {
+	margin: 0 0 14px
+}
+
+.vred-geo-admin-inline-options {
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+
+	margin-top: 10px
+}
+
+.vred-geo-admin-overrides {
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr;
+	gap: 14px
+}
+
+.vred-geo-admin-override {
+	display: grid;
+	align-content: start;
+	gap: 8px;
+	min-width: 0
+}
+
+.vred-geo-admin-card__footer {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+
+	margin-top: 18px
+}
+
+.vred-geo-admin-card__save-status {
+	font-size: 12px;
+	color: #00a32a
+}
+
+.vred-geo-admin-card__save-status.is-error {
+	color: #b32d2e
+}
+
+.vred-geo-admin__empty {
+	margin: 0;
+	padding: 28px;
+
+	text-align: center;
+	color: #646970;
+
+	border: 1px dashed #c3c4c7;
+	border-radius: 10px;
+	background: #fff
+}
+
+.vred-geo-admin-settings {
+	display: grid;
+	gap: 16px
+}
+
+.vred-geo-admin-settings__section {
+	padding: 20px;
+
+	border: 1px solid #dcdcde;
+	border-radius: 10px;
+	background: #fff
+}
+
+.vred-geo-admin-settings__section h2 {
+	margin: 0 0 14px;
+	padding: 0
+}
+
+.vred-geo-admin-settings__section > p:not(.description) {
+	margin-top: -5px;
+	color: #646970
+}
+
+.vred-geo-admin-settings__section-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap
+}
+
+.vred-geo-admin-settings__section-header h2 {
+	margin-bottom: 0
+}
+
+.vred-geo-admin-plugin-actions {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	flex-wrap: wrap
+}
+
+.vred-geo-admin-version {
+	margin: 0
+}
+
+.vred-geo-admin-status-badge {
+	display: inline-flex;
+	padding: 8px 14px;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+	line-height: 1;
+	font-weight: 600;
+	letter-spacing: .01em;
+	border: 1px solid #d5d9df;
+	border-radius: 999px
+}
+
+.vred-geo-admin-status-badge::before {
+	content: '';
+	display: block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: currentColor
+}
+
+.vred-geo-admin-status-badge.is-update {
+	color: #166534;
+	background: #edf7ed;
+	border-color: #9fdfb4
+}
+
+.vred-geo-admin-field__status {
+	min-height: 18px;
+
+	font-size: 12px;
+	color: #00a32a
+}
+
+.vred-geo-admin-field__status.is-error {
+	color: #b32d2e
+}
+
+.vred-geo-admin-media {
+	display: grid;
+	gap: 8px
+}
+
+.vred-geo-admin-media__preview {
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+
+	width: 72px;
+	height: 72px;
+
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	background: #fff
+}
+
+.vred-geo-admin-media__preview[hidden] {
+	display: none
+}
+
+.vred-geo-admin-media__preview img {
+	display: block;
+
+	max-width: 100%;
+	max-height: 100%;
+
+	object-fit: contain
+}
+
+.vred-geo-admin-media__actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap
+}
+
+.vred-geo-admin-checks {
+	display: flex;
+	gap: 16px 24px;
+	flex-wrap: wrap;
+
+	margin-top: 16px
+}
+
+@media (max-width: 782px) {
+	.vred-geo-admin__heading {
+		align-items: flex-start
+	}
+
+	.vred-geo-admin__toolbar, .vred-geo-admin__tools, .vred-geo-admin__add-form {
+		align-items: stretch;
+		width: 100%
+	}
+
+	.vred-geo-admin__add-form input[type="text"], .vred-geo-admin__search, .vred-geo-admin__search input {
+		width: 100%
+	}
+
+	.vred-geo-admin-card__header {
+		grid-template-columns: 34px minmax(0, 1fr)
+	}
+
+	.vred-geo-admin-card__actions {
+		grid-column: 2;
+		justify-content: flex-start;
+		padding: 0 6px 6px
+	}
+
+	.vred-geo-admin-grid {
+		grid-template-columns: minmax(0, 1fr)
+	}
+
+	.vred-geo-admin-field--wide {
+		grid-column: auto
+	}
+}
+
+.vred-geo-admin-shortcodes {
+	display: grid;
+	gap: 10px
+}
+
+.vred-geo-admin-shortcode {
+	display: grid;
+	grid-template-columns: minmax(180px, .8fr) minmax(0, 1.2fr);
+	align-items: center;
+	gap: 14px;
+
+	padding: 12px 0;
+
+	border-bottom: 1px solid #ececec
+}
+
+.vred-geo-admin-shortcode:last-child {
+	border-bottom: 0
+}
+
+.vred-geo-admin-shortcode code {
+	display: block;
+	overflow-x: auto;
+
+	padding: 8px 10px;
+
+	white-space: nowrap
+}
+
+@media (max-width: 782px) {
+	.vred-geo-admin-shortcode {
+		grid-template-columns: minmax(0, 1fr)
+	}
+}
+
+/**
+ * Compact admin controls
+ */
+.vred-geo-admin-card__action {
+	padding: 0;
+
+	font-size: 13px;
+	line-height: 1.4;
+	color: #2271b1;
+	text-decoration: underline;
+
+	border: 0;
+	background: transparent;
+
+	cursor: pointer
+}
+
+.vred-geo-admin-card__action:hover, .vred-geo-admin-card__action:focus {
+	color: #135e96
+}
+
+.vred-geo-admin-card__action--delete {
+	color: #b32d2e
+}
+
+.vred-geo-admin-card__action--delete:hover, .vred-geo-admin-card__action--delete:focus {
+	color: #8a2424
+}
+
+.vred-geo-admin-media__preview {
+	padding: 0;
+
+	cursor: pointer
+}
+
+.vred-geo-admin-media__preview:disabled {
+	cursor: default
+}
+
+.vred-geo-admin-media__remove {
+	padding: 0;
+
+	color: #b32d2e;
+	text-decoration: underline;
+
+	border: 0;
+	background: transparent;
+
+	cursor: pointer
+}
+
+.vred-geo-admin-media__remove:hover, .vred-geo-admin-media__remove:focus {
+	color: #8a2424
+}
+
+.vred-geo-admin-color {
+	display: flex;
+	align-items: center;
+	gap: 10px
+}
+
+.vred-geo-admin-color input[type="text"] {
+	width: 104px;
+	max-width: 104px
+}
+
+.vred-geo-admin-color input[type="color"] {
+	padding: 2px;
+	width: 48px;
+	height: 36px
+}
+
+.vred-geo-admin-input-group {
+	display: inline-flex;
+	align-items: stretch;
+	width: max-content;
+	max-width: 100%
+}
+
+.vred-geo-admin-input-group input[type="number"] {
+	width: 84px;
+	max-width: 84px;
+	border-radius: 4px 0 0 4px
+}
+
+.vred-geo-admin-input-group span {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 9px;
+
+	color: #646970;
+
+	border: 1px solid #8c8f94;
+	border-left: 0;
+	border-radius: 0 4px 4px 0;
+	background: #f6f7f7
+}
+
+/**
+ * Compact location editing
+ */
+.vred-geo-admin-card__body {
+	padding: 14px
+}
+
+.vred-geo-admin-grid {
+	gap: 10px 12px
+}
+
+.vred-geo-admin-contact-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+
+	margin-top: 10px
+}
+
+.vred-geo-admin-field {
+	gap: 5px
+}
+
+.vred-geo-admin-field__label {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px
+}
+
+.vred-geo-admin-field__help {
+	width: 16px;
+	height: 16px;
+
+	font-size: 16px;
+	line-height: 16px;
+	color: #787c82;
+
+	cursor: help
+}
+
+.vred-geo-admin-address {
+	display: flex;
+	align-items: stretch;
+	gap: 6px
+}
+
+.vred-geo-admin-address input {
+	flex: 1 1 auto;
+	min-width: 0;
+
+	font-weight: 400
+}
+
+.vred-geo-admin-address__geocode {
+	display: block;
+	position: relative;
+	flex: 0 0 38px;
+
+	padding: 0;
+	width: 38px
+}
+
+.vred-geo-admin-address__geocode .dashicons {
+	display: block;
+
+	margin: 0;
+	width: 22px;
+	height: 22px;
+
+	font-size: 22px;
+	line-height: 22px
+}
+
+.vred-geo-admin-address__geocode .dashicons::before {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+
+	margin: 0;
+	width: 22px;
+	height: 22px;
+
+	line-height: 22px;
+	text-align: center;
+
+	transform: translate(-50%, -50%)
+}
+
+.vred-geo-admin-address__geocode.is-loading {
+	opacity: .65
+}
+
+.vred-geo-admin-field__status {
+	min-height: 0
+}
+
+.vred-geo-admin-field__status:empty {
+	display: none
+}
+
+.vred-geo-admin-group {
+	margin-top: 45px;
+	padding: 16px
+}
+
+
+.vred-geo-admin-action-row {
+	display: flex;
+	align-items: end;
+	gap: 12px 20px;
+	flex-wrap: wrap
+}
+
+.vred-geo-admin-field--action {
+	flex: 0 1 300px;
+	width: 300px;
+	max-width: 100%
+}
+
+.vred-geo-admin-popup-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+
+	min-height: 30px;
+	padding-bottom: 2px
+}
+
+.vred-geo-admin-popup-toggle[hidden] {
+	display: none
+}
+
+.vred-geo-admin-popup-editor {
+	margin-top: 10px
+}
+
+.vred-geo-admin-popup-editor[hidden] {
+	display: none
+}
+
+.vred-geo-admin-popup-editor > textarea {
+	width: 100%;
+	min-height: 130px
+}
+
+.vred-geo-admin-popup-editor .wp-editor-wrap {
+	max-width: 100%
+}
+
+.vred-geo-admin-popup-editor .wp-editor-container iframe {
+	min-height: 130px
+}
+
+.vred-geo-admin-overrides {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px 24px;
+	flex-wrap: wrap
+}
+
+.vred-geo-admin-override {
+	display: grid;
+	gap: 5px;
+	min-width: 0
+}
+
+.vred-geo-admin-override__label {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	width: max-content;
+	font-weight: 600
+}
+
+.vred-geo-admin-override__label input[type="checkbox"] {
+	margin: 0
+}
+
+.vred-geo-admin-override__control {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	min-height: 36px
+}
+
+.vred-geo-admin-group--marker .vred-geo-admin-media {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0
+}
+
+.vred-geo-admin-group--marker .vred-geo-admin-media__preview {
+	width: 46px;
+	height: 46px;
+	border-radius: 5px
+}
+
+.vred-geo-admin-group--marker .vred-geo-admin-media__actions {
+	gap: 8px
+}
+
+.vred-geo-admin-card__footer {
+	margin-top: 14px
+}
+
+/**
+ * Compact settings controls
+ */
+.vred-geo-admin-settings-fields {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px 20px;
+	flex-wrap: wrap
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-field {
+	width: auto
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-field--select {
+	width: 300px;
+	max-width: 100%
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-field--select select {
+	width: 100%
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-field--number {
+	width: max-content;
+	max-width: 100%
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-field--number-short input[type="number"] {
+	width: 84px;
+	max-width: 84px
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-input-group input[type="number"] {
+	width: 84px;
+	max-width: 84px
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-field--color {
+	width: max-content;
+	max-width: 100%
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-color input[type="text"] {
+	width: 104px;
+	max-width: 104px
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-field--media {
+	min-width: 230px
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-media {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-media__preview {
+	width: 46px;
+	height: 46px;
+	border-radius: 5px
+}
+
+.vred-geo-admin-settings-fields .vred-geo-admin-media__actions {
+	gap: 8px
+}
+
+.vred-geo-admin-settings__section .description {
+	margin-top: 10px;
+	margin-bottom: 0
+}
+
+@media (max-width: 960px) {
+	.vred-geo-admin-contact-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr))
+	}
+
+	.vred-geo-admin-contact-grid .vred-geo-admin-field:last-child {
+		grid-column: 1 / -1
+	}
+}
+
+@media (max-width: 782px) {
+	.vred-geo-admin-card__body {
+		padding: 12px
+	}
+
+	.vred-geo-admin-contact-grid {
+		grid-template-columns: minmax(0, 1fr)
+	}
+
+	.vred-geo-admin-contact-grid .vred-geo-admin-field:last-child {
+		grid-column: auto
+	}
+
+
+	.vred-geo-admin-settings-fields {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 12px
+	}
+
+	.vred-geo-admin-settings-fields .vred-geo-admin-field--select, .vred-geo-admin-settings-fields .vred-geo-admin-field--media {
+		width: 100%;
+		min-width: 0
+	}
+
+	.vred-geo-admin-override {
+		width: 100%
+	}
+
+	.vred-geo-admin-override__control {
+		align-items: center;
+		flex-wrap: wrap
+	}
+}
