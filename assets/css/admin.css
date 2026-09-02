@@ -627,7 +627,9 @@
 }
 
 .vred-geo-admin-coordinate-grid {
-	grid-template-columns: repeat(2, minmax(0, 1fr))
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+
+	margin-top: 10px
 }
 
 .vred-geo-admin-location-fields > .description {

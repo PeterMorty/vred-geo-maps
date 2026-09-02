@@ -59,7 +59,7 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-msgid "Automatically filled when locating the address. You can edit these values manually."
+msgid "These data are filled automatically when locating the address. You can edit them manually."
 msgstr ""
 
 msgid "All cities"
@@ -144,9 +144,6 @@ msgid "Cool"
 msgstr ""
 
 msgid "Country"
-msgstr ""
-
-msgid "Coordinates"
 msgstr ""
 
 msgid "Coordinates and geographic data updated."
@@ -288,6 +285,9 @@ msgid "Location Types"
 msgstr ""
 
 msgid "Location Types and individual Locations can override these properties independently."
+msgstr ""
+
+msgid "Location data"
 msgstr ""
 
 msgid "Location not found."

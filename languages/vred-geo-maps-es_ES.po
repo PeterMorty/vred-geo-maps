@@ -65,8 +65,8 @@ msgstr ""
 msgid "Address"
 msgstr "Dirección"
 
-msgid "Automatically filled when locating the address. You can edit these values manually."
-msgstr "Se rellenan automáticamente al localizar la dirección. Puedes corregirlos manualmente."
+msgid "These data are filled automatically when locating the address. You can edit them manually."
+msgstr "Estos datos se rellenan automáticamente al localizar la dirección. Puedes corregirlos manualmente."
 
 msgid "All cities"
 msgstr "Todas las ciudades"
@@ -155,9 +155,6 @@ msgstr "Frío"
 
 msgid "Country"
 msgstr "País"
-
-msgid "Coordinates"
-msgstr "Coordenadas"
 
 msgid "Coordinates and geographic data updated."
 msgstr "Coordenadas y datos geográficos actualizados."
@@ -301,6 +298,9 @@ msgstr "Tipos de ubicación"
 
 msgid "Location Types and individual Locations can override these properties independently."
 msgstr "Los tipos de ubicación y las ubicaciones individuales pueden sobrescribir estas propiedades de forma independiente."
+
+msgid "Location data"
+msgstr "Datos de la ubicación"
 
 msgid "Location not found."
 msgstr "Ubicación no encontrada."

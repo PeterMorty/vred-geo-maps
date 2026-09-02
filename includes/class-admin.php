@@ -228,19 +228,27 @@ final class Admin {
 			<div class="vred-geo-admin-card__body" data-vred-geo-card-body hidden>
 				<form data-vred-geo-edit-form="location">
 					<input type="hidden" name="id" value="<?php echo esc_attr( (string) $location->ID ); ?>">
-					<div class="vred-geo-admin-grid">
-						<?php self::text_field( 'title', __( 'Name', 'vred-geo-maps' ), $location->post_title, true ); ?>
-						<label class="vred-geo-admin-field">
-							<span><?php esc_html_e( 'Location type', 'vred-geo-maps' ); ?></span>
-							<select name="type_id">
-								<option value="0"><?php esc_html_e( 'No type', 'vred-geo-maps' ); ?></option>
-								<?php foreach ( $types as $type_option ) : ?>
-									<option value="<?php echo esc_attr( (string) $type_option->term_id ); ?>" <?php selected( $type ? $type->term_id : 0, $type_option->term_id ); ?>><?php echo esc_html( $type_option->name ); ?></option>
-								<?php endforeach; ?>
-							</select>
-						</label>
-					</div>
-					<?php self::address_field( $address ); ?>
+					<fieldset class="vred-geo-admin-location-fields">
+						<legend><?php esc_html_e( 'Location data', 'vred-geo-maps' ); ?></legend>
+						<div class="vred-geo-admin-grid">
+							<?php self::text_field( 'title', __( 'Name', 'vred-geo-maps' ), $location->post_title, true ); ?>
+							<label class="vred-geo-admin-field">
+								<span><?php esc_html_e( 'Location type', 'vred-geo-maps' ); ?></span>
+								<select name="type_id">
+									<option value="0"><?php esc_html_e( 'No type', 'vred-geo-maps' ); ?></option>
+									<?php foreach ( $types as $type_option ) : ?>
+										<option value="<?php echo esc_attr( (string) $type_option->term_id ); ?>" <?php selected( $type ? $type->term_id : 0, $type_option->term_id ); ?>><?php echo esc_html( $type_option->name ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</label>
+						</div>
+						<div class="vred-geo-admin-contact-grid">
+							<?php self::text_field( 'phone', __( 'Phone', 'vred-geo-maps' ), $phone ); ?>
+							<?php self::text_field( 'email', __( 'Email', 'vred-geo-maps' ), $email, false, '', 'email' ); ?>
+							<?php self::text_field( 'website', __( 'Website', 'vred-geo-maps' ), $website, false, '', 'url' ); ?>
+						</div>
+						<?php self::address_field( $address ); ?>
+					</fieldset>
 					<fieldset class="vred-geo-admin-location-fields">
 						<legend><?php esc_html_e( 'Geographic data', 'vred-geo-maps' ); ?></legend>
 						<div class="vred-geo-admin-geographic-grid">
@@ -248,20 +256,12 @@ final class Admin {
 							<?php self::text_field( 'region', __( 'Province / region', 'vred-geo-maps' ), $region ); ?>
 							<?php self::text_field( 'country', __( 'Country', 'vred-geo-maps' ), $country ); ?>
 						</div>
-						<p class="description"><?php esc_html_e( 'Automatically filled when locating the address. You can edit these values manually.', 'vred-geo-maps' ); ?></p>
-					</fieldset>
-					<fieldset class="vred-geo-admin-location-fields">
-						<legend><?php esc_html_e( 'Coordinates', 'vred-geo-maps' ); ?></legend>
 						<div class="vred-geo-admin-coordinate-grid">
 							<?php self::text_field( 'latitude', __( 'Latitude', 'vred-geo-maps' ), $latitude ); ?>
 							<?php self::text_field( 'longitude', __( 'Longitude', 'vred-geo-maps' ), $longitude ); ?>
 						</div>
+						<p class="description"><?php esc_html_e( 'These data are filled automatically when locating the address. You can edit them manually.', 'vred-geo-maps' ); ?></p>
 					</fieldset>
-					<div class="vred-geo-admin-contact-grid">
-						<?php self::text_field( 'phone', __( 'Phone', 'vred-geo-maps' ), $phone ); ?>
-						<?php self::text_field( 'email', __( 'Email', 'vred-geo-maps' ), $email, false, '', 'email' ); ?>
-						<?php self::text_field( 'website', __( 'Website', 'vred-geo-maps' ), $website, false, '', 'url' ); ?>
-					</div>
 
 					<fieldset class="vred-geo-admin-group vred-geo-admin-group--compact">
 						<legend><?php esc_html_e( 'Marker action', 'vred-geo-maps' ); ?></legend>
