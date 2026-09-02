@@ -435,6 +435,7 @@ final class Admin {
 						</select>
 					</label>
 					<?php self::settings_number( 'map_height', __( 'Map height', 'vred-geo-maps' ), $settings['map_height'], 240, 900, 'px' ); ?>
+					<?php self::settings_number( 'map_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['map_border_radius'], 0, 40, 'px' ); ?>
 					<?php self::settings_number( 'initial_zoom', __( 'Initial zoom', 'vred-geo-maps' ), $settings['initial_zoom'], 1, 19 ); ?>
 				</div>
 				<div class="vred-geo-admin-checks">
@@ -488,6 +489,7 @@ final class Admin {
 					</label>
 					<?php self::settings_number( 'list_width', __( 'List width', 'vred-geo-maps' ), $settings['list_width'], 260, 560, 'px' ); ?>
 					<?php self::settings_number( 'gap', __( 'Spacing', 'vred-geo-maps' ), $settings['gap'], 0, 80, 'px' ); ?>
+					<?php self::settings_number( 'filters_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['filters_border_radius'], 0, 40, 'px' ); ?>
 					<?php self::settings_number( 'card_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['card_radius'], 0, 40, 'px' ); ?>
 				</div>
 				<div class="vred-geo-admin-checks">

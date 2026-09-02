@@ -3,8 +3,10 @@
  */
 .vred-geo-maps {
 	--vred-geo-map-height: 560px;
+	--vred-geo-map-radius: 18px;
 	--vred-geo-list-width: 360px;
 	--vred-geo-gap: 20px;
+	--vred-geo-filters-radius: 16px;
 	--vred-geo-card-radius: 14px;
 	--vred-geo-popup-text: #202124;
 	--vred-geo-popup-bg: #fff;
@@ -37,7 +39,7 @@
 	padding: 18px;
 
 	border: 1px solid #e2e6e3;
-	border-radius: 16px;
+	border-radius: var(--vred-geo-filters-radius);
 	background: #f8faf9
 }
 
@@ -204,7 +206,7 @@
 	min-height: var(--vred-geo-map-height);
 
 	border: 1px solid #e1e5e2;
-	border-radius: 18px;
+	border-radius: var(--vred-geo-map-radius);
 	background: #eef2ef
 }
 

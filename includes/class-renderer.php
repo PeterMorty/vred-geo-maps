@@ -251,6 +251,7 @@ final class Renderer {
 			'tile_provider',
 			'appearance',
 			'map_height',
+			'map_border_radius',
 			'initial_zoom',
 			'auto_fit',
 			'clustering',
@@ -262,6 +263,7 @@ final class Renderer {
 			'show_type_filter',
 			'list_width',
 			'gap',
+			'filters_border_radius',
 			'card_radius',
 			'popup_text_color',
 			'popup_background',
@@ -279,9 +281,11 @@ final class Renderer {
 		$settings['list_style']          = in_array( $settings['list_style'], array( 'cards', 'compact', 'legend', 'grouped' ), true ) ? $settings['list_style'] : 'cards';
 		$settings['type_indicator']      = in_array( $settings['type_indicator'], array( 'auto', 'icon', 'color' ), true ) ? $settings['type_indicator'] : 'auto';
 		$settings['map_height']          = Data::clamp_int( $settings['map_height'], 240, 900 );
+		$settings['map_border_radius']   = Data::clamp_int( $settings['map_border_radius'], 0, 40 );
 		$settings['initial_zoom']        = Data::clamp_int( $settings['initial_zoom'], 1, 19 );
 		$settings['list_width']          = Data::clamp_int( $settings['list_width'], 260, 560 );
 		$settings['gap']                 = Data::clamp_int( $settings['gap'], 0, 80 );
+		$settings['filters_border_radius'] = Data::clamp_int( $settings['filters_border_radius'], 0, 40 );
 		$settings['card_radius']         = Data::clamp_int( $settings['card_radius'], 0, 40 );
 		$settings['popup_border_radius'] = Data::clamp_int( $settings['popup_border_radius'], 0, 40 );
 		$settings['popup_width']         = Data::clamp_int( $settings['popup_width'], 180, 520 );
@@ -299,8 +303,10 @@ final class Renderer {
 			';',
 			array(
 				'--vred-geo-map-height:' . (int) $settings['map_height'] . 'px',
+				'--vred-geo-map-radius:' . (int) $settings['map_border_radius'] . 'px',
 				'--vred-geo-list-width:' . (int) $settings['list_width'] . 'px',
 				'--vred-geo-gap:' . (int) $settings['gap'] . 'px',
+				'--vred-geo-filters-radius:' . (int) $settings['filters_border_radius'] . 'px',
 				'--vred-geo-card-radius:' . (int) $settings['card_radius'] . 'px',
 				'--vred-geo-popup-text:' . $settings['popup_text_color'],
 				'--vred-geo-popup-bg:' . $settings['popup_background'],
