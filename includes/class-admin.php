@@ -228,7 +228,7 @@ final class Admin {
 			<div class="vred-geo-admin-card__body" data-vred-geo-card-body hidden>
 				<form data-vred-geo-edit-form="location">
 					<input type="hidden" name="id" value="<?php echo esc_attr( (string) $location->ID ); ?>">
-					<fieldset class="vred-geo-admin-location-fields">
+					<fieldset class="vred-geo-admin-group vred-geo-admin-location-fields">
 						<legend><?php esc_html_e( 'Location data', 'vred-geo-maps' ); ?></legend>
 						<div class="vred-geo-admin-grid">
 							<?php self::text_field( 'title', __( 'Name', 'vred-geo-maps' ), $location->post_title, true ); ?>
@@ -249,7 +249,7 @@ final class Admin {
 						</div>
 						<?php self::address_field( $address ); ?>
 					</fieldset>
-					<fieldset class="vred-geo-admin-location-fields">
+					<fieldset class="vred-geo-admin-group vred-geo-admin-location-fields">
 						<legend><?php esc_html_e( 'Geographic data', 'vred-geo-maps' ); ?></legend>
 						<div class="vred-geo-admin-geographic-grid">
 							<?php self::text_field( 'city', __( 'City', 'vred-geo-maps' ), $city ); ?>
@@ -262,6 +262,8 @@ final class Admin {
 						</div>
 						<p class="description"><?php esc_html_e( 'These data are filled automatically when locating the address. You can edit them manually.', 'vred-geo-maps' ); ?></p>
 					</fieldset>
+
+					<?php self::render_marker_override_fields( $marker_image_id, $marker_color, $marker_size ); ?>
 
 					<fieldset class="vred-geo-admin-group vred-geo-admin-group--compact">
 						<legend><?php esc_html_e( 'Marker action', 'vred-geo-maps' ); ?></legend>
@@ -283,9 +285,6 @@ final class Admin {
 							<textarea id="<?php echo esc_attr( $editor_id ); ?>" name="popup_content" rows="5" data-vred-geo-popup-textarea><?php echo esc_textarea( $popup ); ?></textarea>
 						</div>
 					</fieldset>
-
-					<?php self::render_marker_override_fields( $marker_image_id, $marker_color, $marker_size ); ?>
-
 					<div class="vred-geo-admin-card__footer">
 						<button type="submit" class="button button-primary"><?php esc_html_e( 'Save changes', 'vred-geo-maps' ); ?></button>
 						<span class="vred-geo-admin-card__save-status" data-vred-geo-save-status aria-live="polite"></span>

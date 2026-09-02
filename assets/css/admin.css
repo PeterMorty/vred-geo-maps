@@ -598,23 +598,12 @@
 	gap: 10px 12px
 }
 
-.vred-geo-admin-field--address, .vred-geo-admin-location-fields {
+.vred-geo-admin-field--address {
 	margin-top: 10px
 }
 
 .vred-geo-admin-location-fields {
-	padding: 0;
-	min-width: 0;
-
-	border: 0
-}
-
-.vred-geo-admin-location-fields legend {
-	margin-bottom: 8px;
-	padding: 0;
-
-	font-size: 14px;
-	font-weight: 700
+	min-width: 0
 }
 
 .vred-geo-admin-geographic-grid, .vred-geo-admin-coordinate-grid {
@@ -730,6 +719,9 @@
 	padding: 16px
 }
 
+[data-vred-geo-edit-form="location"] > .vred-geo-admin-group {
+	margin-top: 36px
+}
 
 .vred-geo-admin-action-row {
 	display: flex;
