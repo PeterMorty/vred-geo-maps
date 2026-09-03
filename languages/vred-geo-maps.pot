@@ -441,7 +441,7 @@ msgstr ""
 msgid "Shortcode"
 msgstr ""
 
-msgid "Show \"Get directions\" link"
+msgid "Show “Get directions” link"
 msgstr ""
 
 msgid "Show specific location IDs"

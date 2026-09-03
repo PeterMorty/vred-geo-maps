@@ -408,15 +408,17 @@ final class Admin {
 		$update_data = Updater::get_settings_update_data();
 		$uses_carto  = in_array( $settings['tile_provider'], array( 'carto_positron', 'carto_positron_nolabels', 'carto_voyager' ), true );
 		?>
-		<div class="vred-geo-admin-settings">
+		<form method="post" action="options.php" class="vred-geo-admin-settings">
+			<?php settings_fields( 'vred_geo_maps_settings' ); ?>
+
 			<?php if ( ! empty( $_GET['vred-geo-maps-updates-refreshed'] ) ) : ?>
 				<div class="notice notice-success inline"><p><?php esc_html_e( 'Update check completed.', 'vred-geo-maps' ); ?></p></div>
 			<?php endif; ?>
 			<section class="vred-geo-admin-settings__section">
 				<div class="vred-geo-admin-settings__section-header">
 					<h2><?php esc_html_e( 'Plugin', 'vred-geo-maps' ); ?></h2>
-					<div class="vred-geo-admin-plugin-actions">
-						<span class="vred-geo-admin-version description"><?php echo esc_html( sprintf( __( 'Version %s', 'vred-geo-maps' ), $update_data['current_version'] ) ); ?></span>
+					<div class="vred-geo-admin-settings__section-actions">
+						<span class="description"><?php echo esc_html( sprintf( __( 'Version %s', 'vred-geo-maps' ), $update_data['current_version'] ) ); ?></span>
 						<?php if ( ! empty( $update_data['has_update'] ) ) : ?>
 							<span class="vred-geo-admin-status-badge is-update"><?php echo esc_html( sprintf( __( 'Update available: %s', 'vred-geo-maps' ), $update_data['remote_version'] ) ); ?></span>
 						<?php endif; ?>
@@ -424,10 +426,6 @@ final class Admin {
 					</div>
 				</div>
 			</section>
-		</div>
-
-		<form method="post" action="options.php" class="vred-geo-admin-settings">
-			<?php settings_fields( 'vred_geo_maps_settings' ); ?>
 
 			<section class="vred-geo-admin-settings__section">
 				<h2><?php esc_html_e( 'Map', 'vred-geo-maps' ); ?></h2>
@@ -510,6 +508,9 @@ final class Admin {
 						<?php self::settings_number( 'gap', __( 'Spacing', 'vred-geo-maps' ), $settings['gap'], 0, 80, 'px' ); ?>
 						<?php self::settings_number( 'card_radius', __( 'Card radius', 'vred-geo-maps' ), $settings['card_radius'], 0, 40, 'px' ); ?>
 					</div>
+					<div class="vred-geo-admin-checks">
+						<?php self::settings_checkbox( 'show_directions_link', __( 'Show “Get directions” link', 'vred-geo-maps' ), $settings['show_directions_link'] ); ?>
+					</div>
 				</div>
 			</fieldset>
 
@@ -590,9 +591,6 @@ final class Admin {
 					<?php self::settings_color( 'popup_border_color', __( 'Border color', 'vred-geo-maps' ), $settings['popup_border_color'] ); ?>
 					<?php self::settings_number( 'popup_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['popup_border_radius'], 0, 40, 'px' ); ?>
 					<?php self::settings_number( 'popup_width', __( 'Maximum width', 'vred-geo-maps' ), $settings['popup_width'], 180, 520, 'px' ); ?>
-				</div>
-				<div class="vred-geo-admin-checks">
-					<?php self::settings_checkbox( 'show_directions_link', __( 'Show "Get directions" link', 'vred-geo-maps' ), $settings['show_directions_link'] ); ?>
 				</div>
 			</section>
 

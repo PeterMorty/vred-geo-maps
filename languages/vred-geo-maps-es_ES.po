@@ -465,8 +465,8 @@ msgstr "Ajustes"
 msgid "Shortcode"
 msgstr "Shortcode"
 
-msgid "Show \"Get directions\" link"
-msgstr "Mostrar el enlace «Cómo llegar»"
+msgid "Show “Get directions” link"
+msgstr "Mostrar enlace «Cómo llegar»"
 
 msgid "Show specific location IDs"
 msgstr "Mostrar IDs de ubicaciones concretas"
