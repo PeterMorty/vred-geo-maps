@@ -142,7 +142,7 @@ final class Updater {
 		return wp_nonce_url( $url, 'vred-geo-maps-refresh-updates' );
 	}
 
-	/** Clear updater caches and ask WordPress to check again. */
+	/** Clear updater caches manually. */
 	public static function maybe_refresh_updates(): void {
 		if ( empty( $_GET['page'] ) || VRED_GEO_MAPS_SLUG !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
 			return;
@@ -158,14 +158,8 @@ final class Updater {
 
 		check_admin_referer( 'vred-geo-maps-refresh-updates' );
 
-		if ( ! function_exists( 'wp_update_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/update.php';
-		}
-
 		delete_site_transient( self::CACHE_KEY );
 		delete_site_transient( 'update_plugins' );
-		wp_clean_plugins_cache( true );
-		wp_update_plugins();
 
 		$redirect = add_query_arg(
 			array(
