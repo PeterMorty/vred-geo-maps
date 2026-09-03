@@ -225,63 +225,75 @@ final class Admin {
 			<div class="vred-geo-admin-card__body" data-vred-geo-card-body hidden>
 				<form data-vred-geo-edit-form="location">
 					<input type="hidden" name="id" value="<?php echo esc_attr( (string) $location->ID ); ?>">
-					<fieldset class="vred-geo-admin-group vred-geo-admin-location-fields">
-						<legend><?php esc_html_e( 'Location data', 'vred-geo-maps' ); ?></legend>
-						<div class="vred-geo-admin-grid">
-							<?php self::text_field( 'title', __( 'Name', 'vred-geo-maps' ), $location->post_title, true ); ?>
-							<label class="vred-geo-admin-field">
-								<span><?php esc_html_e( 'Location type', 'vred-geo-maps' ); ?></span>
-								<select name="type_id">
-									<option value="0"><?php esc_html_e( 'No type', 'vred-geo-maps' ); ?></option>
-									<?php foreach ( $types as $type_option ) : ?>
-										<option value="<?php echo esc_attr( (string) $type_option->term_id ); ?>" <?php selected( $type ? $type->term_id : 0, $type_option->term_id ); ?>><?php echo esc_html( $type_option->name ); ?></option>
-									<?php endforeach; ?>
-								</select>
-							</label>
+					<section class="vred-geo-admin-block vred-geo-admin-block--compact">
+						<header class="vred-geo-admin-block__header">
+							<h3 class="vred-geo-admin-block__title"><?php esc_html_e( 'Location data', 'vred-geo-maps' ); ?></h3>
+						</header>
+						<div class="vred-geo-admin-block__content">
+							<div class="vred-geo-admin-grid">
+								<?php self::text_field( 'title', __( 'Name', 'vred-geo-maps' ), $location->post_title, true ); ?>
+								<label class="vred-geo-admin-field">
+									<span><?php esc_html_e( 'Location type', 'vred-geo-maps' ); ?></span>
+									<select name="type_id">
+										<option value="0"><?php esc_html_e( 'No type', 'vred-geo-maps' ); ?></option>
+										<?php foreach ( $types as $type_option ) : ?>
+											<option value="<?php echo esc_attr( (string) $type_option->term_id ); ?>" <?php selected( $type ? $type->term_id : 0, $type_option->term_id ); ?>><?php echo esc_html( $type_option->name ); ?></option>
+										<?php endforeach; ?>
+									</select>
+								</label>
+							</div>
+							<div class="vred-geo-admin-contact-grid">
+								<?php self::text_field( 'phone', __( 'Phone', 'vred-geo-maps' ), $phone ); ?>
+								<?php self::text_field( 'email', __( 'Email', 'vred-geo-maps' ), $email, false, '', 'email' ); ?>
+								<?php self::text_field( 'website', __( 'Website', 'vred-geo-maps' ), $website, false, '', 'url' ); ?>
+							</div>
+							<?php self::address_field( $address ); ?>
 						</div>
-						<div class="vred-geo-admin-contact-grid">
-							<?php self::text_field( 'phone', __( 'Phone', 'vred-geo-maps' ), $phone ); ?>
-							<?php self::text_field( 'email', __( 'Email', 'vred-geo-maps' ), $email, false, '', 'email' ); ?>
-							<?php self::text_field( 'website', __( 'Website', 'vred-geo-maps' ), $website, false, '', 'url' ); ?>
+					</section>
+					<section class="vred-geo-admin-block vred-geo-admin-block--compact">
+						<header class="vred-geo-admin-block__header">
+							<h3 class="vred-geo-admin-block__title"><?php esc_html_e( 'Geographic data', 'vred-geo-maps' ); ?></h3>
+						</header>
+						<div class="vred-geo-admin-block__content">
+							<div class="vred-geo-admin-geographic-grid">
+								<?php self::text_field( 'city', __( 'City', 'vred-geo-maps' ), $city ); ?>
+								<?php self::text_field( 'region', __( 'Province / region', 'vred-geo-maps' ), $region ); ?>
+								<?php self::text_field( 'country', __( 'Country', 'vred-geo-maps' ), $country ); ?>
+							</div>
+							<div class="vred-geo-admin-coordinate-grid">
+								<?php self::text_field( 'latitude', __( 'Latitude', 'vred-geo-maps' ), $latitude ); ?>
+								<?php self::text_field( 'longitude', __( 'Longitude', 'vred-geo-maps' ), $longitude ); ?>
+							</div>
+							<p class="description"><?php esc_html_e( 'These data are filled automatically when locating the address. You can edit them manually.', 'vred-geo-maps' ); ?></p>
 						</div>
-						<?php self::address_field( $address ); ?>
-					</fieldset>
-					<fieldset class="vred-geo-admin-group vred-geo-admin-location-fields">
-						<legend><?php esc_html_e( 'Geographic data', 'vred-geo-maps' ); ?></legend>
-						<div class="vred-geo-admin-geographic-grid">
-							<?php self::text_field( 'city', __( 'City', 'vred-geo-maps' ), $city ); ?>
-							<?php self::text_field( 'region', __( 'Province / region', 'vred-geo-maps' ), $region ); ?>
-							<?php self::text_field( 'country', __( 'Country', 'vred-geo-maps' ), $country ); ?>
-						</div>
-						<div class="vred-geo-admin-coordinate-grid">
-							<?php self::text_field( 'latitude', __( 'Latitude', 'vred-geo-maps' ), $latitude ); ?>
-							<?php self::text_field( 'longitude', __( 'Longitude', 'vred-geo-maps' ), $longitude ); ?>
-						</div>
-						<p class="description"><?php esc_html_e( 'These data are filled automatically when locating the address. You can edit them manually.', 'vred-geo-maps' ); ?></p>
-					</fieldset>
+					</section>
 
 					<?php self::render_marker_override_fields( $marker_image_id, $marker_color, $marker_size ); ?>
 
-					<fieldset class="vred-geo-admin-group vred-geo-admin-group--compact">
-						<legend><?php esc_html_e( 'Marker action', 'vred-geo-maps' ); ?></legend>
-						<div class="vred-geo-admin-action-row">
-							<label class="vred-geo-admin-field vred-geo-admin-field--action">
-								<span><?php esc_html_e( 'Action', 'vred-geo-maps' ); ?></span>
-								<select name="marker_action" data-vred-geo-action-select>
-									<option value="none" <?php selected( $action, 'none' ); ?>><?php esc_html_e( 'None', 'vred-geo-maps' ); ?></option>
-									<option value="popup" <?php selected( '' === $action || 'popup' === $action, true ); ?>><?php esc_html_e( 'Popup', 'vred-geo-maps' ); ?></option>
-									<option value="link" <?php selected( $action, 'link' ); ?>><?php esc_html_e( 'Link', 'vred-geo-maps' ); ?></option>
-								</select>
-							</label>
-							<label class="vred-geo-admin-popup-toggle" data-vred-geo-action-fields="popup" <?php echo ( '' === $action || 'popup' === $action ) ? '' : 'hidden'; ?>>
-								<input type="checkbox" name="popup_custom" value="1" data-vred-geo-popup-custom <?php checked( $popup_custom ); ?>>
-								<span><?php esc_html_e( 'Custom content', 'vred-geo-maps' ); ?></span>
-							</label>
+					<section class="vred-geo-admin-block vred-geo-admin-block--compact">
+						<header class="vred-geo-admin-block__header">
+							<h3 class="vred-geo-admin-block__title"><?php esc_html_e( 'Marker action', 'vred-geo-maps' ); ?></h3>
+						</header>
+						<div class="vred-geo-admin-block__content">
+							<div class="vred-geo-admin-action-row">
+								<label class="vred-geo-admin-field vred-geo-admin-field--action">
+									<span><?php esc_html_e( 'Action', 'vred-geo-maps' ); ?></span>
+									<select name="marker_action" data-vred-geo-action-select>
+										<option value="none" <?php selected( $action, 'none' ); ?>><?php esc_html_e( 'None', 'vred-geo-maps' ); ?></option>
+										<option value="popup" <?php selected( '' === $action || 'popup' === $action, true ); ?>><?php esc_html_e( 'Popup', 'vred-geo-maps' ); ?></option>
+										<option value="link" <?php selected( $action, 'link' ); ?>><?php esc_html_e( 'Link', 'vred-geo-maps' ); ?></option>
+									</select>
+								</label>
+								<label class="vred-geo-admin-popup-toggle" data-vred-geo-action-fields="popup" <?php echo ( '' === $action || 'popup' === $action ) ? '' : 'hidden'; ?>>
+									<input type="checkbox" name="popup_custom" value="1" data-vred-geo-popup-custom <?php checked( $popup_custom ); ?>>
+									<span><?php esc_html_e( 'Custom content', 'vred-geo-maps' ); ?></span>
+								</label>
+							</div>
+							<div class="vred-geo-admin-popup-editor" data-vred-geo-popup-editor <?php echo $popup_custom && ( '' === $action || 'popup' === $action ) ? '' : 'hidden'; ?>>
+								<textarea id="<?php echo esc_attr( $editor_id ); ?>" name="popup_content" rows="5" data-vred-geo-popup-textarea><?php echo esc_textarea( $popup ); ?></textarea>
+							</div>
 						</div>
-						<div class="vred-geo-admin-popup-editor" data-vred-geo-popup-editor <?php echo $popup_custom && ( '' === $action || 'popup' === $action ) ? '' : 'hidden'; ?>>
-							<textarea id="<?php echo esc_attr( $editor_id ); ?>" name="popup_content" rows="5" data-vred-geo-popup-textarea><?php echo esc_textarea( $popup ); ?></textarea>
-						</div>
-					</fieldset>
+					</section>
 					<div class="vred-geo-admin-card__footer">
 						<button type="submit" class="button button-primary"><?php esc_html_e( 'Save changes', 'vred-geo-maps' ); ?></button>
 						<span class="vred-geo-admin-card__save-status" data-vred-geo-save-status aria-live="polite"></span>
@@ -342,10 +354,17 @@ final class Admin {
 			<div class="vred-geo-admin-card__body" data-vred-geo-card-body hidden>
 				<form data-vred-geo-edit-form="type">
 					<input type="hidden" name="id" value="<?php echo esc_attr( (string) $type->term_id ); ?>">
-					<div class="vred-geo-admin-grid">
-						<?php self::text_field( 'name', __( 'Name', 'vred-geo-maps' ), $type->name, true ); ?>
-						<?php self::text_field( 'slug', __( 'Slug', 'vred-geo-maps' ), $type->slug, true ); ?>
-					</div>
+					<section class="vred-geo-admin-block vred-geo-admin-block--compact">
+						<header class="vred-geo-admin-block__header">
+							<h3 class="vred-geo-admin-block__title"><?php esc_html_e( 'Basic information', 'vred-geo-maps' ); ?></h3>
+						</header>
+						<div class="vred-geo-admin-block__content">
+							<div class="vred-geo-admin-grid">
+								<?php self::text_field( 'name', __( 'Name', 'vred-geo-maps' ), $type->name, true ); ?>
+								<?php self::text_field( 'slug', __( 'Slug', 'vred-geo-maps' ), $type->slug, true ); ?>
+							</div>
+						</div>
+					</section>
 					<?php self::render_marker_override_fields( $marker_image_id, $marker_color, $marker_size ); ?>
 					<div class="vred-geo-admin-card__footer">
 						<button type="submit" class="button button-primary"><?php esc_html_e( 'Save changes', 'vred-geo-maps' ); ?></button>
@@ -361,44 +380,48 @@ final class Admin {
 	private static function render_marker_override_fields( int $image_id, string $color, string $size ): void {
 		$color_value = sanitize_hex_color( $color ) ?: '#2f6fed';
 		?>
-		<fieldset class="vred-geo-admin-group vred-geo-admin-group--marker">
-			<legend><?php esc_html_e( 'Custom marker', 'vred-geo-maps' ); ?></legend>
-			<div class="vred-geo-admin-overrides">
-				<div class="vred-geo-admin-override">
-					<label class="vred-geo-admin-override__label">
-						<input type="checkbox" name="marker_image_enabled" value="1" data-vred-geo-override-toggle <?php checked( $image_id > 0 ); ?>>
-						<span><?php esc_html_e( 'Icon', 'vred-geo-maps' ); ?></span>
-					</label>
-					<div class="vred-geo-admin-override__control">
-						<?php self::render_media_field( 'marker_image_id', $image_id, true ); ?>
-					</div>
-				</div>
-				<div class="vred-geo-admin-override">
-					<label class="vred-geo-admin-override__label">
-						<input type="checkbox" name="marker_size_enabled" value="1" data-vred-geo-override-toggle <?php checked( '' !== $size && (int) $size > 0 ); ?>>
-						<span><?php esc_html_e( 'Size', 'vred-geo-maps' ); ?></span>
-					</label>
-					<div class="vred-geo-admin-override__control">
-						<div class="vred-geo-admin-input-group">
-							<input type="number" min="16" max="96" step="1" name="marker_size" value="<?php echo esc_attr( (string) ( (int) $size > 0 ? (int) $size : 34 ) ); ?>" data-vred-geo-override-input <?php disabled( '' === $size || (int) $size <= 0 ); ?>>
-							<span>px</span>
+		<section class="vred-geo-admin-block vred-geo-admin-block--compact">
+			<header class="vred-geo-admin-block__header">
+				<h3 class="vred-geo-admin-block__title"><?php esc_html_e( 'Custom marker', 'vred-geo-maps' ); ?></h3>
+			</header>
+			<div class="vred-geo-admin-block__content">
+				<div class="vred-geo-admin-overrides">
+					<div class="vred-geo-admin-override">
+						<label class="vred-geo-admin-override__label">
+							<input type="checkbox" name="marker_image_enabled" value="1" data-vred-geo-override-toggle <?php checked( $image_id > 0 ); ?>>
+							<span><?php esc_html_e( 'Icon', 'vred-geo-maps' ); ?></span>
+						</label>
+						<div class="vred-geo-admin-override__control">
+							<?php self::render_media_field( 'marker_image_id', $image_id, true ); ?>
 						</div>
 					</div>
-				</div>
-				<div class="vred-geo-admin-override">
-					<label class="vred-geo-admin-override__label">
-						<input type="checkbox" name="marker_color_enabled" value="1" data-vred-geo-override-toggle <?php checked( '' !== $color ); ?>>
-						<span><?php esc_html_e( 'Color', 'vred-geo-maps' ); ?></span>
-					</label>
-					<div class="vred-geo-admin-override__control">
-						<div class="vred-geo-admin-color" data-vred-geo-color-control>
-							<input type="text" name="marker_color" value="<?php echo esc_attr( $color_value ); ?>" maxlength="7" spellcheck="false" data-vred-geo-color-text data-vred-geo-override-input <?php disabled( '' === $color ); ?>>
-							<input type="color" value="<?php echo esc_attr( $color_value ); ?>" aria-label="<?php echo esc_attr__( 'Color', 'vred-geo-maps' ); ?>" data-vred-geo-color-picker data-vred-geo-override-control <?php disabled( '' === $color ); ?>>
+					<div class="vred-geo-admin-override">
+						<label class="vred-geo-admin-override__label">
+							<input type="checkbox" name="marker_size_enabled" value="1" data-vred-geo-override-toggle <?php checked( '' !== $size && (int) $size > 0 ); ?>>
+							<span><?php esc_html_e( 'Size', 'vred-geo-maps' ); ?></span>
+						</label>
+						<div class="vred-geo-admin-override__control">
+							<div class="vred-geo-admin-input-group">
+								<input type="number" min="16" max="96" step="1" name="marker_size" value="<?php echo esc_attr( (string) ( (int) $size > 0 ? (int) $size : 34 ) ); ?>" data-vred-geo-override-input <?php disabled( '' === $size || (int) $size <= 0 ); ?>>
+								<span>px</span>
+							</div>
+						</div>
+					</div>
+					<div class="vred-geo-admin-override">
+						<label class="vred-geo-admin-override__label">
+							<input type="checkbox" name="marker_color_enabled" value="1" data-vred-geo-override-toggle <?php checked( '' !== $color ); ?>>
+							<span><?php esc_html_e( 'Color', 'vred-geo-maps' ); ?></span>
+						</label>
+						<div class="vred-geo-admin-override__control">
+							<div class="vred-geo-admin-color" data-vred-geo-color-control>
+								<input type="text" name="marker_color" value="<?php echo esc_attr( $color_value ); ?>" maxlength="7" spellcheck="false" data-vred-geo-color-text data-vred-geo-override-input <?php disabled( '' === $color ); ?>>
+								<input type="color" value="<?php echo esc_attr( $color_value ); ?>" aria-label="<?php echo esc_attr__( 'Color', 'vred-geo-maps' ); ?>" data-vred-geo-color-picker data-vred-geo-override-control <?php disabled( '' === $color ); ?>>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</fieldset>
+		</section>
 		<?php
 	}
 
@@ -414,59 +437,63 @@ final class Admin {
 			<?php if ( ! empty( $_GET['vred-geo-maps-updates-refreshed'] ) ) : ?>
 				<div class="notice notice-success inline"><p><?php esc_html_e( 'Update check completed.', 'vred-geo-maps' ); ?></p></div>
 			<?php endif; ?>
-			<section class="vred-geo-admin-settings__section">
-				<div class="vred-geo-admin-settings__section-header">
-					<h2><?php esc_html_e( 'Plugin', 'vred-geo-maps' ); ?></h2>
-					<div class="vred-geo-admin-settings__section-actions">
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><?php esc_html_e( 'Plugin', 'vred-geo-maps' ); ?></h2>
+					<div class="vred-geo-admin-block__actions">
 						<span class="description"><?php echo esc_html( sprintf( __( 'Version %s', 'vred-geo-maps' ), $update_data['current_version'] ) ); ?></span>
 						<?php if ( ! empty( $update_data['has_update'] ) ) : ?>
 							<span class="vred-geo-admin-status-badge is-update"><?php echo esc_html( sprintf( __( 'Update available: %s', 'vred-geo-maps' ), $update_data['remote_version'] ) ); ?></span>
 						<?php endif; ?>
 						<a href="<?php echo esc_url( Updater::get_refresh_url() ); ?>"><?php esc_html_e( 'Check updates', 'vred-geo-maps' ); ?></a>
 					</div>
-				</div>
+				</header>
 			</section>
 
-			<section class="vred-geo-admin-settings__section">
-				<h2><?php esc_html_e( 'Map', 'vred-geo-maps' ); ?></h2>
-				<div class="vred-geo-admin-settings-fields">
-					<label class="vred-geo-admin-field vred-geo-admin-field--select">
-						<span><?php esc_html_e( 'Tile provider', 'vred-geo-maps' ); ?></span>
-						<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[tile_provider]" data-vred-geo-tile-provider-setting>
-							<option value="openstreetmap" <?php selected( $settings['tile_provider'], 'openstreetmap' ); ?>>OpenStreetMap</option>
-							<option value="carto_positron" <?php selected( $settings['tile_provider'], 'carto_positron' ); ?>><?php esc_html_e( 'CARTO Positron — API key required', 'vred-geo-maps' ); ?></option>
-							<option value="carto_positron_nolabels" <?php selected( $settings['tile_provider'], 'carto_positron_nolabels' ); ?>><?php esc_html_e( 'CARTO Positron No Labels — API key required', 'vred-geo-maps' ); ?></option>
-							<option value="carto_voyager" <?php selected( $settings['tile_provider'], 'carto_voyager' ); ?>><?php esc_html_e( 'CARTO Voyager — API key required', 'vred-geo-maps' ); ?></option>
-						</select>
-					</label>
-					<div class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-carto-api-key-field<?php echo $uses_carto ? '' : ' hidden'; ?>>
-						<label for="vred-geo-carto-api-key"><span><?php esc_html_e( 'CARTO API key', 'vred-geo-maps' ); ?></span></label>
-						<input type="text" id="vred-geo-carto-api-key" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[carto_api_key]" value="<?php echo esc_attr( $settings['carto_api_key'] ); ?>" autocomplete="off" spellcheck="false">
-						<p class="description"><?php esc_html_e( 'CARTO maps require your own API key.', 'vred-geo-maps' ); ?> <a href="https://carto.com/basemaps/apikey/" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Request API key', 'vred-geo-maps' ); ?></a></p>
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><?php esc_html_e( 'Map', 'vred-geo-maps' ); ?></h2>
+				</header>
+				<div class="vred-geo-admin-block__content">
+					<div class="vred-geo-admin-settings-fields">
+						<label class="vred-geo-admin-field vred-geo-admin-field--select">
+							<span><?php esc_html_e( 'Tile provider', 'vred-geo-maps' ); ?></span>
+							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[tile_provider]" data-vred-geo-tile-provider-setting>
+								<option value="openstreetmap" <?php selected( $settings['tile_provider'], 'openstreetmap' ); ?>>OpenStreetMap</option>
+								<option value="carto_positron" <?php selected( $settings['tile_provider'], 'carto_positron' ); ?>><?php esc_html_e( 'CARTO Positron — API key required', 'vred-geo-maps' ); ?></option>
+								<option value="carto_positron_nolabels" <?php selected( $settings['tile_provider'], 'carto_positron_nolabels' ); ?>><?php esc_html_e( 'CARTO Positron No Labels — API key required', 'vred-geo-maps' ); ?></option>
+								<option value="carto_voyager" <?php selected( $settings['tile_provider'], 'carto_voyager' ); ?>><?php esc_html_e( 'CARTO Voyager — API key required', 'vred-geo-maps' ); ?></option>
+							</select>
+						</label>
+						<div class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-carto-api-key-field<?php echo $uses_carto ? '' : ' hidden'; ?>>
+							<label for="vred-geo-carto-api-key"><span><?php esc_html_e( 'CARTO API key', 'vred-geo-maps' ); ?></span></label>
+							<input type="text" id="vred-geo-carto-api-key" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[carto_api_key]" value="<?php echo esc_attr( $settings['carto_api_key'] ); ?>" autocomplete="off" spellcheck="false">
+							<p class="description"><?php esc_html_e( 'CARTO maps require your own API key.', 'vred-geo-maps' ); ?> <a href="https://carto.com/basemaps/apikey/" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Request API key', 'vred-geo-maps' ); ?></a></p>
+						</div>
+						<label class="vred-geo-admin-field vred-geo-admin-field--select">
+							<span><?php esc_html_e( 'Appearance', 'vred-geo-maps' ); ?></span>
+							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[appearance]">
+								<?php foreach ( self::get_appearance_options() as $key => $label ) : ?>
+									<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $settings['appearance'], $key ); ?>><?php echo esc_html( $label ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</label>
+						<?php self::settings_number( 'map_height', __( 'Map height', 'vred-geo-maps' ), $settings['map_height'], 240, 900, 'px' ); ?>
+						<?php self::settings_number( 'map_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['map_border_radius'], 0, 40, 'px' ); ?>
+						<?php self::settings_number( 'initial_zoom', __( 'Initial zoom', 'vred-geo-maps' ), $settings['initial_zoom'], 1, 19 ); ?>
 					</div>
-					<label class="vred-geo-admin-field vred-geo-admin-field--select">
-						<span><?php esc_html_e( 'Appearance', 'vred-geo-maps' ); ?></span>
-						<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[appearance]">
-							<?php foreach ( self::get_appearance_options() as $key => $label ) : ?>
-								<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $settings['appearance'], $key ); ?>><?php echo esc_html( $label ); ?></option>
-							<?php endforeach; ?>
-						</select>
-					</label>
-					<?php self::settings_number( 'map_height', __( 'Map height', 'vred-geo-maps' ), $settings['map_height'], 240, 900, 'px' ); ?>
-					<?php self::settings_number( 'map_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['map_border_radius'], 0, 40, 'px' ); ?>
-					<?php self::settings_number( 'initial_zoom', __( 'Initial zoom', 'vred-geo-maps' ), $settings['initial_zoom'], 1, 19 ); ?>
-				</div>
-				<div class="vred-geo-admin-checks">
-					<?php self::settings_checkbox( 'auto_fit', __( 'Automatically fit visible locations', 'vred-geo-maps' ), $settings['auto_fit'] ); ?>
-					<?php self::settings_checkbox( 'clustering', __( 'Cluster nearby markers', 'vred-geo-maps' ), $settings['clustering'] ); ?>
+					<div class="vred-geo-admin-checks">
+						<?php self::settings_checkbox( 'auto_fit', __( 'Automatically fit visible locations', 'vred-geo-maps' ), $settings['auto_fit'] ); ?>
+						<?php self::settings_checkbox( 'clustering', __( 'Cluster nearby markers', 'vred-geo-maps' ), $settings['clustering'] ); ?>
+					</div>
 				</div>
 			</section>
 
-			<fieldset class="vred-geo-admin-settings__section vred-geo-admin-settings-toggle">
-				<legend>
-					<label><input type="checkbox" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[show_list]" value="1" <?php checked( ! empty( $settings['show_list'] ) ); ?> data-vred-geo-show-list-setting> <span><?php esc_html_e( 'Locations list', 'vred-geo-maps' ); ?></span></label>
-				</legend>
-				<div class="vred-geo-admin-settings-toggle__content" data-vred-geo-list-settings<?php echo ! empty( $settings['show_list'] ) ? '' : ' hidden'; ?>>
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><label><input type="checkbox" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[show_list]" value="1" <?php checked( ! empty( $settings['show_list'] ) ); ?> data-vred-geo-show-list-setting> <span><?php esc_html_e( 'Locations list', 'vred-geo-maps' ); ?></span></label></h2>
+				</header>
+				<div class="vred-geo-admin-block__content" data-vred-geo-list-settings<?php echo ! empty( $settings['show_list'] ) ? '' : ' hidden'; ?>>
 					<div class="vred-geo-admin-settings-fields">
 						<label class="vred-geo-admin-field vred-geo-admin-field--select">
 							<span><?php esc_html_e( 'List style', 'vred-geo-maps' ); ?></span>
@@ -512,13 +539,13 @@ final class Admin {
 						<?php self::settings_checkbox( 'show_directions_link', __( 'Show “Get directions” link', 'vred-geo-maps' ), $settings['show_directions_link'] ); ?>
 					</div>
 				</div>
-			</fieldset>
+			</section>
 
-			<fieldset class="vred-geo-admin-settings__section vred-geo-admin-settings-toggle">
-				<legend>
-					<label><input type="checkbox" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[show_map_legend]" value="1" <?php checked( ! empty( $settings['show_map_legend'] ) ); ?> data-vred-geo-show-map-legend-setting> <span><?php esc_html_e( 'On-map legend', 'vred-geo-maps' ); ?></span></label>
-				</legend>
-				<div class="vred-geo-admin-settings-toggle__content" data-vred-geo-map-legend-settings<?php echo ! empty( $settings['show_map_legend'] ) ? '' : ' hidden'; ?>>
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><label><input type="checkbox" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[show_map_legend]" value="1" <?php checked( ! empty( $settings['show_map_legend'] ) ); ?> data-vred-geo-show-map-legend-setting> <span><?php esc_html_e( 'On-map legend', 'vred-geo-maps' ); ?></span></label></h2>
+				</header>
+				<div class="vred-geo-admin-block__content" data-vred-geo-map-legend-settings<?php echo ! empty( $settings['show_map_legend'] ) ? '' : ' hidden'; ?>>
 					<div class="vred-geo-admin-settings-fields">
 						<label class="vred-geo-admin-field vred-geo-admin-field--select">
 							<span><?php esc_html_e( 'Position', 'vred-geo-maps' ); ?></span>
@@ -532,13 +559,13 @@ final class Admin {
 						<div class="vred-geo-admin-settings-slot" data-vred-geo-legend-indicator-slot></div>
 					</div>
 				</div>
-			</fieldset>
+			</section>
 
-			<fieldset class="vred-geo-admin-settings__section vred-geo-admin-settings-toggle">
-				<legend>
-					<label><input type="checkbox" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[show_filters]" value="1" <?php checked( ! empty( $settings['show_filters'] ) ); ?> data-vred-geo-show-filters-setting> <span><?php esc_html_e( 'Filters', 'vred-geo-maps' ); ?></span></label>
-				</legend>
-				<div class="vred-geo-admin-settings-toggle__content" data-vred-geo-filter-settings<?php echo ! empty( $settings['show_filters'] ) ? '' : ' hidden'; ?>>
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><label><input type="checkbox" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[show_filters]" value="1" <?php checked( ! empty( $settings['show_filters'] ) ); ?> data-vred-geo-show-filters-setting> <span><?php esc_html_e( 'Filters', 'vred-geo-maps' ); ?></span></label></h2>
+				</header>
+				<div class="vred-geo-admin-block__content" data-vred-geo-filter-settings<?php echo ! empty( $settings['show_filters'] ) ? '' : ' hidden'; ?>>
 					<div class="vred-geo-admin-settings-fields">
 						<label class="vred-geo-admin-field vred-geo-admin-field--select">
 							<span><?php esc_html_e( 'Filters position', 'vred-geo-maps' ); ?></span>
@@ -568,62 +595,78 @@ final class Admin {
 						<?php self::settings_checkbox( 'show_country_filter', __( 'Show country', 'vred-geo-maps' ), $settings['show_country_filter'] ); ?>
 					</div>
 				</div>
-			</fieldset>
+			</section>
 
-			<section class="vred-geo-admin-settings__section">
-				<h2><?php esc_html_e( 'Default marker', 'vred-geo-maps' ); ?></h2>
-				<p><?php esc_html_e( 'Location Types and individual Locations can override these properties independently.', 'vred-geo-maps' ); ?></p>
-				<div class="vred-geo-admin-settings-fields">
-					<div class="vred-geo-admin-field vred-geo-admin-field--media">
-						<span><?php esc_html_e( 'Icon', 'vred-geo-maps' ); ?></span>
-						<?php self::render_media_field( VRED_GEO_MAPS_OPTION . '[marker_image_id]', Data::sanitize_attachment_id( $settings['marker_image_id'] ?? 0 ) ); ?>
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><?php esc_html_e( 'Default marker', 'vred-geo-maps' ); ?></h2>
+				</header>
+				<div class="vred-geo-admin-block__content">
+					<p><?php esc_html_e( 'Location Types and individual Locations can override these properties independently.', 'vred-geo-maps' ); ?></p>
+					<div class="vred-geo-admin-settings-fields">
+						<div class="vred-geo-admin-field vred-geo-admin-field--media">
+							<span><?php esc_html_e( 'Icon', 'vred-geo-maps' ); ?></span>
+							<?php self::render_media_field( VRED_GEO_MAPS_OPTION . '[marker_image_id]', Data::sanitize_attachment_id( $settings['marker_image_id'] ?? 0 ) ); ?>
+						</div>
+						<?php self::settings_number( 'marker_size', __( 'Size', 'vred-geo-maps' ), $settings['marker_size'], 16, 96, 'px' ); ?>
+						<?php self::settings_color( 'marker_color', __( 'Color', 'vred-geo-maps' ), $settings['marker_color'] ); ?>
 					</div>
-					<?php self::settings_number( 'marker_size', __( 'Size', 'vred-geo-maps' ), $settings['marker_size'], 16, 96, 'px' ); ?>
-					<?php self::settings_color( 'marker_color', __( 'Color', 'vred-geo-maps' ), $settings['marker_color'] ); ?>
 				</div>
 			</section>
 
-			<section class="vred-geo-admin-settings__section">
-				<h2><?php esc_html_e( 'Popup', 'vred-geo-maps' ); ?></h2>
-				<div class="vred-geo-admin-settings-fields">
-					<?php self::settings_color( 'popup_text_color', __( 'Text color', 'vred-geo-maps' ), $settings['popup_text_color'] ); ?>
-					<?php self::settings_color( 'popup_background', __( 'Background', 'vred-geo-maps' ), $settings['popup_background'] ); ?>
-					<?php self::settings_color( 'popup_border_color', __( 'Border color', 'vred-geo-maps' ), $settings['popup_border_color'] ); ?>
-					<?php self::settings_number( 'popup_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['popup_border_radius'], 0, 40, 'px' ); ?>
-					<?php self::settings_number( 'popup_width', __( 'Maximum width', 'vred-geo-maps' ), $settings['popup_width'], 180, 520, 'px' ); ?>
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><?php esc_html_e( 'Popup', 'vred-geo-maps' ); ?></h2>
+				</header>
+				<div class="vred-geo-admin-block__content">
+					<div class="vred-geo-admin-settings-fields">
+						<?php self::settings_color( 'popup_text_color', __( 'Text color', 'vred-geo-maps' ), $settings['popup_text_color'] ); ?>
+						<?php self::settings_color( 'popup_background', __( 'Background', 'vred-geo-maps' ), $settings['popup_background'] ); ?>
+						<?php self::settings_color( 'popup_border_color', __( 'Border color', 'vred-geo-maps' ), $settings['popup_border_color'] ); ?>
+						<?php self::settings_number( 'popup_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['popup_border_radius'], 0, 40, 'px' ); ?>
+						<?php self::settings_number( 'popup_width', __( 'Maximum width', 'vred-geo-maps' ), $settings['popup_width'], 180, 520, 'px' ); ?>
+					</div>
 				</div>
 			</section>
 
-			<section class="vred-geo-admin-settings__section">
-				<h2><?php esc_html_e( 'Data', 'vred-geo-maps' ); ?></h2>
-				<div class="vred-geo-admin-checks">
-					<?php self::settings_checkbox( 'delete_data_on_uninstall', __( 'Delete all data on uninstall', 'vred-geo-maps' ), $settings['delete_data_on_uninstall'] ); ?>
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><?php esc_html_e( 'Data', 'vred-geo-maps' ); ?></h2>
+				</header>
+				<div class="vred-geo-admin-block__content">
+					<div class="vred-geo-admin-checks">
+						<?php self::settings_checkbox( 'delete_data_on_uninstall', __( 'Delete all data on uninstall', 'vred-geo-maps' ), $settings['delete_data_on_uninstall'] ); ?>
+					</div>
+					<p class="description"><?php esc_html_e( 'When enabled, uninstalling VRED Geo Maps permanently removes all Locations, Location Types and plugin settings. Deactivating the plugin never removes data.', 'vred-geo-maps' ); ?></p>
 				</div>
-				<p class="description"><?php esc_html_e( 'When enabled, uninstalling VRED Geo Maps permanently removes all Locations, Location Types and plugin settings. Deactivating the plugin never removes data.', 'vred-geo-maps' ); ?></p>
 			</section>
 
-			<section class="vred-geo-admin-settings__section">
-				<h2><?php esc_html_e( 'Shortcode', 'vred-geo-maps' ); ?></h2>
-				<p><?php esc_html_e( 'Use the shortcode anywhere WordPress processes shortcodes. Global settings are inherited unless an option below overrides them.', 'vred-geo-maps' ); ?></p>
-				<div class="vred-geo-admin-shortcodes">
-					<div class="vred-geo-admin-shortcode">
-						<strong><?php esc_html_e( 'Basic map', 'vred-geo-maps' ); ?></strong>
-						<code>[vred_geo_map]</code>
+			<section class="vred-geo-admin-block">
+				<header class="vred-geo-admin-block__header">
+					<h2 class="vred-geo-admin-block__title"><?php esc_html_e( 'Shortcode', 'vred-geo-maps' ); ?></h2>
+				</header>
+				<div class="vred-geo-admin-block__content">
+					<p><?php esc_html_e( 'Use the shortcode anywhere WordPress processes shortcodes. Global settings are inherited unless an option below overrides them.', 'vred-geo-maps' ); ?></p>
+					<div class="vred-geo-admin-shortcodes">
+						<div class="vred-geo-admin-shortcode">
+							<strong><?php esc_html_e( 'Basic map', 'vred-geo-maps' ); ?></strong>
+							<code>[vred_geo_map]</code>
+						</div>
+						<div class="vred-geo-admin-shortcode">
+							<strong><?php esc_html_e( 'Filter by Location Type slugs', 'vred-geo-maps' ); ?></strong>
+							<code>[vred_geo_map types="campings,parking"]</code>
+						</div>
+						<div class="vred-geo-admin-shortcode">
+							<strong><?php esc_html_e( 'Show specific location IDs', 'vred-geo-maps' ); ?></strong>
+							<code>[vred_geo_map ids="12,34,56"]</code>
+						</div>
+						<div class="vred-geo-admin-shortcode">
+							<strong><?php esc_html_e( 'Common options', 'vred-geo-maps' ); ?></strong>
+							<code>[vred_geo_map list="no" filters="no" cluster="no" position="right"]</code>
+						</div>
 					</div>
-					<div class="vred-geo-admin-shortcode">
-						<strong><?php esc_html_e( 'Filter by Location Type slugs', 'vred-geo-maps' ); ?></strong>
-						<code>[vred_geo_map types="campings,parking"]</code>
-					</div>
-					<div class="vred-geo-admin-shortcode">
-						<strong><?php esc_html_e( 'Show specific location IDs', 'vred-geo-maps' ); ?></strong>
-						<code>[vred_geo_map ids="12,34,56"]</code>
-					</div>
-					<div class="vred-geo-admin-shortcode">
-						<strong><?php esc_html_e( 'Common options', 'vred-geo-maps' ); ?></strong>
-						<code>[vred_geo_map list="no" filters="no" cluster="no" position="right"]</code>
-					</div>
+					<p class="description"><code>ids</code>, <code>types</code>, <code>list="yes|no"</code>, <code>filters="yes|no"</code>, <code>cluster="yes|no"</code>, <code>position="left|right|top|bottom"</code></p>
 				</div>
-				<p class="description"><code>ids</code>, <code>types</code>, <code>list="yes|no"</code>, <code>filters="yes|no"</code>, <code>cluster="yes|no"</code>, <code>position="left|right|top|bottom"</code></p>
 			</section>
 
 			<?php submit_button( __( 'Save settings', 'vred-geo-maps' ) ); ?>
@@ -1134,7 +1177,7 @@ final class Admin {
 	private static function address_field( string $value ): void {
 		$help = __( 'Press Enter or click the location icon to find coordinates.', 'vred-geo-maps' );
 		?>
-		<label class="vred-geo-admin-field vred-geo-admin-field--wide vred-geo-admin-field--address">
+		<label class="vred-geo-admin-field vred-geo-admin-field--wide">
 			<span class="vred-geo-admin-field__label">
 				<?php esc_html_e( 'Address', 'vred-geo-maps' ); ?>
 				<span class="dashicons dashicons-editor-help vred-geo-admin-field__help" role="img" aria-label="<?php echo esc_attr( $help ); ?>" title="<?php echo esc_attr( $help ); ?>"></span>

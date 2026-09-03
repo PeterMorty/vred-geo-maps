@@ -79,6 +79,9 @@ msgstr "Ajustar automáticamente las ubicaciones visibles"
 msgid "Background"
 msgstr "Fondo"
 
+msgid "Basic information"
+msgstr "Información básica"
+
 msgid "Basic map"
 msgstr "Mapa básico"
 

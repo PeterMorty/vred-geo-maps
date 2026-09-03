@@ -165,7 +165,7 @@
 }
 
 .vred-geo-admin-card__body {
-	padding: 18px;
+	padding: 14px;
 
 	border-top: 1px solid #ececec;
 	background: #fbfbfc
@@ -174,7 +174,7 @@
 .vred-geo-admin-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 14px
+	gap: 10px 12px
 }
 
 .vred-geo-admin-field {
@@ -206,33 +206,6 @@
 	height: 36px
 }
 
-.vred-geo-admin-group {
-	position: relative;
-
-	margin: 45px 0 0;
-	padding: 16px;
-
-	border: 1px solid #dcdcde;
-	border-radius: 8px;
-	background: #fff
-}
-
-.vred-geo-admin-group legend {
-	position: absolute;
-	top: -29px;
-	left: 0;
-
-	margin: 0;
-	padding: 0;
-
-	font-size: 14px;
-	font-weight: 700
-}
-
-.vred-geo-admin-group > .description {
-	margin: 0 0 14px
-}
-
 .vred-geo-admin-inline-options {
 	display: flex;
 	gap: 16px;
@@ -241,25 +214,10 @@
 	margin-top: 10px
 }
 
-.vred-geo-admin-overrides {
-	display: grid;
-	grid-template-columns: 2fr 1fr 1fr;
-	gap: 14px
-}
-
-.vred-geo-admin-override {
-	display: grid;
-	align-content: start;
-	gap: 8px;
-	min-width: 0
-}
-
 .vred-geo-admin-card__footer {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-
-	margin-top: 18px
+	gap: 12px
 }
 
 .vred-geo-admin-card__save-status {
@@ -288,83 +246,92 @@
 	gap: 16px
 }
 
-.vred-geo-admin-settings__section {
+.vred-geo-admin-block {
+	display: grid;
+	gap: 16px;
+
+	margin: 0;
 	padding: 20px;
+	min-width: 0;
 
 	border: 1px solid #dcdcde;
 	border-radius: 10px;
 	background: #fff
 }
 
-.vred-geo-admin-settings__section h2 {
-	margin: 0 0 14px;
-	padding: 0
+.vred-geo-admin-block--compact {
+	gap: 12px;
+
+	padding: 16px;
+
+	border-radius: 8px
 }
 
-.vred-geo-admin-settings-toggle {
-	margin: 0;
+.vred-geo-admin-block__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+
 	min-width: 0
 }
 
-.vred-geo-admin-settings-toggle > legend {
-	padding: 0 6px;
+.vred-geo-admin-block__title {
+	margin: 0;
+	padding: 0;
 
 	font-size: 1.3em;
 	font-weight: 600;
 	line-height: 1.4
 }
 
-.vred-geo-admin-settings-toggle > legend label {
+.vred-geo-admin-block--compact .vred-geo-admin-block__title {
+	font-size: 14px;
+	font-weight: 700
+}
+
+.vred-geo-admin-block__title > label {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px
 }
 
-.vred-geo-admin-settings-toggle > legend input {
+.vred-geo-admin-block__title input[type="checkbox"] {
 	margin: 0
 }
 
-.vred-geo-admin-settings-toggle__content {
-	display: grid;
+.vred-geo-admin-block__actions {
+	display: flex;
+	align-items: center;
 	gap: 14px;
-
-	padding-top: 8px
+	flex-wrap: wrap
 }
 
-.vred-geo-admin-settings-toggle__content[hidden], [data-vred-geo-carto-api-key-field][hidden] {
+.vred-geo-admin-block__content {
+	display: grid;
+	gap: 20px;
+	min-width: 0
+}
+
+.vred-geo-admin-block--compact .vred-geo-admin-block__content {
+	gap: 16px
+}
+
+.vred-geo-admin-block__content[hidden], [data-vred-geo-carto-api-key-field][hidden] {
 	display: none
 }
 
-.vred-geo-admin-settings-toggle__content > .vred-geo-admin-checks {
-	margin-top: 0
+.vred-geo-admin-block__content > p {
+	margin: 0
+}
+
+.vred-geo-admin-block__content > p:not(.description) {
+	color: #646970
 }
 
 .vred-geo-admin-settings-slot {
 	display: contents
-}
-
-.vred-geo-admin-settings__section > p:not(.description) {
-	margin-top: -5px;
-	color: #646970
-}
-
-.vred-geo-admin-settings__section-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	flex-wrap: wrap
-}
-
-.vred-geo-admin-settings__section-header h2 {
-	margin-bottom: 0
-}
-
-.vred-geo-admin-settings__section-actions {
-	display: flex;
-	align-items: center;
-	gap: 14px;
-	flex-wrap: wrap
 }
 
 .vred-geo-admin-status-badge {
@@ -449,7 +416,7 @@
 	gap: 16px 24px;
 	flex-wrap: wrap;
 
-	margin-top: 16px
+	margin: 0
 }
 
 @media (max-width: 782px) {
@@ -618,23 +585,9 @@
 	background: #f6f7f7
 }
 
-/**
- * Compact location editing
- */
-.vred-geo-admin-card__body {
-	padding: 14px
-}
-
-.vred-geo-admin-grid {
-	gap: 10px 12px
-}
-
-.vred-geo-admin-field--address {
-	margin-top: 10px
-}
-
-.vred-geo-admin-location-fields {
-	min-width: 0
+.vred-geo-admin-card__body > form {
+	display: grid;
+	gap: 16px
 }
 
 .vred-geo-admin-geographic-grid, .vred-geo-admin-coordinate-grid {
@@ -647,25 +600,13 @@
 }
 
 .vred-geo-admin-coordinate-grid {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-
-	margin-top: 10px
-}
-
-.vred-geo-admin-location-fields > .description {
-	margin: 7px 0 0
+	grid-template-columns: repeat(2, minmax(0, 1fr))
 }
 
 .vred-geo-admin-contact-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 12px;
-
-	margin-top: 10px
-}
-
-.vred-geo-admin-field {
-	gap: 5px
+	gap: 12px
 }
 
 .vred-geo-admin-field__label {
@@ -745,15 +686,6 @@
 	display: none
 }
 
-.vred-geo-admin-group {
-	margin-top: 45px;
-	padding: 16px
-}
-
-[data-vred-geo-edit-form="location"] > .vred-geo-admin-group {
-	margin-top: 36px
-}
-
 .vred-geo-admin-action-row {
 	display: flex;
 	align-items: end;
@@ -778,10 +710,6 @@
 
 .vred-geo-admin-popup-toggle[hidden] {
 	display: none
-}
-
-.vred-geo-admin-popup-editor {
-	margin-top: 10px
 }
 
 .vred-geo-admin-popup-editor[hidden] {
@@ -810,6 +738,7 @@
 
 .vred-geo-admin-override {
 	display: grid;
+	align-content: start;
 	gap: 5px;
 	min-width: 0
 }
@@ -834,25 +763,21 @@
 	min-height: 36px
 }
 
-.vred-geo-admin-group--marker .vred-geo-admin-media {
+.vred-geo-admin-overrides .vred-geo-admin-media {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	min-width: 0
 }
 
-.vred-geo-admin-group--marker .vred-geo-admin-media__preview {
+.vred-geo-admin-overrides .vred-geo-admin-media__preview {
 	width: 46px;
 	height: 46px;
 	border-radius: 5px
 }
 
-.vred-geo-admin-group--marker .vred-geo-admin-media__actions {
+.vred-geo-admin-overrides .vred-geo-admin-media__actions {
 	gap: 8px
-}
-
-.vred-geo-admin-card__footer {
-	margin-top: 14px
 }
 
 /**
@@ -924,7 +849,7 @@
 	gap: 8px
 }
 
-.vred-geo-admin-settings__section > .description, .vred-geo-admin-settings__section .vred-geo-admin-field > .description {
+.vred-geo-admin-block .vred-geo-admin-field > .description {
 	margin-top: 10px;
 	margin-bottom: 0
 }

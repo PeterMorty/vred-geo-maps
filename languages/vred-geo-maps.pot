@@ -73,6 +73,9 @@ msgstr ""
 msgid "Background"
 msgstr ""
 
+msgid "Basic information"
+msgstr ""
+
 msgid "Basic map"
 msgstr ""
 
