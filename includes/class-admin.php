@@ -576,6 +576,9 @@ final class Admin {
 								<option value="color" <?php selected( $settings['map_legend_type_indicator'], 'color' ); ?>><?php esc_html_e( 'Color', 'vred-geo-maps' ); ?></option>
 							</select>
 						</label>
+						<?php self::settings_number( 'map_legend_visible_locations_per_type', __( 'Visible locations per type', 'vred-geo-maps' ), $settings['map_legend_visible_locations_per_type'], 1, 20 ); ?>
+						<?php self::settings_number( 'map_legend_border_radius', __( 'Legend border radius', 'vred-geo-maps' ), $settings['map_legend_border_radius'], 0, 40, 'px' ); ?>
+						<?php self::settings_number( 'map_legend_background_transparency', __( 'Background transparency', 'vred-geo-maps' ), $settings['map_legend_background_transparency'], 0, 100, '%' ); ?>
 					</div>
 				</div>
 			</section>

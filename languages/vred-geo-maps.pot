@@ -614,3 +614,36 @@ msgstr ""
 
 msgid "Show search"
 msgstr ""
+
+#, php-format
+msgid "Collapse %s"
+msgstr ""
+
+msgid "Collapse map legend"
+msgstr ""
+
+#, php-format
+msgid "Expand %s"
+msgstr ""
+
+msgid "Expand map legend"
+msgstr ""
+
+msgid "Legend border radius"
+msgstr ""
+
+msgid "Show less"
+msgstr ""
+
+msgid "Use my location"
+msgstr ""
+
+#, php-format
+msgid "View all (%d)"
+msgstr ""
+
+msgid "Visible locations per type"
+msgstr ""
+
+msgid "Your location could not be determined."
+msgstr ""

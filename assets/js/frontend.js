@@ -139,9 +139,9 @@
 			}
 		});
 
-		const item = root.querySelector(`[data-vred-geo-location-item][data-location-id="${CSS.escape(String(id))}"]`);
+		const items = Array.from(root.querySelectorAll(`[data-vred-geo-location-item][data-location-id="${CSS.escape(String(id))}"]`));
 
-		if (item) {
+		items.forEach((item) => {
 			item.classList.add('is-active');
 
 			const legendGroup = item.closest('[data-vred-geo-legend-group]');
@@ -149,9 +149,15 @@
 				legendGroup.open = true;
 			}
 
-			if (options.scroll !== false) {
-				item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+			const mapLegendGroup = item.closest('[data-vred-geo-map-legend-group]');
+			if (mapLegendGroup instanceof HTMLDetailsElement) {
+				mapLegendGroup.open = true;
 			}
+		});
+
+		if (options.scroll !== false && items.length) {
+			const scrollTarget = items.find((item) => !item.hasAttribute('data-vred-geo-map-legend-location')) || items[0];
+			scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 		}
 	};
 
@@ -189,12 +195,117 @@
 			}
 		});
 
+		canvas.querySelectorAll('.leaflet-control-container .leaflet-control').forEach((control) => {
+			const corner = control.parentElement;
+			const rect = control.getBoundingClientRect();
+
+			if (!corner || rect.width <= 0 || rect.height <= 0) {
+				return;
+			}
+
+			if (corner.classList.contains('leaflet-top')) {
+				padding.top = Math.max(padding.top, rect.bottom - canvasRect.top + 16);
+			} else {
+				padding.bottom = Math.max(padding.bottom, canvasRect.bottom - rect.top + 16);
+			}
+
+			if (corner.classList.contains('leaflet-left')) {
+				padding.left = Math.max(padding.left, rect.right - canvasRect.left + 16);
+			} else {
+				padding.right = Math.max(padding.right, canvasRect.right - rect.left + 16);
+			}
+		});
+
 		padding.left = Math.min(padding.left, canvasRect.width * 0.45);
 		padding.right = Math.min(padding.right, canvasRect.width * 0.45);
 		padding.top = Math.min(padding.top, canvasRect.height * 0.45);
 		padding.bottom = Math.min(padding.bottom, canvasRect.height * 0.45);
 
 		return padding;
+	};
+
+	const addLocationControl = (map, strings, getPadding) => {
+		const LocationControl = window.L.Control.extend({
+			options: { position: 'bottomright' },
+			onAdd: () => {
+				const container = window.L.DomUtil.create('div', 'leaflet-bar vred-geo-maps__location-control');
+				const button = window.L.DomUtil.create('button', 'vred-geo-maps__location-button', container);
+				const status = window.L.DomUtil.create('span', 'vred-geo-maps__location-status', container);
+				const label = strings?.useMyLocation || 'Use my location';
+
+				button.type = 'button';
+				button.title = label;
+				button.setAttribute('aria-label', label);
+				button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="7"></circle></svg>';
+				status.className = 'vred-geo-maps__location-status screen-reader-text';
+				status.setAttribute('aria-live', 'polite');
+
+				window.L.DomEvent.disableClickPropagation(container);
+				window.L.DomEvent.on(button, 'click', () => {
+					button.title = label;
+					button.setAttribute('aria-label', label);
+					button.disabled = true;
+					button.setAttribute('aria-busy', 'true');
+					status.textContent = '';
+
+					const finish = () => {
+						button.disabled = false;
+						button.removeAttribute('aria-busy');
+					};
+
+					const onFound = (event) => {
+						map.off('locationerror', onError);
+						finish();
+						const targetZoom = Math.min(14, map.getMaxZoom());
+						map.setView(event.latlng, targetZoom);
+						window.requestAnimationFrame(() => panToVisibleArea(map, event.latlng, getPadding()));
+					};
+					const onError = () => {
+						const errorMessage = strings?.locationUnavailable || 'Your location could not be determined.';
+						map.off('locationfound', onFound);
+						finish();
+						button.title = errorMessage;
+						button.setAttribute('aria-label', errorMessage);
+						status.textContent = errorMessage;
+					};
+
+					map.once('locationfound', onFound);
+					map.once('locationerror', onError);
+					map.locate({
+						setView: false,
+						watch: false,
+						enableHighAccuracy: false,
+						timeout: 10000,
+						maximumAge: 60000
+					});
+				});
+
+				return container;
+			}
+		});
+
+		return new LocationControl().addTo(map);
+	};
+
+	const syncBottomRightControlInset = (canvas) => {
+		const corner = canvas.querySelector('.leaflet-bottom.leaflet-right');
+		const mapWrap = canvas.closest('.vred-geo-maps__map-wrap');
+
+		if (!corner || !mapWrap) {
+			return;
+		}
+
+		const controlRects = Array.from(corner.querySelectorAll('.leaflet-control'))
+			.map((control) => control.getBoundingClientRect())
+			.filter((rect) => rect.width > 0 && rect.height > 0);
+
+		if (!controlRects.length) {
+			return;
+		}
+
+		const top = Math.min(...controlRects.map((rect) => rect.top));
+		const height = Math.max(0, canvas.getBoundingClientRect().bottom - top);
+		mapWrap.style.setProperty('--vred-geo-bottom-right-controls-height', `${Math.ceil(height)}px`);
 	};
 
 	const panToVisibleArea = (map, latLng, padding) => {
@@ -227,8 +338,11 @@
 		}
 	};
 
-	const revealMarker = (map, layerGroup, entry, padding) => {
+	const revealMarker = (map, layerGroup, entry, padding, onReveal = null) => {
 		const open = () => {
+			if (typeof onReveal === 'function') {
+				onReveal();
+			}
 			panToVisibleArea(map, entry.marker.getLatLng(), padding());
 			if (entry.location.action === 'popup' && entry.location.popupHtml) {
 				entry.marker.openPopup();
@@ -277,7 +391,7 @@
 			? `${provider.url}?key=${encodeURIComponent(config.cartoApiKey)}`
 			: provider.url;
 		const map = window.L.map(canvas, {
-			zoomControl: true,
+			zoomControl: false,
 			scrollWheelZoom: true
 		});
 
@@ -326,6 +440,7 @@
 
 			marker.on('click', () => {
 				setActiveLocation(root, markers, location.id);
+				updateMapLegend(getVisibleLocationIds());
 
 				if (location.action === 'link') {
 					openLocationLink(location);
@@ -350,9 +465,16 @@
 		const filterToggle = root.querySelector('[data-vred-geo-filter-toggle]');
 		const mapFilters = root.querySelector('[data-vred-geo-map-filters]');
 		const noResults = root.querySelector('[data-vred-geo-no-results]');
-		const mapLegendItems = root.querySelectorAll('[data-vred-geo-map-legend-item]');
+		const mapLegend = root.querySelector('[data-vred-geo-map-legend]');
+		const mapLegendToggle = mapLegend?.querySelector('[data-vred-geo-map-legend-toggle]');
+		const mapLegendBody = mapLegend?.querySelector('[data-vred-geo-map-legend-body]');
+		const mapLegendGroups = mapLegend?.querySelectorAll('[data-vred-geo-map-legend-group]') || [];
 		const getMapPadding = () => getOverlayPadding(root, canvas);
 		let searchTimer = null;
+
+		addLocationControl(map, config.strings, getMapPadding);
+		window.L.control.zoom({ position: 'bottomright' }).addTo(map);
+		syncBottomRightControlInset(canvas);
 
 		root.querySelectorAll('[data-vred-geo-overlay-block]').forEach((block) => {
 			window.L.DomEvent.disableClickPropagation(block);
@@ -369,6 +491,84 @@
 			syncGeographicSelect(cityFilter, getGeographicOptions(config.locations, 'city', { country, region }));
 		};
 
+		const formatString = (template, value) => String(template || '').replace(/%[ds]/, String(value));
+		const getVisibleLocationIds = () => new Set(Array.from(markers.keys()).filter((id) => layerGroup.hasLayer(markers.get(id).marker)));
+
+		const updateMapLegend = (visibleLocationIds) => {
+			mapLegendGroups.forEach((group) => {
+				const locations = Array.from(group.querySelectorAll('[data-vred-geo-map-legend-location]'));
+				const visibleLocations = locations.filter((location) => visibleLocationIds.has(String(location.dataset.locationId || '')));
+				const limit = Math.max(1, Number.parseInt(mapLegend?.dataset.visibleLimit || '5', 10) || 5);
+				let expanded = group.dataset.locationsExpanded === 'true';
+				const activeIndex = visibleLocations.findIndex((location) => location.classList.contains('is-active'));
+				const count = group.querySelector('[data-vred-geo-map-legend-count]');
+				const limitToggle = group.querySelector('[data-vred-geo-map-legend-limit]');
+
+				group.hidden = visibleLocations.length === 0;
+
+				if (visibleLocations.length <= limit) {
+					group.dataset.locationsExpanded = 'false';
+					expanded = false;
+				}
+
+				if (count) {
+					count.textContent = String(visibleLocations.length);
+				}
+
+				locations.forEach((location) => {
+					const visibleIndex = visibleLocations.indexOf(location);
+					const withinLimit = expanded || (activeIndex >= limit
+						? visibleIndex < limit - 1 || visibleIndex === activeIndex
+						: visibleIndex < limit);
+					location.hidden = visibleIndex < 0 || !withinLimit;
+				});
+
+				if (limitToggle) {
+					limitToggle.hidden = visibleLocations.length <= limit;
+					limitToggle.setAttribute('aria-expanded', String(expanded));
+					limitToggle.textContent = expanded
+						? config.strings?.showLess || 'Show less'
+						: formatString(config.strings?.viewAll || 'View all (%d)', visibleLocations.length);
+				}
+			});
+		};
+
+		const setMapLegendExpanded = (expanded) => {
+			if (!mapLegend || !mapLegendToggle || !mapLegendBody) {
+				return;
+			}
+
+			mapLegend.classList.toggle('is-collapsed', !expanded);
+			mapLegendBody.hidden = !expanded;
+			mapLegendToggle.setAttribute('aria-expanded', String(expanded));
+			mapLegendToggle.setAttribute('aria-label', expanded
+				? config.strings?.collapseLegend || 'Collapse map legend'
+				: config.strings?.expandLegend || 'Expand map legend');
+			mapLegendToggle.firstElementChild.textContent = expanded ? '−' : '+';
+			syncBottomRightControlInset(canvas);
+		};
+
+		if (mapLegend) {
+			setMapLegendExpanded(!window.matchMedia('(max-width: 767px)').matches);
+
+			mapLegendToggle?.addEventListener('click', () => {
+				setMapLegendExpanded(mapLegendToggle.getAttribute('aria-expanded') !== 'true');
+			});
+
+			mapLegendGroups.forEach((group) => {
+				group.addEventListener('toggle', () => {
+					const summary = group.querySelector('summary');
+					const name = group.querySelector('.vred-geo-maps__legend-heading strong')?.textContent?.trim() || '';
+					if (summary) {
+						summary.setAttribute('aria-label', formatString(
+							group.open ? config.strings?.collapseGroup || 'Collapse %s' : config.strings?.expandGroup || 'Expand %s',
+							name
+						));
+					}
+				});
+			});
+		}
+
 		const applyFilters = (fitMap = true) => {
 			const search = normalizeSearchText(searchInput?.value || '');
 			const typeId = String(typeFilter?.value || '');
@@ -376,7 +576,7 @@
 			const region = String(regionFilter?.value || '');
 			const city = String(cityFilter?.value || '');
 			const visibleEntries = [];
-			const visibleTypeCounts = new Map();
+			const visibleLocationIds = new Set();
 
 			layerGroup.clearLayers();
 
@@ -387,21 +587,20 @@
 				const matchesRegion = !region || normalizeSearchText(entry.location.region) === region;
 				const matchesCity = !city || normalizeSearchText(entry.location.city) === city;
 				const visible = matchesSearch && matchesType && matchesCountry && matchesRegion && matchesCity;
-				const item = root.querySelector(`[data-vred-geo-location-item][data-location-id="${CSS.escape(String(entry.location.id))}"]`);
+				const items = root.querySelectorAll(`[data-vred-geo-location-item][data-location-id="${CSS.escape(String(entry.location.id))}"]`);
 
-				if (item) {
+				items.forEach((item) => {
 					item.hidden = !visible;
 
 					if (!visible && item instanceof HTMLDetailsElement) {
 						item.open = false;
 					}
-				}
+				});
 
 				if (visible) {
 					layerGroup.addLayer(entry.marker);
 					visibleEntries.push(entry);
-					const visibleTypeId = String(entry.location.typeId || 0);
-					visibleTypeCounts.set(visibleTypeId, (visibleTypeCounts.get(visibleTypeId) || 0) + 1);
+					visibleLocationIds.add(String(entry.location.id));
 				}
 			});
 
@@ -421,13 +620,7 @@
 				}
 			});
 
-			mapLegendItems.forEach((item) => {
-				const countNode = item.querySelector('[data-vred-geo-map-legend-count]');
-
-				if (countNode) {
-					countNode.textContent = String(visibleTypeCounts.get(String(item.dataset.typeId || '0')) || 0);
-				}
-			});
+			updateMapLegend(visibleLocationIds);
 
 			if (noResults) {
 				noResults.hidden = visibleEntries.length > 0;
@@ -439,6 +632,17 @@
 		};
 
 		root.addEventListener('click', (event) => {
+			const legendLimitToggle = event.target.closest('[data-vred-geo-map-legend-limit]');
+
+			if (legendLimitToggle && root.contains(legendLimitToggle)) {
+				const group = legendLimitToggle.closest('[data-vred-geo-map-legend-group]');
+				if (group) {
+					group.dataset.locationsExpanded = String(group.dataset.locationsExpanded !== 'true');
+					updateMapLegend(getVisibleLocationIds());
+				}
+				return;
+			}
+
 			const control = event.target.closest('[data-vred-geo-location-select]');
 
 			if (!control || !root.contains(control)) {
@@ -465,7 +669,10 @@
 			}
 
 			setActiveLocation(root, markers, entry.location.id, { scroll: false });
-			revealMarker(map, layerGroup, entry, getMapPadding);
+			updateMapLegend(getVisibleLocationIds());
+			revealMarker(map, layerGroup, entry, getMapPadding, () => {
+				setActiveLocation(root, markers, entry.location.id, { scroll: false });
+			});
 		});
 
 		if (searchInput) {
@@ -531,9 +738,18 @@
 			let resizeFrame = null;
 			const resizeObserver = new window.ResizeObserver(() => {
 				window.cancelAnimationFrame(resizeFrame);
-				resizeFrame = window.requestAnimationFrame(() => map.invalidateSize({ pan: false }));
+				resizeFrame = window.requestAnimationFrame(() => {
+					map.invalidateSize({ pan: false });
+					syncBottomRightControlInset(canvas);
+				});
 			});
 			resizeObserver.observe(canvas);
+
+			const controlCorner = canvas.querySelector('.leaflet-bottom.leaflet-right');
+			if (controlCorner) {
+				const controlObserver = new window.ResizeObserver(() => syncBottomRightControlInset(canvas));
+				controlCorner.querySelectorAll('.leaflet-control').forEach((control) => controlObserver.observe(control));
+			}
 		}
 	};
 

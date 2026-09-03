@@ -642,3 +642,36 @@ msgstr "Mostrar tipo de ubicación"
 
 msgid "Show search"
 msgstr "Mostrar buscador"
+
+#, php-format
+msgid "Collapse %s"
+msgstr "Contraer %s"
+
+msgid "Collapse map legend"
+msgstr "Contraer la leyenda del mapa"
+
+#, php-format
+msgid "Expand %s"
+msgstr "Expandir %s"
+
+msgid "Expand map legend"
+msgstr "Expandir la leyenda del mapa"
+
+msgid "Legend border radius"
+msgstr "Radio del borde"
+
+msgid "Show less"
+msgstr "Ver menos"
+
+msgid "Use my location"
+msgstr "Usar mi ubicación"
+
+#, php-format
+msgid "View all (%d)"
+msgstr "Ver todos (%d)"
+
+msgid "Visible locations per type"
+msgstr "Ubicaciones visibles por tipo"
+
+msgid "Your location could not be determined."
+msgstr "No se ha podido determinar tu ubicación."

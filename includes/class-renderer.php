@@ -186,6 +186,14 @@ final class Renderer {
 			'locations'    => array_map( array( self::class, 'get_js_location' ), $locations ),
 			'strings'      => array(
 				'clusterUnavailable' => __( 'VRED Geo Maps: marker clustering is enabled but Leaflet.markercluster is unavailable.', 'vred-geo-maps' ),
+				'viewAll'             => __( 'View all (%d)', 'vred-geo-maps' ),
+				'showLess'            => __( 'Show less', 'vred-geo-maps' ),
+				'expandLegend'         => __( 'Expand map legend', 'vred-geo-maps' ),
+				'collapseLegend'       => __( 'Collapse map legend', 'vred-geo-maps' ),
+				'expandGroup'          => __( 'Expand %s', 'vred-geo-maps' ),
+				'collapseGroup'        => __( 'Collapse %s', 'vred-geo-maps' ),
+				'useMyLocation'        => __( 'Use my location', 'vred-geo-maps' ),
+				'locationUnavailable'  => __( 'Your location could not be determined.', 'vred-geo-maps' ),
 			),
 		);
 
@@ -243,7 +251,7 @@ final class Renderer {
 											<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter, 'map' ); ?>
 										<?php endif; ?>
 										<?php if ( ! empty( $settings['show_map_legend'] ) && $settings['map_legend_position'] === $overlay_position ) : ?>
-											<?php self::render_map_legend( $locations, $types, $settings['map_legend_type_indicator'] ); ?>
+											<?php self::render_map_legend( $locations, $types, $settings ); ?>
 										<?php endif; ?>
 									</div>
 								<?php endif; ?>
@@ -278,6 +286,9 @@ final class Renderer {
 			'list_style',
 			'list_type_indicator',
 			'map_legend_type_indicator',
+			'map_legend_visible_locations_per_type',
+			'map_legend_border_radius',
+			'map_legend_background_transparency',
 			'list_position',
 			'filters_position',
 			'filters_map_position',
@@ -311,6 +322,9 @@ final class Renderer {
 		$settings['list_style']          = in_array( $settings['list_style'], array( 'cards', 'compact', 'legend', 'grouped' ), true ) ? $settings['list_style'] : 'cards';
 		$settings['list_type_indicator'] = in_array( $settings['list_type_indicator'], array( 'auto', 'icon', 'color' ), true ) ? $settings['list_type_indicator'] : 'auto';
 		$settings['map_legend_type_indicator'] = in_array( $settings['map_legend_type_indicator'], array( 'auto', 'icon', 'color' ), true ) ? $settings['map_legend_type_indicator'] : 'auto';
+		$settings['map_legend_visible_locations_per_type'] = Data::clamp_int( $settings['map_legend_visible_locations_per_type'], 1, 20 );
+		$settings['map_legend_border_radius'] = Data::clamp_int( $settings['map_legend_border_radius'], 0, 40 );
+		$settings['map_legend_background_transparency'] = Data::clamp_int( $settings['map_legend_background_transparency'], 0, 100 );
 		$settings['filters_position']    = in_array( $settings['filters_position'], array( 'top', 'panel', 'bottom', 'map' ), true ) ? $settings['filters_position'] : 'top';
 		$settings['filters_map_position'] = in_array( $settings['filters_map_position'], array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ), true ) ? $settings['filters_map_position'] : 'top-right';
 		$settings['map_legend_position'] = in_array( $settings['map_legend_position'], array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ), true ) ? $settings['map_legend_position'] : 'top-right';
@@ -335,6 +349,7 @@ final class Renderer {
 	/** Build scoped CSS variables for one instance. */
 	private static function build_style_attribute( array $settings ): string {
 		$filters_background_alpha = number_format( 1 - ( (int) $settings['filters_background_transparency'] / 100 ), 2, '.', '' );
+		$legend_background_alpha  = number_format( 1 - ( (int) $settings['map_legend_background_transparency'] / 100 ), 2, '.', '' );
 
 		return implode(
 			';',
@@ -345,6 +360,8 @@ final class Renderer {
 				'--vred-geo-gap:' . (int) $settings['gap'] . 'px',
 				'--vred-geo-filters-radius:' . (int) $settings['filters_radius'] . 'px',
 				'--vred-geo-filters-background:rgba(255,255,255,' . $filters_background_alpha . ')',
+				'--vred-geo-map-legend-radius:' . (int) $settings['map_legend_border_radius'] . 'px',
+				'--vred-geo-map-legend-background:rgba(255,255,255,' . $legend_background_alpha . ')',
 				'--vred-geo-card-radius:' . (int) $settings['card_radius'] . 'px',
 				'--vred-geo-popup-text:' . $settings['popup_text_color'],
 				'--vred-geo-popup-bg:' . $settings['popup_background'],
@@ -433,21 +450,40 @@ final class Renderer {
 	}
 
 	/** Render the independent Location Types legend shown over the map. */
-	private static function render_map_legend( array $locations, array $types, string $type_indicator ): void {
-		$groups = self::get_location_type_groups( $locations, $types );
+	private static function render_map_legend( array $locations, array $types, array $settings ): void {
+		$groups         = self::get_location_type_groups( $locations, $types );
+		$type_indicator = $settings['map_legend_type_indicator'];
+		$visible_limit  = (int) $settings['map_legend_visible_locations_per_type'];
+		$body_id        = wp_unique_id( 'vred-geo-map-legend-' );
 		?>
-		<aside class="vred-geo-maps__map-legend" data-vred-geo-overlay-block aria-label="<?php echo esc_attr__( 'Location Types', 'vred-geo-maps' ); ?>">
-			<strong class="vred-geo-maps__map-legend-title"><?php esc_html_e( 'Location Types', 'vred-geo-maps' ); ?></strong>
-			<div class="vred-geo-maps__map-legend-items" aria-live="polite">
+		<aside class="vred-geo-maps__map-legend" data-vred-geo-overlay-block data-vred-geo-map-legend data-visible-limit="<?php echo esc_attr( (string) $visible_limit ); ?>" aria-label="<?php echo esc_attr__( 'Location Types', 'vred-geo-maps' ); ?>">
+			<div class="vred-geo-maps__map-legend-header">
+				<strong class="vred-geo-maps__map-legend-title"><?php esc_html_e( 'Location Types', 'vred-geo-maps' ); ?></strong>
+				<button type="button" class="vred-geo-maps__map-legend-toggle" data-vred-geo-map-legend-toggle aria-expanded="true" aria-controls="<?php echo esc_attr( $body_id ); ?>" aria-label="<?php echo esc_attr__( 'Collapse map legend', 'vred-geo-maps' ); ?>">
+					<span aria-hidden="true">&minus;</span>
+				</button>
+			</div>
+			<div id="<?php echo esc_attr( $body_id ); ?>" class="vred-geo-maps__map-legend-body" data-vred-geo-map-legend-body aria-live="polite">
 				<?php foreach ( $groups as $group ) : ?>
 					<?php if ( ! empty( $group['locations'] ) ) : ?>
-						<div class="vred-geo-maps__map-legend-item" data-vred-geo-map-legend-item data-type-id="<?php echo esc_attr( (string) $group['id'] ); ?>">
-							<span class="vred-geo-maps__legend-heading">
-								<?php self::render_type_indicator( $group, $type_indicator ); ?>
-								<span><?php echo esc_html( $group['name'] ); ?></span>
-							</span>
-							<span class="vred-geo-maps__map-legend-count" data-vred-geo-map-legend-count><?php echo esc_html( (string) count( $group['locations'] ) ); ?></span>
-						</div>
+						<details class="vred-geo-maps__map-legend-group" data-vred-geo-map-legend-group data-type-id="<?php echo esc_attr( (string) $group['id'] ); ?>" open>
+							<summary class="vred-geo-maps__map-legend-summary" aria-label="<?php echo esc_attr( sprintf( __( 'Collapse %s', 'vred-geo-maps' ), $group['name'] ) ); ?>">
+								<span class="vred-geo-maps__legend-heading">
+									<?php self::render_type_indicator( $group, $type_indicator ); ?>
+									<strong><?php echo esc_html( $group['name'] ); ?></strong>
+								</span>
+								<span class="vred-geo-maps__map-legend-meta">
+									<span>(<span data-vred-geo-map-legend-count><?php echo esc_html( (string) count( $group['locations'] ) ); ?></span>)</span>
+									<span class="vred-geo-maps__map-legend-chevron" aria-hidden="true"></span>
+								</span>
+							</summary>
+							<div class="vred-geo-maps__map-legend-locations">
+								<?php foreach ( $group['locations'] as $location_index => $location ) : ?>
+									<button type="button" class="vred-geo-maps__map-legend-location" data-vred-geo-location-item data-vred-geo-map-legend-location data-location-id="<?php echo esc_attr( (string) $location['id'] ); ?>" data-type-id="<?php echo esc_attr( (string) $location['type_id'] ); ?>" data-vred-geo-location-select<?php echo $location_index >= $visible_limit ? ' hidden' : ''; ?>><?php echo esc_html( $location['title'] ); ?></button>
+								<?php endforeach; ?>
+							</div>
+							<button type="button" class="vred-geo-maps__map-legend-limit" data-vred-geo-map-legend-limit aria-expanded="false"<?php echo count( $group['locations'] ) > $visible_limit ? '' : ' hidden'; ?>><?php echo esc_html( sprintf( __( 'View all (%d)', 'vred-geo-maps' ), count( $group['locations'] ) ) ); ?></button>
+						</details>
 					<?php endif; ?>
 				<?php endforeach; ?>
 			</div>
