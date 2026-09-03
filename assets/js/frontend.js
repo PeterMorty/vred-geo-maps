@@ -159,12 +159,14 @@
 		const canvasRect = canvas.getBoundingClientRect();
 		const padding = { top: 28, right: 28, bottom: 28, left: 28 };
 
-		root.querySelectorAll('[data-vred-geo-overlay-slot]').forEach((slot) => {
-			if (window.getComputedStyle(slot).position !== 'absolute') {
+		root.querySelectorAll('[data-vred-geo-overlay-block]').forEach((block) => {
+			const slot = block.closest('[data-vred-geo-overlay-slot]');
+
+			if (!slot || window.getComputedStyle(slot).position !== 'absolute') {
 				return;
 			}
 
-			const rect = slot.getBoundingClientRect();
+			const rect = block.getBoundingClientRect();
 			const overlapsCanvas = rect.right > canvasRect.left && rect.left < canvasRect.right
 				&& rect.bottom > canvasRect.top && rect.top < canvasRect.bottom;
 
@@ -345,6 +347,8 @@
 		const regionFilter = root.querySelector('[data-vred-geo-region-filter]');
 		const cityFilter = root.querySelector('[data-vred-geo-city-filter]');
 		const resetButton = root.querySelector('[data-vred-geo-reset]');
+		const filterToggle = root.querySelector('[data-vred-geo-filter-toggle]');
+		const mapFilters = root.querySelector('[data-vred-geo-map-filters]');
 		const noResults = root.querySelector('[data-vred-geo-no-results]');
 		const mapLegendItems = root.querySelectorAll('[data-vred-geo-map-legend-item]');
 		const getMapPadding = () => getOverlayPadding(root, canvas);
@@ -497,6 +501,15 @@
 				});
 				updateGeographicOptions();
 				applyFilters(true);
+			});
+		}
+
+		if (filterToggle && mapFilters) {
+			filterToggle.addEventListener('click', () => {
+				const expanded = !mapFilters.classList.contains('is-expanded');
+				mapFilters.classList.toggle('is-expanded', expanded);
+				filterToggle.setAttribute('aria-expanded', String(expanded));
+				window.requestAnimationFrame(() => applyFilters(true));
 			});
 		}
 

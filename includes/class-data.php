@@ -97,7 +97,8 @@ final class Data {
 			'clustering'           => 1,
 			'show_list'            => 1,
 			'list_style'           => 'cards',
-			'type_indicator'       => 'auto',
+			'list_type_indicator'  => 'auto',
+			'map_legend_type_indicator' => 'auto',
 			'list_position'        => 'left',
 			'filters_position'     => 'top',
 			'filters_map_position' => 'top-right',
@@ -112,7 +113,8 @@ final class Data {
 			'show_directions_link' => 1,
 			'list_width'           => 360,
 			'gap'                  => 20,
-			'filters_border_radius' => 16,
+			'filters_radius'       => 16,
+			'filters_background_transparency' => 0,
 			'card_radius'          => 14,
 			'marker_image_id'      => 0,
 			'marker_svg'           => '',
@@ -132,8 +134,21 @@ final class Data {
 		$stored   = get_option( VRED_GEO_MAPS_OPTION, array() );
 		$stored   = is_array( $stored ) ? $stored : array();
 		$defaults = self::get_default_settings();
+		$type_indicators = array( 'auto', 'icon', 'color' );
 
 		unset( $stored['accent_color'] );
+
+		if ( array_key_exists( 'type_indicator', $stored ) ) {
+			$legacy_type_indicator = in_array( $stored['type_indicator'], $type_indicators, true ) ? $stored['type_indicator'] : $defaults['list_type_indicator'];
+			$stored['list_type_indicator'] = $stored['list_type_indicator'] ?? $legacy_type_indicator;
+			$stored['map_legend_type_indicator'] = $stored['map_legend_type_indicator'] ?? $legacy_type_indicator;
+		}
+
+		if ( ! array_key_exists( 'filters_radius', $stored ) && array_key_exists( 'filters_border_radius', $stored ) ) {
+			$stored['filters_radius'] = self::clamp_int( $stored['filters_border_radius'], 0, 40 );
+		}
+
+		unset( $stored['type_indicator'], $stored['filters_border_radius'] );
 
 		if ( '#2f6f58' === strtolower( (string) ( $stored['marker_color'] ?? '' ) ) ) {
 			$stored['marker_color'] = $defaults['marker_color'];
@@ -166,7 +181,8 @@ final class Data {
 			'clustering'          => ! empty( $input['clustering'] ) ? 1 : 0,
 			'show_list'           => ! empty( $input['show_list'] ) ? 1 : 0,
 			'list_style'          => in_array( $input['list_style'] ?? '', $list_styles, true ) ? $input['list_style'] : $defaults['list_style'],
-			'type_indicator'      => in_array( $input['type_indicator'] ?? '', $type_indicators, true ) ? $input['type_indicator'] : $defaults['type_indicator'],
+			'list_type_indicator' => in_array( $input['list_type_indicator'] ?? '', $type_indicators, true ) ? $input['list_type_indicator'] : $defaults['list_type_indicator'],
+			'map_legend_type_indicator' => in_array( $input['map_legend_type_indicator'] ?? '', $type_indicators, true ) ? $input['map_legend_type_indicator'] : $defaults['map_legend_type_indicator'],
 			'list_position'       => in_array( $input['list_position'] ?? '', $positions, true ) ? $input['list_position'] : $defaults['list_position'],
 			'filters_position'    => in_array( $input['filters_position'] ?? '', $filter_positions, true ) ? $input['filters_position'] : $defaults['filters_position'],
 			'filters_map_position' => in_array( $input['filters_map_position'] ?? '', $map_positions, true ) ? $input['filters_map_position'] : $defaults['filters_map_position'],
@@ -181,7 +197,8 @@ final class Data {
 			'show_directions_link' => ! empty( $input['show_directions_link'] ) ? 1 : 0,
 			'list_width'          => self::clamp_int( $input['list_width'] ?? $defaults['list_width'], 260, 560 ),
 			'gap'                 => self::clamp_int( $input['gap'] ?? $defaults['gap'], 0, 80 ),
-			'filters_border_radius' => self::clamp_int( $input['filters_border_radius'] ?? $defaults['filters_border_radius'], 0, 40 ),
+			'filters_radius'      => self::clamp_int( $input['filters_radius'] ?? $defaults['filters_radius'], 0, 40 ),
+			'filters_background_transparency' => self::clamp_int( $input['filters_background_transparency'] ?? $defaults['filters_background_transparency'], 0, 100 ),
 			'card_radius'         => self::clamp_int( $input['card_radius'] ?? $defaults['card_radius'], 0, 40 ),
 			'marker_image_id'     => self::sanitize_attachment_id( $input['marker_image_id'] ?? 0 ),
 			'marker_color'        => sanitize_hex_color( $input['marker_color'] ?? '' ) ?: $defaults['marker_color'],

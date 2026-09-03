@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Admin {
 	private const PAGE_SLUG = 'vred-geo-maps';
 	private const NONCE_ACTION = 'vred_geo_maps_admin';
+	private static bool $settings_updated = false;
 
 	/** Register admin hooks. */
 	public static function boot(): void {
@@ -47,6 +48,14 @@ final class Admin {
 
 	/** Register the global settings option. */
 	public static function register_settings(): void {
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		$tab  = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
+
+		if ( self::PAGE_SLUG === $page && 'settings' === $tab && isset( $_GET['settings-updated'] ) ) {
+			self::$settings_updated = true;
+			unset( $_GET['settings-updated'] );
+		}
+
 		register_setting(
 			'vred_geo_maps_settings',
 			VRED_GEO_MAPS_OPTION,
@@ -434,6 +443,9 @@ final class Admin {
 		<form method="post" action="options.php" class="vred-geo-admin-settings">
 			<?php settings_fields( 'vred_geo_maps_settings' ); ?>
 
+			<?php if ( self::$settings_updated ) : ?>
+				<div class="notice notice-success inline"><p><?php esc_html_e( 'Settings saved.' ); ?></p></div>
+			<?php endif; ?>
 			<?php if ( ! empty( $_GET['vred-geo-maps-updates-refreshed'] ) ) : ?>
 				<div class="notice notice-success inline"><p><?php esc_html_e( 'Update check completed.', 'vred-geo-maps' ); ?></p></div>
 			<?php endif; ?>
@@ -465,11 +477,6 @@ final class Admin {
 								<option value="carto_voyager" <?php selected( $settings['tile_provider'], 'carto_voyager' ); ?>><?php esc_html_e( 'CARTO Voyager — API key required', 'vred-geo-maps' ); ?></option>
 							</select>
 						</label>
-						<div class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-carto-api-key-field<?php echo $uses_carto ? '' : ' hidden'; ?>>
-							<label for="vred-geo-carto-api-key"><span><?php esc_html_e( 'CARTO API key', 'vred-geo-maps' ); ?></span></label>
-							<input type="text" id="vred-geo-carto-api-key" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[carto_api_key]" value="<?php echo esc_attr( $settings['carto_api_key'] ); ?>" autocomplete="off" spellcheck="false">
-							<p class="description"><?php esc_html_e( 'CARTO maps require your own API key.', 'vred-geo-maps' ); ?> <a href="https://carto.com/basemaps/apikey/" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Request API key', 'vred-geo-maps' ); ?></a></p>
-						</div>
 						<label class="vred-geo-admin-field vred-geo-admin-field--select">
 							<span><?php esc_html_e( 'Appearance', 'vred-geo-maps' ); ?></span>
 							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[appearance]">
@@ -481,6 +488,13 @@ final class Admin {
 						<?php self::settings_number( 'map_height', __( 'Map height', 'vred-geo-maps' ), $settings['map_height'], 240, 900, 'px' ); ?>
 						<?php self::settings_number( 'map_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['map_border_radius'], 0, 40, 'px' ); ?>
 						<?php self::settings_number( 'initial_zoom', __( 'Initial zoom', 'vred-geo-maps' ), $settings['initial_zoom'], 1, 19 ); ?>
+					</div>
+					<div class="vred-geo-admin-settings-fields" data-vred-geo-carto-api-key-field<?php echo $uses_carto ? '' : ' hidden'; ?>>
+						<div class="vred-geo-admin-field vred-geo-admin-field--select">
+							<label for="vred-geo-carto-api-key"><span><?php esc_html_e( 'CARTO API key', 'vred-geo-maps' ); ?></span></label>
+							<input type="text" id="vred-geo-carto-api-key" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[carto_api_key]" value="<?php echo esc_attr( $settings['carto_api_key'] ); ?>" autocomplete="off" spellcheck="false">
+							<p class="description"><?php esc_html_e( 'CARTO maps require your own API key.', 'vred-geo-maps' ); ?> <a href="https://carto.com/basemaps/apikey/" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Request API key', 'vred-geo-maps' ); ?></a></p>
+						</div>
 					</div>
 					<div class="vred-geo-admin-checks">
 						<?php self::settings_checkbox( 'auto_fit', __( 'Automatically fit visible locations', 'vred-geo-maps' ), $settings['auto_fit'] ); ?>
@@ -504,16 +518,14 @@ final class Admin {
 								<option value="grouped" <?php selected( $settings['list_style'], 'grouped' ); ?>><?php esc_html_e( 'Grouped', 'vred-geo-maps' ); ?></option>
 							</select>
 						</label>
-						<div class="vred-geo-admin-settings-slot" data-vred-geo-list-indicator-slot>
-							<label class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-type-indicator-field<?php echo ( ! empty( $settings['show_list'] ) && in_array( $settings['list_style'], array( 'legend', 'grouped' ), true ) ) || ! empty( $settings['show_map_legend'] ) ? '' : ' hidden'; ?>>
-								<span><?php esc_html_e( 'Type indicator', 'vred-geo-maps' ); ?></span>
-								<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[type_indicator]">
-									<option value="auto" <?php selected( $settings['type_indicator'], 'auto' ); ?>><?php esc_html_e( 'Automatic', 'vred-geo-maps' ); ?></option>
-									<option value="icon" <?php selected( $settings['type_indicator'], 'icon' ); ?>><?php esc_html_e( 'Icon', 'vred-geo-maps' ); ?></option>
-									<option value="color" <?php selected( $settings['type_indicator'], 'color' ); ?>><?php esc_html_e( 'Color', 'vred-geo-maps' ); ?></option>
-								</select>
-							</label>
-						</div>
+						<label class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-list-type-indicator-field<?php echo in_array( $settings['list_style'], array( 'legend', 'grouped' ), true ) ? '' : ' hidden'; ?>>
+							<span><?php esc_html_e( 'Type indicator', 'vred-geo-maps' ); ?></span>
+							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[list_type_indicator]">
+								<option value="auto" <?php selected( $settings['list_type_indicator'], 'auto' ); ?>><?php esc_html_e( 'Automatic', 'vred-geo-maps' ); ?></option>
+								<option value="icon" <?php selected( $settings['list_type_indicator'], 'icon' ); ?>><?php esc_html_e( 'Icon', 'vred-geo-maps' ); ?></option>
+								<option value="color" <?php selected( $settings['list_type_indicator'], 'color' ); ?>><?php esc_html_e( 'Color', 'vred-geo-maps' ); ?></option>
+							</select>
+						</label>
 						<label class="vred-geo-admin-field vred-geo-admin-field--select">
 							<span><?php esc_html_e( 'List position', 'vred-geo-maps' ); ?></span>
 							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[list_position]" data-vred-geo-list-position-setting>
@@ -556,7 +568,14 @@ final class Admin {
 								<option value="bottom-right" <?php selected( $settings['map_legend_position'], 'bottom-right' ); ?>><?php esc_html_e( 'Bottom right', 'vred-geo-maps' ); ?></option>
 							</select>
 						</label>
-						<div class="vred-geo-admin-settings-slot" data-vred-geo-legend-indicator-slot></div>
+						<label class="vred-geo-admin-field vred-geo-admin-field--select">
+							<span><?php esc_html_e( 'Type indicator', 'vred-geo-maps' ); ?></span>
+							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[map_legend_type_indicator]">
+								<option value="auto" <?php selected( $settings['map_legend_type_indicator'], 'auto' ); ?>><?php esc_html_e( 'Automatic', 'vred-geo-maps' ); ?></option>
+								<option value="icon" <?php selected( $settings['map_legend_type_indicator'], 'icon' ); ?>><?php esc_html_e( 'Icon', 'vred-geo-maps' ); ?></option>
+								<option value="color" <?php selected( $settings['map_legend_type_indicator'], 'color' ); ?>><?php esc_html_e( 'Color', 'vred-geo-maps' ); ?></option>
+							</select>
+						</label>
 					</div>
 				</div>
 			</section>
@@ -585,7 +604,14 @@ final class Admin {
 								<option value="bottom-right" <?php selected( $settings['filters_map_position'], 'bottom-right' ); ?>><?php esc_html_e( 'Bottom right', 'vred-geo-maps' ); ?></option>
 							</select>
 						</label>
-						<?php self::settings_number( 'filters_border_radius', __( 'Filters panel radius', 'vred-geo-maps' ), $settings['filters_border_radius'], 0, 40, 'px' ); ?>
+						<label class="vred-geo-admin-field vred-geo-admin-field--number" data-vred-geo-filters-transparency-field<?php echo 'map' === $settings['filters_position'] ? '' : ' hidden'; ?>>
+							<span><?php esc_html_e( 'Background transparency', 'vred-geo-maps' ); ?></span>
+							<div class="vred-geo-admin-input-group">
+								<input type="number" min="0" max="100" step="1" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[filters_background_transparency]" value="<?php echo esc_attr( (string) $settings['filters_background_transparency'] ); ?>">
+								<span>%</span>
+							</div>
+						</label>
+						<?php self::settings_number( 'filters_radius', __( 'Filter radius', 'vred-geo-maps' ), $settings['filters_radius'], 0, 40, 'px' ); ?>
 					</div>
 					<div class="vred-geo-admin-checks">
 						<?php self::settings_checkbox( 'show_search', __( 'Show search', 'vred-geo-maps' ), $settings['show_search'] ); ?>

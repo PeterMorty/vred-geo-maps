@@ -396,7 +396,7 @@ msgstr ""
 msgid "Replace image"
 msgstr ""
 
-msgid "Reset filters"
+msgid "Clear filters"
 msgstr ""
 
 msgid "Right"
@@ -588,7 +588,10 @@ msgstr ""
 msgid "Card radius"
 msgstr ""
 
-msgid "Filters panel radius"
+msgid "Filter radius"
+msgstr ""
+
+msgid "Background transparency"
 msgstr ""
 
 msgid "Locations list"

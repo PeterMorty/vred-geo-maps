@@ -420,8 +420,8 @@ msgstr ""
 msgid "Replace image"
 msgstr "Reemplazar imagen"
 
-msgid "Reset filters"
-msgstr "Restablecer filtros"
+msgid "Clear filters"
+msgstr "Limpiar filtros"
 
 msgid "Right"
 msgstr "Derecha"
@@ -616,8 +616,11 @@ msgstr "Los mapas de CARTO requieren una API key propia."
 msgid "Card radius"
 msgstr "Radio de las tarjetas"
 
-msgid "Filters panel radius"
-msgstr "Radio del panel de filtros"
+msgid "Filter radius"
+msgstr "Radio de los filtros"
+
+msgid "Background transparency"
+msgstr "Transparencia del fondo"
 
 msgid "Locations list"
 msgstr "Listado de ubicaciones"

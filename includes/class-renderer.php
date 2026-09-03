@@ -213,10 +213,6 @@ final class Renderer {
 		ob_start();
 		?>
 		<section id="<?php echo esc_attr( $instance_id ); ?>" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" style="<?php echo esc_attr( $styles ); ?>" data-vred-geo-maps>
-			<?php if ( $show_filters && 'top' === $filters_position ) : ?>
-				<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter ); ?>
-			<?php endif; ?>
-
 			<div class="vred-geo-maps__content">
 				<?php if ( $has_panel ) : ?>
 					<div class="vred-geo-maps__panel">
@@ -225,36 +221,40 @@ final class Renderer {
 						<?php endif; ?>
 						<?php if ( ! empty( $settings['show_list'] ) ) : ?>
 							<div class="vred-geo-maps__list" data-vred-geo-list>
-								<?php self::render_locations_list( $locations, $types, $settings['list_style'], $settings['list_position'], $settings['type_indicator'] ); ?>
+								<?php self::render_locations_list( $locations, $types, $settings['list_style'], $settings['list_position'], $settings['list_type_indicator'] ); ?>
 								<p class="vred-geo-maps__no-results" data-vred-geo-no-results hidden><?php esc_html_e( 'No locations match the filters.', 'vred-geo-maps' ); ?></p>
 							</div>
 						<?php endif; ?>
 					</div>
 				<?php endif; ?>
 
-				<div class="vred-geo-maps__map-wrap">
-					<div class="vred-geo-maps__map" data-vred-geo-canvas aria-label="<?php echo esc_attr__( 'Interactive locations map', 'vred-geo-maps' ); ?>"></div>
-					<?php if ( $has_map_overlays ) : ?>
-						<?php foreach ( array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ) as $overlay_position ) : ?>
-							<?php $has_overlay_slot = ( $show_filters && 'map' === $filters_position && $settings['filters_map_position'] === $overlay_position ) || ( ! empty( $settings['show_map_legend'] ) && $settings['map_legend_position'] === $overlay_position ); ?>
-							<?php if ( $has_overlay_slot ) : ?>
-								<div class="vred-geo-maps__overlay-slot vred-geo-maps__overlay-slot--<?php echo esc_attr( $overlay_position ); ?>" data-vred-geo-overlay-slot data-position="<?php echo esc_attr( $overlay_position ); ?>">
-									<?php if ( $show_filters && 'map' === $filters_position && $settings['filters_map_position'] === $overlay_position ) : ?>
-										<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter, 'map' ); ?>
-									<?php endif; ?>
-									<?php if ( ! empty( $settings['show_map_legend'] ) && $settings['map_legend_position'] === $overlay_position ) : ?>
-										<?php self::render_map_legend( $locations, $types, $settings['type_indicator'] ); ?>
-									<?php endif; ?>
-								</div>
-							<?php endif; ?>
-						<?php endforeach; ?>
+				<div class="vred-geo-maps__map-zone">
+					<?php if ( $show_filters && 'top' === $filters_position ) : ?>
+						<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter ); ?>
+					<?php endif; ?>
+					<div class="vred-geo-maps__map-wrap">
+						<div class="vred-geo-maps__map" data-vred-geo-canvas aria-label="<?php echo esc_attr__( 'Interactive locations map', 'vred-geo-maps' ); ?>"></div>
+						<?php if ( $has_map_overlays ) : ?>
+							<?php foreach ( array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ) as $overlay_position ) : ?>
+								<?php $has_overlay_slot = ( $show_filters && 'map' === $filters_position && $settings['filters_map_position'] === $overlay_position ) || ( ! empty( $settings['show_map_legend'] ) && $settings['map_legend_position'] === $overlay_position ); ?>
+								<?php if ( $has_overlay_slot ) : ?>
+									<div class="vred-geo-maps__overlay-slot vred-geo-maps__overlay-slot--<?php echo esc_attr( $overlay_position ); ?>" data-vred-geo-overlay-slot data-position="<?php echo esc_attr( $overlay_position ); ?>">
+										<?php if ( $show_filters && 'map' === $filters_position && $settings['filters_map_position'] === $overlay_position ) : ?>
+											<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter, 'map' ); ?>
+										<?php endif; ?>
+										<?php if ( ! empty( $settings['show_map_legend'] ) && $settings['map_legend_position'] === $overlay_position ) : ?>
+											<?php self::render_map_legend( $locations, $types, $settings['map_legend_type_indicator'] ); ?>
+										<?php endif; ?>
+									</div>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</div>
+					<?php if ( $show_filters && 'bottom' === $filters_position ) : ?>
+						<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter ); ?>
 					<?php endif; ?>
 				</div>
 			</div>
-
-			<?php if ( $show_filters && 'bottom' === $filters_position ) : ?>
-				<?php self::render_filters( $types, $settings, $show_country_filter, $show_region_filter, $show_city_filter ); ?>
-			<?php endif; ?>
 
 			<script type="application/json" data-vred-geo-config><?php echo wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
 		</section>
@@ -276,7 +276,8 @@ final class Renderer {
 			'clustering',
 			'show_list',
 			'list_style',
-			'type_indicator',
+			'list_type_indicator',
+			'map_legend_type_indicator',
 			'list_position',
 			'filters_position',
 			'filters_map_position',
@@ -291,7 +292,8 @@ final class Renderer {
 			'show_directions_link',
 			'list_width',
 			'gap',
-			'filters_border_radius',
+			'filters_radius',
+			'filters_background_transparency',
 			'card_radius',
 			'popup_text_color',
 			'popup_background',
@@ -307,7 +309,8 @@ final class Renderer {
 		}
 
 		$settings['list_style']          = in_array( $settings['list_style'], array( 'cards', 'compact', 'legend', 'grouped' ), true ) ? $settings['list_style'] : 'cards';
-		$settings['type_indicator']      = in_array( $settings['type_indicator'], array( 'auto', 'icon', 'color' ), true ) ? $settings['type_indicator'] : 'auto';
+		$settings['list_type_indicator'] = in_array( $settings['list_type_indicator'], array( 'auto', 'icon', 'color' ), true ) ? $settings['list_type_indicator'] : 'auto';
+		$settings['map_legend_type_indicator'] = in_array( $settings['map_legend_type_indicator'], array( 'auto', 'icon', 'color' ), true ) ? $settings['map_legend_type_indicator'] : 'auto';
 		$settings['filters_position']    = in_array( $settings['filters_position'], array( 'top', 'panel', 'bottom', 'map' ), true ) ? $settings['filters_position'] : 'top';
 		$settings['filters_map_position'] = in_array( $settings['filters_map_position'], array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ), true ) ? $settings['filters_map_position'] : 'top-right';
 		$settings['map_legend_position'] = in_array( $settings['map_legend_position'], array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ), true ) ? $settings['map_legend_position'] : 'top-right';
@@ -316,7 +319,8 @@ final class Renderer {
 		$settings['initial_zoom']        = Data::clamp_int( $settings['initial_zoom'], 1, 19 );
 		$settings['list_width']          = Data::clamp_int( $settings['list_width'], 260, 560 );
 		$settings['gap']                 = Data::clamp_int( $settings['gap'], 0, 80 );
-		$settings['filters_border_radius'] = Data::clamp_int( $settings['filters_border_radius'], 0, 40 );
+		$settings['filters_radius']        = Data::clamp_int( $settings['filters_radius'], 0, 40 );
+		$settings['filters_background_transparency'] = Data::clamp_int( $settings['filters_background_transparency'], 0, 100 );
 		$settings['card_radius']         = Data::clamp_int( $settings['card_radius'], 0, 40 );
 		$settings['popup_border_radius'] = Data::clamp_int( $settings['popup_border_radius'], 0, 40 );
 		$settings['popup_width']         = Data::clamp_int( $settings['popup_width'], 180, 520 );
@@ -330,6 +334,8 @@ final class Renderer {
 
 	/** Build scoped CSS variables for one instance. */
 	private static function build_style_attribute( array $settings ): string {
+		$filters_background_alpha = number_format( 1 - ( (int) $settings['filters_background_transparency'] / 100 ), 2, '.', '' );
+
 		return implode(
 			';',
 			array(
@@ -337,7 +343,8 @@ final class Renderer {
 				'--vred-geo-map-radius:' . (int) $settings['map_border_radius'] . 'px',
 				'--vred-geo-list-width:' . (int) $settings['list_width'] . 'px',
 				'--vred-geo-gap:' . (int) $settings['gap'] . 'px',
-				'--vred-geo-filters-radius:' . (int) $settings['filters_border_radius'] . 'px',
+				'--vred-geo-filters-radius:' . (int) $settings['filters_radius'] . 'px',
+				'--vred-geo-filters-background:rgba(255,255,255,' . $filters_background_alpha . ')',
 				'--vred-geo-card-radius:' . (int) $settings['card_radius'] . 'px',
 				'--vred-geo-popup-text:' . $settings['popup_text_color'],
 				'--vred-geo-popup-bg:' . $settings['popup_background'],
@@ -350,18 +357,33 @@ final class Renderer {
 
 	/** Render the single configured filters block. */
 	private static function render_filters( array $types, array $settings, bool $show_country_filter, bool $show_region_filter, bool $show_city_filter, string $context = 'flow' ): void {
-		$classes = 'vred-geo-maps__filters vred-geo-maps__filters--' . sanitize_html_class( $context );
+		$show_type_filter      = ! empty( $settings['show_type_filter'] ) && ! empty( $types );
+		$has_secondary_filters = $show_type_filter || $show_country_filter || $show_region_filter || $show_city_filter;
+		$classes               = 'vred-geo-maps__filters vred-geo-maps__filters--' . sanitize_html_class( $context );
+		$secondary_id          = 'map' === $context && $has_secondary_filters ? wp_unique_id( 'vred-geo-filter-options-' ) : '';
+
+		if ( $has_secondary_filters ) {
+			$classes .= ' has-secondary-filters';
+		}
+
+		if ( ! empty( $settings['show_search'] ) ) {
+			$classes .= ' has-search';
+		}
 		?>
-		<div class="<?php echo esc_attr( $classes ); ?>"<?php echo 'map' === $context ? ' data-vred-geo-overlay-block' : ''; ?>>
+		<div class="<?php echo esc_attr( $classes ); ?>"<?php echo 'map' === $context ? ' data-vred-geo-overlay-block data-vred-geo-map-filters' : ''; ?>>
 			<div class="vred-geo-maps__filter-controls">
 				<?php if ( ! empty( $settings['show_search'] ) ) : ?>
-					<label class="vred-geo-maps__field">
+					<label class="vred-geo-maps__field vred-geo-maps__field--search">
 						<span><?php esc_html_e( 'Search', 'vred-geo-maps' ); ?></span>
 						<input type="search" placeholder="<?php echo esc_attr__( 'Search by name or address…', 'vred-geo-maps' ); ?>" data-vred-geo-search>
 					</label>
 				<?php endif; ?>
-				<?php if ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) : ?>
-					<label class="vred-geo-maps__field">
+				<?php if ( 'map' === $context && $has_secondary_filters ) : ?>
+					<button type="button" class="vred-geo-maps__filter-toggle" data-vred-geo-filter-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $secondary_id ); ?>"><?php esc_html_e( 'Filters', 'vred-geo-maps' ); ?></button>
+				<?php endif; ?>
+				<div class="vred-geo-maps__filter-secondary"<?php echo '' !== $secondary_id ? ' id="' . esc_attr( $secondary_id ) . '"' : ''; ?>>
+				<?php if ( $show_type_filter ) : ?>
+					<label class="vred-geo-maps__field vred-geo-maps__field--secondary">
 						<span><?php esc_html_e( 'Location type', 'vred-geo-maps' ); ?></span>
 						<select data-vred-geo-type-filter>
 							<option value=""><?php esc_html_e( 'All types', 'vred-geo-maps' ); ?></option>
@@ -372,7 +394,7 @@ final class Renderer {
 					</label>
 				<?php endif; ?>
 				<?php if ( $show_country_filter ) : ?>
-					<label class="vred-geo-maps__field">
+					<label class="vred-geo-maps__field vred-geo-maps__field--secondary">
 						<span><?php esc_html_e( 'Country', 'vred-geo-maps' ); ?></span>
 						<select data-vred-geo-country-filter>
 							<option value=""><?php esc_html_e( 'All countries', 'vred-geo-maps' ); ?></option>
@@ -380,7 +402,7 @@ final class Renderer {
 					</label>
 				<?php endif; ?>
 				<?php if ( $show_region_filter ) : ?>
-					<label class="vred-geo-maps__field">
+					<label class="vred-geo-maps__field vred-geo-maps__field--secondary">
 						<span><?php esc_html_e( 'Province / region', 'vred-geo-maps' ); ?></span>
 						<select data-vred-geo-region-filter>
 							<option value=""><?php esc_html_e( 'All provinces / regions', 'vred-geo-maps' ); ?></option>
@@ -388,21 +410,23 @@ final class Renderer {
 					</label>
 				<?php endif; ?>
 				<?php if ( $show_city_filter ) : ?>
-					<label class="vred-geo-maps__field">
+					<label class="vred-geo-maps__field vred-geo-maps__field--secondary">
 						<span><?php esc_html_e( 'City', 'vred-geo-maps' ); ?></span>
 						<select data-vred-geo-city-filter>
 							<option value=""><?php esc_html_e( 'All cities', 'vred-geo-maps' ); ?></option>
 						</select>
 					</label>
 				<?php endif; ?>
-			</div>
-			<div class="vred-geo-maps__filter-meta">
-				<button type="button" class="vred-geo-maps__reset" data-vred-geo-reset aria-label="<?php echo esc_attr__( 'Reset filters', 'vred-geo-maps' ); ?>" title="<?php echo esc_attr__( 'Reset filters', 'vred-geo-maps' ); ?>">
-					<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-						<path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
-						<path d="M3 3v5h5"></path>
-					</svg>
-				</button>
+					<div class="vred-geo-maps__filter-meta">
+						<button type="button" class="vred-geo-maps__reset" data-vred-geo-reset>
+							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+								<path d="M3 3v5h5"></path>
+							</svg>
+							<span><?php esc_html_e( 'Clear filters', 'vred-geo-maps' ); ?></span>
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 		<?php
