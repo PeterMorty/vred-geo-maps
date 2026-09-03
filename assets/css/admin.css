@@ -596,14 +596,14 @@
 }
 
 .vred-geo-admin-map-height input[type="text"] {
-	width: 240px;
+	width: 210px;
 	border-radius: 4px 0 0 4px
 }
 
 .vred-geo-admin-map-height select {
 	margin-left: -1px;
-	width: auto;
-	min-width: 86px;
+	width: 116px;
+	min-width: 116px;
 
 	border-radius: 0 4px 4px 0
 }

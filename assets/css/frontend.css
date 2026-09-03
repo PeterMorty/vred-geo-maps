@@ -807,8 +807,10 @@
 }
 
 .vred-geo-maps__location-metadata--card {
-	margin-top: 7px;
-	padding: 0 16px 16px calc(16px + var(--vred-geo-card-indicator-width) + var(--vred-geo-card-identity-gap))
+	margin: 7px 16px 0;
+	padding: 13px 0 16px;
+
+	border-top: 1px solid #edf0ee
 }
 
 .vred-geo-maps__metadata-row {
