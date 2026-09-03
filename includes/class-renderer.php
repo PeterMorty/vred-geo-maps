@@ -177,9 +177,7 @@ final class Renderer {
 		$tile_provider       = $uses_carto && '' === $carto_api_key ? 'openstreetmap' : $settings['tile_provider'];
 
 		$config = array(
-			'id'           => $instance_id,
 			'tileProvider' => $tile_provider,
-			'appearance'   => $settings['appearance'],
 			'zoom'         => (int) $settings['initial_zoom'],
 			'popupWidth'   => (int) $settings['popup_width'],
 			'autoFit'      => ! empty( $settings['auto_fit'] ),
@@ -213,10 +211,6 @@ final class Renderer {
 			'vred-geo-maps--filters-' . sanitize_html_class( $filters_position ),
 			'vred-geo-maps--appearance-' . sanitize_html_class( $settings['appearance'] ),
 		);
-
-		if ( empty( $settings['show_list'] ) ) {
-			$classes[] = 'vred-geo-maps--no-list';
-		}
 
 		if ( ! $has_panel ) {
 			$classes[] = 'vred-geo-maps--no-panel';

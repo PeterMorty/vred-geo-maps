@@ -206,14 +206,6 @@
 	height: 36px
 }
 
-.vred-geo-admin-inline-options {
-	display: flex;
-	gap: 16px;
-	flex-wrap: wrap;
-
-	margin-top: 10px
-}
-
 .vred-geo-admin-card__footer {
 	display: flex;
 	align-items: center;

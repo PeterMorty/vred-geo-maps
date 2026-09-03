@@ -416,8 +416,6 @@
 		const clusteringAvailable = typeof window.L.markerClusterGroup === 'function';
 
 		if (clusteringRequested && !clusteringAvailable) {
-			root.classList.add('vred-geo-maps--cluster-error');
-
 			if (window.console && typeof window.console.error === 'function') {
 				window.console.error(config.strings?.clusterUnavailable || '');
 			}
@@ -449,8 +447,7 @@
 			if (location.action === 'popup' && location.popupHtml) {
 				marker.bindPopup(location.popupHtml, {
 					maxWidth: popupMaxWidth,
-					maxHeight: popupMaxHeight,
-					className: 'vred-geo-maps__leaflet-popup'
+					maxHeight: popupMaxHeight
 				});
 			}
 

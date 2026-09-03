@@ -1278,7 +1278,7 @@ final class Admin {
 		?>
 		<label class="vred-geo-admin-field vred-geo-admin-field--map-height">
 			<span><?php esc_html_e( 'Map height', 'vred-geo-maps' ); ?></span>
-			<span class="vred-geo-admin-map-height" data-vred-geo-map-height-control>
+			<span class="vred-geo-admin-map-height">
 				<input type="number" min="<?php echo esc_attr( $is_custom || $is_viewport ? '1' : '240' ); ?>" max="900" step="1" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[map_height]" value="<?php echo esc_attr( (string) $settings['map_height'] ); ?>" data-vred-geo-map-height-number<?php echo $is_custom ? ' hidden' : ''; ?>>
 				<input type="text" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[map_height_custom]" value="<?php echo esc_attr( (string) ( $settings['map_height_custom'] ?? '' ) ); ?>" maxlength="200" placeholder="calc(100dvh - 120px)" spellcheck="false" data-vred-geo-map-height-custom<?php echo $is_custom ? '' : ' hidden'; ?>>
 				<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[map_height_unit]" aria-label="<?php echo esc_attr__( 'Map height unit', 'vred-geo-maps' ); ?>" data-vred-geo-map-height-unit>
