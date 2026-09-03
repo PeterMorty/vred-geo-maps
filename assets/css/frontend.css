@@ -152,7 +152,7 @@
 
 .vred-geo-maps__reset {
 	--vred-geo-action-padding: 7px 3px;
-	--vred-geo-action-color: #5f6963;
+	--vred-geo-action-color: var(--vred-geo-theme-color);
 	--vred-geo-action-font-size: 13px;
 	--vred-geo-action-font-weight: 500;
 	--vred-geo-action-line-height: 1.2;
@@ -173,7 +173,7 @@
 	font-size: 13px !important;
 	font-weight: 500 !important;
 	line-height: 1.2 !important;
-	color: #5f6963 !important;
+	color: var(--vred-geo-theme-color) !important;
 
 	border: 0 !important;
 	border-radius: 0 !important;
@@ -579,6 +579,7 @@
 }
 
 .vred-geo-maps__map-legend-limit {
+	--vred-geo-action-color: var(--vred-geo-theme-color);
 	--vred-geo-action-font-weight: 600
 }
 
@@ -615,6 +616,9 @@
 }
 
 .vred-geo-maps__card {
+	--vred-geo-card-indicator-width: 34px;
+	--vred-geo-card-identity-gap: 12px;
+
 	position: relative;
 	flex: 0 0 auto;
 	overflow: hidden;
@@ -625,7 +629,11 @@
 }
 
 .vred-geo-maps__card.is-active, .vred-geo-maps__card[open] {
-	border-color: var(--vred-geo-theme-color)
+	border-color: #cbd2ce
+}
+
+.vred-geo-maps__card--indicator-color {
+	--vred-geo-card-indicator-width: 10px
 }
 
 .vred-geo-maps__card-summary {
@@ -671,7 +679,8 @@
 }
 
 .vred-geo-maps__location-identity--card {
-	align-items: start
+	align-items: start;
+	gap: var(--vred-geo-card-identity-gap)
 }
 
 .vred-geo-maps__location-identity--card .vred-geo-maps__type-indicator--color {
@@ -732,7 +741,12 @@
 	object-fit: contain
 }
 
-.vred-geo-maps__type-indicator--card, .vred-geo-maps__type-indicator--popup {
+.vred-geo-maps__type-indicator--card {
+	width: var(--vred-geo-card-indicator-width);
+	height: var(--vred-geo-card-indicator-width)
+}
+
+.vred-geo-maps__type-indicator--popup {
 	width: 40px;
 	height: 40px
 }
@@ -795,7 +809,7 @@
 
 .vred-geo-maps__location-metadata--card {
 	margin-top: 7px;
-	padding: 0 16px 16px
+	padding: 0 16px 16px calc(16px + var(--vred-geo-card-indicator-width) + var(--vred-geo-card-identity-gap))
 }
 
 .vred-geo-maps__metadata-row {
@@ -819,6 +833,13 @@
 	color: #68726c
 }
 
+.vred-geo-maps__metadata-icon svg {
+	display: block;
+
+	width: 17px;
+	height: 17px
+}
+
 .vred-geo-maps__location-metadata a {
 	min-width: 0;
 
@@ -838,10 +859,11 @@
 	--vred-geo-action-line-height: 1.4;
 
 	display: inline-grid;
-	grid-template-columns: 18px minmax(0, max-content);
+	grid-template-columns: 18px minmax(0, 1fr);
 	align-items: center;
 	gap: 10px;
 	justify-self: start;
+	max-width: 100%;
 
 	font: inherit;
 	font-weight: 600 !important;
@@ -1359,7 +1381,7 @@
 }
 
 .vred-geo-maps .vred-geo-marker-image.is-active {
-	filter: drop-shadow(0 0 5px color-mix(in srgb, var(--vred-geo-theme-color) 45%, transparent)) drop-shadow(0 4px 9px rgba(22, 37, 29, .3))
+	filter: drop-shadow(0 0 5px color-mix(in srgb, var(--vred-geo-marker-color, #2f6fed) 45%, transparent)) drop-shadow(0 4px 9px rgba(22, 37, 29, .3))
 }
 
 /* Cluster */
@@ -1378,6 +1400,8 @@
 
 /* Popup */
 .vred-geo-maps .leaflet-popup-content-wrapper {
+	max-width: 100%;
+
 	color: var(--vred-geo-popup-text);
 
 	border: 1px solid var(--vred-geo-popup-border);
@@ -1390,10 +1414,12 @@
 	margin: 16px;
 
 	width: auto;
+	min-width: 0;
 	max-width: min(var(--vred-geo-popup-width), calc(100vw - 64px));
 
 	font-size: 14px;
-	line-height: 1.5
+	line-height: 1.5;
+	overflow-wrap: anywhere
 }
 
 .vred-geo-maps .leaflet-popup-content p {
@@ -1408,19 +1434,25 @@
 .vred-geo-maps__popup-content {
 	--vred-geo-action-color: var(--vred-geo-popup-text);
 
-	display: inline-grid;
+	display: grid;
 	gap: 14px;
 
-	width: max-content;
+	width: auto;
 	min-width: 0;
-	max-width: min(var(--vred-geo-popup-width), calc(100vw - 64px))
+	max-width: 100%
 }
 
 .vred-geo-maps__location-identity--popup {
-	grid-template-columns: max-content minmax(min-content, max-content);
+	grid-template-columns: max-content minmax(0, 1fr);
 	align-items: start;
 
-	width: max-content;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%
+}
+
+.vred-geo-maps__popup-content > *, .vred-geo-maps__location-identity--popup .vred-geo-maps__location-copy, .vred-geo-maps__location-metadata--popup, .vred-geo-maps__location-metadata--popup .vred-geo-maps__metadata-row {
+	min-width: 0;
 	max-width: 100%
 }
 

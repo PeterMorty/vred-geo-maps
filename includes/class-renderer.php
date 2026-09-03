@@ -516,8 +516,9 @@ final class Renderer {
 
 	/** Render one card-style location item. */
 	private static function render_location_card( array $location, string $type_indicator ): void {
-		$has_details  = self::location_has_metadata( $location );
-		$card_classes = 'vred-geo-maps__card' . ( $has_details ? ' has-details' : '' );
+		$has_details       = self::location_has_metadata( $location );
+		$indicator_variant = self::get_type_indicator_variant( $location, $type_indicator );
+		$card_classes      = 'vred-geo-maps__card vred-geo-maps__card--indicator-' . $indicator_variant . ( $has_details ? ' has-details' : '' );
 		?>
 		<?php if ( $has_details ) : ?>
 			<details class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location ); ?>>
@@ -674,23 +675,29 @@ final class Renderer {
 		$marker_svg  = Data::sanitize_svg( $marker['svg'] ?? '' );
 		$color       = sanitize_hex_color( $marker['color'] ?? ( $visual['color'] ?? '' ) ) ?: '#2f6fed';
 		$context     = in_array( $context, array( 'legend', 'card', 'compact', 'popup' ), true ) ? $context : 'legend';
+		$variant     = self::get_type_indicator_variant( $visual, $type_indicator );
 
-		if ( 'color' === $type_indicator ) {
-			self::render_type_color_indicator( $color, $context );
-			return;
-		}
-
-		if ( 'auto' === $type_indicator ) {
-			if ( '' !== $marker_url || '' !== $marker_svg ) {
-				self::render_type_icon_indicator( $marker_url, $marker_svg, $color, $context );
-				return;
-			}
-
+		if ( 'color' === $variant ) {
 			self::render_type_color_indicator( $color, $context );
 			return;
 		}
 
 		self::render_type_icon_indicator( $marker_url, $marker_svg, $color, $context );
+	}
+
+	/** Resolve whether a type indicator renders as an icon or color swatch. */
+	private static function get_type_indicator_variant( array $visual, string $type_indicator ): string {
+		if ( 'color' === $type_indicator ) {
+			return 'color';
+		}
+
+		if ( 'icon' === $type_indicator ) {
+			return 'icon';
+		}
+
+		$marker = is_array( $visual['marker'] ?? null ) ? $visual['marker'] : array();
+
+		return '' !== esc_url_raw( $marker['image_url'] ?? '' ) || '' !== Data::sanitize_svg( $marker['svg'] ?? '' ) ? 'icon' : 'color';
 	}
 
 	/** Render a color type indicator. */
@@ -773,13 +780,21 @@ final class Renderer {
 		<?php
 	}
 
-	/** Render one decorative metadata Dashicon. */
+	/** Render one decorative metadata icon. */
 	private static function render_metadata_icon( string $icon ): void {
+		if ( 'phone' === $icon ) {
+			?>
+			<span class="vred-geo-maps__metadata-icon" aria-hidden="true">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path></svg>
+			</span>
+			<?php
+			return;
+		}
+
 		$classes = array(
-			'phone'      => 'dashicons-phone',
 			'email'      => 'dashicons-email-alt',
 			'website'    => 'dashicons-admin-site-alt3',
-			'directions' => 'dashicons-location-alt',
+			'directions' => 'dashicons-location',
 		);
 
 		if ( ! isset( $classes[ $icon ] ) ) {

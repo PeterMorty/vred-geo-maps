@@ -102,10 +102,12 @@
 		}
 	};
 
+	const getMarkerColor = (location) => (/^#[0-9a-f]{6}$/i.test(location.marker?.color || '') ? location.marker.color : '#2f6fed');
+
 	const getMarkerIcon = (location) => {
 		const rawSize = Number.parseInt(location.marker?.size, 10);
 		const size = Number.isFinite(rawSize) ? Math.max(16, Math.min(96, rawSize)) : 34;
-		const color = /^#[0-9a-f]{6}$/i.test(location.marker?.color || '') ? location.marker.color : '#2f6fed';
+		const color = getMarkerColor(location);
 		const imageUrl = location.marker?.image_url || '';
 
 		if (imageUrl) {
@@ -431,13 +433,17 @@
 
 		const markers = new Map();
 		const markerLayers = [];
-		const popupMaxWidth = Number.parseInt(config.popupWidth, 10) || 320;
+		const popupMaxWidth = Number.parseInt(config.popupWidth, 10);
 		const popupMaxHeight = Math.max(180, Math.min(420, canvas.clientHeight - 80));
 
 		config.locations.forEach((location) => {
 			const marker = window.L.marker([location.latitude, location.longitude], {
 				icon: getMarkerIcon(location),
 				title: location.title || ''
+			});
+
+			marker.on('add', () => {
+				marker.getElement()?.style.setProperty('--vred-geo-marker-color', getMarkerColor(location));
 			});
 
 			if (location.action === 'popup' && location.popupHtml) {
