@@ -581,6 +581,37 @@
 	background: #f6f7f7
 }
 
+.vred-geo-admin-map-height {
+	display: inline-grid;
+	grid-template-columns: auto max-content;
+	align-items: stretch;
+
+	width: max-content;
+	max-width: 100%
+}
+
+.vred-geo-admin-map-height input[type="number"] {
+	width: 84px;
+	border-radius: 4px 0 0 4px
+}
+
+.vred-geo-admin-map-height input[type="text"] {
+	width: 240px;
+	border-radius: 4px 0 0 4px
+}
+
+.vred-geo-admin-map-height select {
+	margin-left: -1px;
+	width: auto;
+	min-width: 86px;
+
+	border-radius: 0 4px 4px 0
+}
+
+.vred-geo-admin-map-height input[hidden] {
+	display: none
+}
+
 .vred-geo-admin-card__body > form {
 	display: grid;
 	gap: 16px
@@ -804,6 +835,11 @@
 	max-width: 100%
 }
 
+.vred-geo-admin-settings-fields .vred-geo-admin-field--map-height {
+	width: max-content;
+	max-width: 100%
+}
+
 .vred-geo-admin-settings-fields .vred-geo-admin-field--number-short input[type="number"] {
 	width: 84px;
 	max-width: 84px
@@ -883,6 +919,15 @@
 	.vred-geo-admin-settings-fields .vred-geo-admin-field--select, .vred-geo-admin-settings-fields .vred-geo-admin-field--media {
 		width: 100%;
 		min-width: 0
+	}
+
+	.vred-geo-admin-map-height {
+		grid-template-columns: minmax(0, 1fr) max-content;
+		width: 100%
+	}
+
+	.vred-geo-admin-map-height input[type="text"] {
+		width: 100%
 	}
 
 	.vred-geo-admin-override {

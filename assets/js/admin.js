@@ -26,6 +26,25 @@
 	const filterSettings = root.querySelector('[data-vred-geo-filter-settings]');
 	const showMapLegendSetting = root.querySelector('[data-vred-geo-show-map-legend-setting]');
 	const mapLegendSettings = root.querySelector('[data-vred-geo-map-legend-settings]');
+	const mapHeightUnitSetting = root.querySelector('[data-vred-geo-map-height-unit]');
+	const mapHeightNumber = root.querySelector('[data-vred-geo-map-height-number]');
+	const mapHeightCustom = root.querySelector('[data-vred-geo-map-height-custom]');
+
+	const syncMapHeightSetting = () => {
+		const unit = mapHeightUnitSetting?.value || 'px';
+		const custom = unit === 'custom';
+		const viewport = ['vh', 'dvh'].includes(unit);
+
+		if (mapHeightNumber) {
+			mapHeightNumber.hidden = custom;
+			mapHeightNumber.min = custom || viewport ? '1' : '240';
+			mapHeightNumber.max = '900';
+		}
+
+		if (mapHeightCustom) {
+			mapHeightCustom.hidden = !custom;
+		}
+	};
 
 	const syncLayoutSettings = () => {
 		const listEnabled = Boolean(showListSetting?.checked);
@@ -753,6 +772,8 @@
 
 	root.querySelectorAll('[data-vred-geo-edit-form]').forEach(syncActionFields);
 	root.querySelectorAll('[data-vred-geo-override-toggle]').forEach(syncOverride);
+	syncMapHeightSetting();
+	mapHeightUnitSetting?.addEventListener('change', syncMapHeightSetting);
 	syncLayoutSettings();
 	[tileProviderSetting, showListSetting, listPositionSetting, showMapLegendSetting, showFiltersSetting, filtersPositionSetting].forEach((setting) => {
 		setting?.addEventListener('change', syncLayoutSettings);

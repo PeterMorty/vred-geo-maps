@@ -283,6 +283,8 @@ final class Renderer {
 			'theme_color',
 			'appearance',
 			'map_height',
+			'map_height_unit',
+			'map_height_custom',
 			'map_border_radius',
 			'initial_zoom',
 			'auto_fit',
@@ -333,7 +335,10 @@ final class Renderer {
 		$settings['filters_position']    = in_array( $settings['filters_position'], array( 'top', 'panel', 'bottom', 'map' ), true ) ? $settings['filters_position'] : 'top';
 		$settings['filters_map_position'] = in_array( $settings['filters_map_position'], array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ), true ) ? $settings['filters_map_position'] : 'top-right';
 		$settings['map_legend_position'] = in_array( $settings['map_legend_position'], array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' ), true ) ? $settings['map_legend_position'] : 'top-right';
-		$settings['map_height']          = Data::clamp_int( $settings['map_height'], 240, 900 );
+		$settings['map_height_unit']     = in_array( $settings['map_height_unit'], array( 'px', 'vh', 'dvh', 'custom' ), true ) ? $settings['map_height_unit'] : 'px';
+		$map_height_min                 = in_array( $settings['map_height_unit'], array( 'vh', 'dvh' ), true ) ? 1 : 240;
+		$settings['map_height']          = Data::clamp_int( $settings['map_height'], $map_height_min, 900 );
+		$settings['map_height_custom']   = Data::sanitize_css_length_expression( $settings['map_height_custom'] );
 		$settings['map_border_radius']   = Data::clamp_int( $settings['map_border_radius'], 0, 40 );
 		$settings['initial_zoom']        = Data::clamp_int( $settings['initial_zoom'], 1, 19 );
 		$settings['list_width']          = Data::clamp_int( $settings['list_width'], 260, 560 );
@@ -355,11 +360,16 @@ final class Renderer {
 	private static function build_style_attribute( array $settings ): string {
 		$filters_background_alpha = number_format( 1 - ( (int) $settings['filters_background_transparency'] / 100 ), 2, '.', '' );
 		$legend_background_alpha  = number_format( 1 - ( (int) $settings['map_legend_background_transparency'] / 100 ), 2, '.', '' );
+		$map_height                = (int) $settings['map_height'] . $settings['map_height_unit'];
+
+		if ( 'custom' === $settings['map_height_unit'] ) {
+			$map_height = '' !== $settings['map_height_custom'] ? $settings['map_height_custom'] : (int) $settings['map_height'] . 'px';
+		}
 
 		return implode(
 			';',
 			array(
-				'--vred-geo-map-height:' . (int) $settings['map_height'] . 'px',
+				'--vred-geo-map-height:' . $map_height,
 				'--vred-geo-map-radius:' . (int) $settings['map_border_radius'] . 'px',
 				'--vred-geo-theme-color:' . $settings['theme_color'],
 				'--vred-geo-list-width:' . (int) $settings['list_width'] . 'px',

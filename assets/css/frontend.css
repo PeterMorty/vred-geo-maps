@@ -812,6 +812,10 @@
 	padding: 0 16px 16px calc(16px + var(--vred-geo-card-indicator-width) + var(--vred-geo-card-identity-gap))
 }
 
+.vred-geo-maps__location-metadata--card .vred-geo-maps__directions-link {
+	--vred-geo-action-color: var(--vred-geo-theme-color)
+}
+
 .vred-geo-maps__metadata-row {
 	display: grid;
 	grid-template-columns: 18px minmax(0, 1fr);
@@ -1434,10 +1438,10 @@
 .vred-geo-maps__popup-content {
 	--vred-geo-action-color: var(--vred-geo-popup-text);
 
-	display: grid;
+	display: inline-grid;
 	gap: 14px;
 
-	width: auto;
+	width: fit-content;
 	min-width: 0;
 	max-width: 100%
 }
@@ -1446,7 +1450,7 @@
 	grid-template-columns: max-content minmax(0, 1fr);
 	align-items: start;
 
-	width: 100%;
+	width: auto;
 	min-width: 0;
 	max-width: 100%
 }
@@ -1465,7 +1469,6 @@
 }
 
 .vred-geo-maps__location-metadata--popup {
-	width: 100%;
 	padding-top: 13px;
 	color: var(--vred-geo-popup-text);
 

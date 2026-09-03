@@ -152,6 +152,9 @@ msgstr "No se han podido obtener las coordenadas en este momento."
 msgid "Coordinates updated."
 msgstr "Coordenadas actualizadas."
 
+msgid "Custom"
+msgstr "Personalizado"
+
 msgid "Custom content"
 msgstr "Contenido personalizado"
 
@@ -312,6 +315,9 @@ msgstr "Mapa"
 
 msgid "Map height"
 msgstr "Altura del mapa"
+
+msgid "Map height unit"
+msgstr "Unidad de altura del mapa"
 
 msgid "Marker action"
 msgstr "Acción del marcador"

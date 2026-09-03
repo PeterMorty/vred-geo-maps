@@ -142,6 +142,9 @@ msgstr ""
 msgid "Coordinates updated."
 msgstr ""
 
+msgid "Custom"
+msgstr ""
+
 msgid "Custom content"
 msgstr ""
 
@@ -299,6 +302,9 @@ msgid "Map"
 msgstr ""
 
 msgid "Map height"
+msgstr ""
+
+msgid "Map height unit"
 msgstr ""
 
 msgid "Marker action"

@@ -92,6 +92,8 @@ final class Data {
 			'theme_color'          => '#2f6fed',
 			'appearance'           => 'default',
 			'map_height'           => 560,
+			'map_height_unit'      => 'px',
+			'map_height_custom'    => '',
 			'map_border_radius'    => 18,
 			'initial_zoom'         => 6,
 			'auto_fit'             => 1,
@@ -173,13 +175,18 @@ final class Data {
 		$map_positions  = array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' );
 		$list_styles    = array( 'cards', 'compact', 'legend', 'grouped' );
 		$type_indicators = array( 'auto', 'icon', 'color' );
+		$map_height_units = array( 'px', 'vh', 'dvh', 'custom' );
+		$map_height_unit  = in_array( $input['map_height_unit'] ?? '', $map_height_units, true ) ? $input['map_height_unit'] : $defaults['map_height_unit'];
+		$map_height_min   = 'custom' === $map_height_unit || in_array( $map_height_unit, array( 'vh', 'dvh' ), true ) ? 1 : 240;
 
 		$settings = array(
 			'tile_provider'       => in_array( $input['tile_provider'] ?? '', $tile_providers, true ) ? $input['tile_provider'] : $defaults['tile_provider'],
 			'carto_api_key'       => trim( sanitize_text_field( (string) ( $input['carto_api_key'] ?? '' ) ) ),
 			'theme_color'         => sanitize_hex_color( $input['theme_color'] ?? '' ) ?: $defaults['theme_color'],
 			'appearance'          => in_array( $input['appearance'] ?? '', $appearances, true ) ? $input['appearance'] : $defaults['appearance'],
-			'map_height'          => self::clamp_int( $input['map_height'] ?? $defaults['map_height'], 240, 900 ),
+			'map_height'          => self::clamp_int( $input['map_height'] ?? $defaults['map_height'], $map_height_min, 900 ),
+			'map_height_unit'     => $map_height_unit,
+			'map_height_custom'   => self::sanitize_css_length_expression( $input['map_height_custom'] ?? '' ),
 			'map_border_radius'   => self::clamp_int( $input['map_border_radius'] ?? $defaults['map_border_radius'], 0, 40 ),
 			'initial_zoom'        => self::clamp_int( $input['initial_zoom'] ?? $defaults['initial_zoom'], 1, 19 ),
 			'auto_fit'            => ! empty( $input['auto_fit'] ) ? 1 : 0,
@@ -622,6 +629,140 @@ final class Data {
 	public static function clamp_int( mixed $value, int $min, int $max ): int {
 		$value = (int) $value;
 		return max( $min, min( $max, $value ) );
+	}
+
+	/** Sanitize a CSS length or calculation without allowing arbitrary CSS. */
+	public static function sanitize_css_length_expression( mixed $value ): string {
+		if ( ! is_scalar( $value ) ) {
+			return '';
+		}
+
+		$value = strtolower( trim( preg_replace( '/\s+/', ' ', (string) $value ) ?? '' ) );
+
+		if ( '' === $value || strlen( $value ) > 200 || str_contains( $value, '\\' ) || preg_match( '/[;{}\[\]<>"\'`]/', $value ) || preg_match( '/(?<!\s)[+-]|[+-](?!\s)/', $value ) ) {
+			return '';
+		}
+
+		$tokens = self::tokenize_css_length_expression( $value );
+
+		if ( null === $tokens ) {
+			return '';
+		}
+
+		$index     = 0;
+		$dimension = self::parse_css_length_sum( $tokens, $index );
+
+		return 'length' === $dimension && count( $tokens ) === $index ? $value : '';
+	}
+
+	/** Tokenize the deliberately small CSS length grammar accepted above. */
+	private static function tokenize_css_length_expression( string $value ): ?array {
+		$tokens  = array();
+		$offset  = 0;
+		$length  = strlen( $value );
+		$pattern = '/\G\s*(?:(calc|min|max|clamp)|((?:\d+(?:\.\d+)?|\.\d+))(dvh|svh|lvh|dvw|svw|lvw|vmin|vmax|rem|px|vh|vw|em|%)?|([(),+\-]))/Ai';
+
+		while ( $offset < $length ) {
+			if ( ! preg_match( $pattern, $value, $match, 0, $offset ) ) {
+				return null;
+			}
+
+			$offset += strlen( $match[0] );
+
+			if ( '' !== ( $match[1] ?? '' ) ) {
+				$tokens[] = array( 'function', strtolower( $match[1] ) );
+			} elseif ( '' !== ( $match[2] ?? '' ) ) {
+				$tokens[] = array( 'number', strtolower( $match[3] ?? '' ) );
+			} else {
+				$tokens[] = array( 'symbol', $match[4] );
+			}
+		}
+
+		return $tokens;
+	}
+
+	/** Parse additions and subtractions that preserve a CSS dimension. */
+	private static function parse_css_length_sum( array $tokens, int &$index ): ?string {
+		$dimension = self::parse_css_length_factor( $tokens, $index );
+
+		if ( null === $dimension ) {
+			return null;
+		}
+
+		while ( isset( $tokens[ $index ] ) && 'symbol' === $tokens[ $index ][0] && in_array( $tokens[ $index ][1], array( '+', '-' ), true ) ) {
+			$index++;
+			$right = self::parse_css_length_factor( $tokens, $index );
+
+			if ( null === $right || $dimension !== $right ) {
+				return null;
+			}
+		}
+
+		return $dimension;
+	}
+
+	/** Parse one CSS number, length, parenthesized expression or safe function. */
+	private static function parse_css_length_factor( array $tokens, int &$index ): ?string {
+		$token = $tokens[ $index ] ?? null;
+
+		if ( ! is_array( $token ) ) {
+			return null;
+		}
+
+		if ( 'number' === $token[0] ) {
+			$index++;
+			return '' === $token[1] ? 'number' : 'length';
+		}
+
+		if ( 'symbol' === $token[0] && '(' === $token[1] ) {
+			$index++;
+			$dimension = self::parse_css_length_sum( $tokens, $index );
+
+			return null !== $dimension && self::consume_css_length_symbol( $tokens, $index, ')' ) ? $dimension : null;
+		}
+
+		if ( 'function' !== $token[0] ) {
+			return null;
+		}
+
+		$function = $token[1];
+		$index++;
+
+		if ( ! self::consume_css_length_symbol( $tokens, $index, '(' ) ) {
+			return null;
+		}
+
+		if ( 'calc' === $function ) {
+			$dimension = self::parse_css_length_sum( $tokens, $index );
+			return null !== $dimension && self::consume_css_length_symbol( $tokens, $index, ')' ) ? $dimension : null;
+		}
+
+		$required_arguments = 'clamp' === $function ? 3 : null;
+		$argument_count     = 0;
+
+		do {
+			if ( 'length' !== self::parse_css_length_sum( $tokens, $index ) ) {
+				return null;
+			}
+
+			$argument_count++;
+		} while ( self::consume_css_length_symbol( $tokens, $index, ',' ) );
+
+		if ( ( null !== $required_arguments && $required_arguments !== $argument_count ) || ( null === $required_arguments && $argument_count < 1 ) ) {
+			return null;
+		}
+
+		return self::consume_css_length_symbol( $tokens, $index, ')' ) ? 'length' : null;
+	}
+
+	/** Consume one expected punctuation token. */
+	private static function consume_css_length_symbol( array $tokens, int &$index, string $symbol ): bool {
+		if ( ! isset( $tokens[ $index ] ) || 'symbol' !== $tokens[ $index ][0] || $symbol !== $tokens[ $index ][1] ) {
+			return false;
+		}
+
+		$index++;
+		return true;
 	}
 
 	/** Sanitize a decimal coordinate. */

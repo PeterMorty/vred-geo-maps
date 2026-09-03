@@ -485,7 +485,7 @@ final class Admin {
 								<?php endforeach; ?>
 							</select>
 						</label>
-						<?php self::settings_number( 'map_height', __( 'Map height', 'vred-geo-maps' ), $settings['map_height'], 240, 900, 'px' ); ?>
+						<?php self::settings_map_height( $settings ); ?>
 						<?php self::settings_number( 'map_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['map_border_radius'], 0, 40, 'px' ); ?>
 						<?php self::settings_number( 'initial_zoom', __( 'Initial zoom', 'vred-geo-maps' ), $settings['initial_zoom'], 1, 19 ); ?>
 					</div>
@@ -1266,6 +1266,28 @@ final class Admin {
 			<?php else : ?>
 				<input type="number" min="<?php echo esc_attr( (string) $min ); ?>" max="<?php echo esc_attr( (string) $max ); ?>" step="1" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( (string) $value ); ?>">
 			<?php endif; ?>
+		</label>
+		<?php
+	}
+
+	/** Render the map height value and unit controls without discarding either stored value. */
+	private static function settings_map_height( array $settings ): void {
+		$unit        = in_array( $settings['map_height_unit'] ?? '', array( 'px', 'vh', 'dvh', 'custom' ), true ) ? $settings['map_height_unit'] : 'px';
+		$is_custom   = 'custom' === $unit;
+		$is_viewport = in_array( $unit, array( 'vh', 'dvh' ), true );
+		?>
+		<label class="vred-geo-admin-field vred-geo-admin-field--map-height">
+			<span><?php esc_html_e( 'Map height', 'vred-geo-maps' ); ?></span>
+			<span class="vred-geo-admin-map-height" data-vred-geo-map-height-control>
+				<input type="number" min="<?php echo esc_attr( $is_custom || $is_viewport ? '1' : '240' ); ?>" max="900" step="1" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[map_height]" value="<?php echo esc_attr( (string) $settings['map_height'] ); ?>" data-vred-geo-map-height-number<?php echo $is_custom ? ' hidden' : ''; ?>>
+				<input type="text" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[map_height_custom]" value="<?php echo esc_attr( (string) ( $settings['map_height_custom'] ?? '' ) ); ?>" maxlength="200" placeholder="calc(100dvh - 120px)" spellcheck="false" data-vred-geo-map-height-custom<?php echo $is_custom ? '' : ' hidden'; ?>>
+				<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[map_height_unit]" aria-label="<?php echo esc_attr__( 'Map height unit', 'vred-geo-maps' ); ?>" data-vred-geo-map-height-unit>
+					<option value="px" <?php selected( $unit, 'px' ); ?>>px</option>
+					<option value="vh" <?php selected( $unit, 'vh' ); ?>>vh</option>
+					<option value="dvh" <?php selected( $unit, 'dvh' ); ?>>dvh</option>
+					<option value="custom" <?php selected( $unit, 'custom' ); ?>><?php esc_html_e( 'Custom', 'vred-geo-maps' ); ?></option>
+				</select>
+			</span>
 		</label>
 		<?php
 	}
