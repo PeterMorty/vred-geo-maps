@@ -267,13 +267,19 @@
 
 		initialized.add(root);
 
-		const provider = tileProviders[config.tileProvider] || tileProviders.openstreetmap;
+		const cartoRequested = String(config.tileProvider || '').startsWith('carto_');
+		const provider = cartoRequested && !config.cartoApiKey
+			? tileProviders.openstreetmap
+			: tileProviders[config.tileProvider] || tileProviders.openstreetmap;
+		const tileUrl = cartoRequested && config.cartoApiKey
+			? `${provider.url}?key=${encodeURIComponent(config.cartoApiKey)}`
+			: provider.url;
 		const map = window.L.map(canvas, {
 			zoomControl: true,
 			scrollWheelZoom: true
 		});
 
-		window.L.tileLayer(provider.url, provider.options).addTo(map);
+		window.L.tileLayer(tileUrl, provider.options).addTo(map);
 
 		const clusteringRequested = Boolean(config.clustering);
 		const clusteringAvailable = typeof window.L.markerClusterGroup === 'function';

@@ -88,6 +88,7 @@ final class Data {
 	public static function get_default_settings(): array {
 		return array(
 			'tile_provider'        => 'openstreetmap',
+			'carto_api_key'        => '',
 			'appearance'           => 'default',
 			'map_height'           => 560,
 			'map_border_radius'    => 18,
@@ -100,6 +101,7 @@ final class Data {
 			'list_position'        => 'left',
 			'filters_position'     => 'top',
 			'filters_map_position' => 'top-right',
+			'show_filters'         => 1,
 			'show_map_legend'      => 0,
 			'map_legend_position'  => 'top-right',
 			'show_search'          => 1,
@@ -155,6 +157,7 @@ final class Data {
 
 		$settings = array(
 			'tile_provider'       => in_array( $input['tile_provider'] ?? '', $tile_providers, true ) ? $input['tile_provider'] : $defaults['tile_provider'],
+			'carto_api_key'       => trim( sanitize_text_field( (string) ( $input['carto_api_key'] ?? '' ) ) ),
 			'appearance'          => in_array( $input['appearance'] ?? '', $appearances, true ) ? $input['appearance'] : $defaults['appearance'],
 			'map_height'          => self::clamp_int( $input['map_height'] ?? $defaults['map_height'], 240, 900 ),
 			'map_border_radius'   => self::clamp_int( $input['map_border_radius'] ?? $defaults['map_border_radius'], 0, 40 ),
@@ -167,6 +170,7 @@ final class Data {
 			'list_position'       => in_array( $input['list_position'] ?? '', $positions, true ) ? $input['list_position'] : $defaults['list_position'],
 			'filters_position'    => in_array( $input['filters_position'] ?? '', $filter_positions, true ) ? $input['filters_position'] : $defaults['filters_position'],
 			'filters_map_position' => in_array( $input['filters_map_position'] ?? '', $map_positions, true ) ? $input['filters_map_position'] : $defaults['filters_map_position'],
+			'show_filters'        => ! empty( $input['show_filters'] ) ? 1 : 0,
 			'show_map_legend'     => ! empty( $input['show_map_legend'] ) ? 1 : 0,
 			'map_legend_position' => in_array( $input['map_legend_position'] ?? '', $map_positions, true ) ? $input['map_legend_position'] : $defaults['map_legend_position'],
 			'show_search'         => ! empty( $input['show_search'] ) ? 1 : 0,

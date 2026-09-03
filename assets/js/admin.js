@@ -13,18 +13,49 @@
 	const searchInput = root.querySelector('[data-vred-geo-admin-search]');
 	let draggingCard = null;
 	const geocodeRequests = new WeakMap();
+	const tileProviderSetting = root.querySelector('[data-vred-geo-tile-provider-setting]');
+	const cartoApiKeyField = root.querySelector('[data-vred-geo-carto-api-key-field]');
+	const showListSetting = root.querySelector('[data-vred-geo-show-list-setting]');
+	const listSettings = root.querySelector('[data-vred-geo-list-settings]');
 	const listStyleSetting = root.querySelector('[data-vred-geo-list-style-setting]');
 	const listPositionSetting = root.querySelector('[data-vred-geo-list-position-setting]');
 	const listWidthField = root.querySelector('[data-vred-geo-list-width-field]');
+	const listIndicatorSlot = root.querySelector('[data-vred-geo-list-indicator-slot]');
 	const filtersPositionSetting = root.querySelector('[data-vred-geo-filters-position-setting]');
 	const filtersMapPositionField = root.querySelector('[data-vred-geo-filters-map-position-field]');
+	const showFiltersSetting = root.querySelector('[data-vred-geo-show-filters-setting]');
+	const filterSettings = root.querySelector('[data-vred-geo-filter-settings]');
 	const showMapLegendSetting = root.querySelector('[data-vred-geo-show-map-legend-setting]');
-	const mapLegendPositionField = root.querySelector('[data-vred-geo-map-legend-position-field]');
+	const mapLegendSettings = root.querySelector('[data-vred-geo-map-legend-settings]');
+	const legendIndicatorSlot = root.querySelector('[data-vred-geo-legend-indicator-slot]');
 	const typeIndicatorField = root.querySelector('[data-vred-geo-type-indicator-field]');
 
 	const syncLayoutSettings = () => {
+		const listEnabled = Boolean(showListSetting?.checked);
+		const filtersEnabled = Boolean(showFiltersSetting?.checked);
+		const mapLegendEnabled = Boolean(showMapLegendSetting?.checked);
+		const listNeedsIndicator = listEnabled && ['legend', 'grouped'].includes(listStyleSetting?.value || '');
+
+		if (listSettings) {
+			listSettings.hidden = !listEnabled;
+		}
+
+		if (filterSettings) {
+			filterSettings.hidden = !filtersEnabled;
+		}
+
+		if (mapLegendSettings) {
+			mapLegendSettings.hidden = !mapLegendEnabled;
+		}
+
 		if (typeIndicatorField) {
-			typeIndicatorField.hidden = !showMapLegendSetting?.checked && !['legend', 'grouped'].includes(listStyleSetting?.value || '');
+			const indicatorSlot = listNeedsIndicator ? listIndicatorSlot : mapLegendEnabled ? legendIndicatorSlot : listIndicatorSlot;
+
+			if (indicatorSlot && typeIndicatorField.parentElement !== indicatorSlot) {
+				indicatorSlot.append(typeIndicatorField);
+			}
+
+			typeIndicatorField.hidden = !listNeedsIndicator && !mapLegendEnabled;
 		}
 
 		if (listWidthField) {
@@ -35,8 +66,8 @@
 			filtersMapPositionField.hidden = filtersPositionSetting?.value !== 'map';
 		}
 
-		if (mapLegendPositionField) {
-			mapLegendPositionField.hidden = !showMapLegendSetting?.checked;
+		if (cartoApiKeyField) {
+			cartoApiKeyField.hidden = !String(tileProviderSetting?.value || '').startsWith('carto_');
 		}
 	};
 
@@ -733,7 +764,7 @@
 	root.querySelectorAll('[data-vred-geo-edit-form]').forEach(syncActionFields);
 	root.querySelectorAll('[data-vred-geo-override-toggle]').forEach(syncOverride);
 	syncLayoutSettings();
-	[listStyleSetting, listPositionSetting, filtersPositionSetting, showMapLegendSetting].forEach((setting) => {
+	[tileProviderSetting, showListSetting, listStyleSetting, listPositionSetting, showMapLegendSetting, showFiltersSetting, filtersPositionSetting].forEach((setting) => {
 		setting?.addEventListener('change', syncLayoutSettings);
 	});
 	updateEmptyState();

@@ -19,14 +19,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-format
-msgid "%d locations"
-msgstr ""
-
-#, python-format
 msgid "%s copy"
-msgstr ""
-
-msgid "1 location"
 msgstr ""
 
 msgid "A location name is required."
@@ -39,12 +32,6 @@ msgid "Action"
 msgstr ""
 
 msgid "Add"
-msgstr ""
-
-msgid "Add location"
-msgstr ""
-
-msgid "Add type"
 msgstr ""
 
 msgid "Added a grouped list style with addresses and configurable type indicators for grouped views."
@@ -99,9 +86,6 @@ msgid "Border radius"
 msgstr ""
 
 msgid "Bottom"
-msgstr ""
-
-msgid "CARTO tile styles use external CARTO tiles with visible attribution and are subject to CARTO terms."
 msgstr ""
 
 msgid "Cards"
@@ -251,9 +235,6 @@ msgstr ""
 msgid "Latitude and longitude must both be valid decimal coordinates."
 msgstr ""
 
-msgid "Layout and filters"
-msgstr ""
-
 msgid "Left"
 msgstr ""
 
@@ -309,9 +290,6 @@ msgid "Locations"
 msgstr ""
 
 msgid "Longitude"
-msgstr ""
-
-msgid "Manage reusable locations, location types and shared map defaults."
 msgstr ""
 
 msgid "Map"
@@ -415,9 +393,6 @@ msgstr ""
 msgid "Replace image"
 msgstr ""
 
-msgid "Reset"
-msgstr ""
-
 msgid "Reset filters"
 msgstr ""
 
@@ -469,25 +444,7 @@ msgstr ""
 msgid "Show \"Get directions\" link"
 msgstr ""
 
-msgid "Show City filter"
-msgstr ""
-
-msgid "Show Country filter"
-msgstr ""
-
-msgid "Show Location Type filter"
-msgstr ""
-
-msgid "Show locations list"
-msgstr ""
-
-msgid "Show Province / region filter"
-msgstr ""
-
 msgid "Show specific location IDs"
-msgstr ""
-
-msgid "Show text search"
 msgstr ""
 
 msgid "Size"
@@ -592,9 +549,6 @@ msgstr ""
 msgid "In the list area"
 msgstr ""
 
-msgid "List"
-msgstr ""
-
 msgid "Map position"
 msgstr ""
 
@@ -607,11 +561,50 @@ msgstr ""
 msgid "Position"
 msgstr ""
 
-msgid "Show Location Types legend on map"
-msgstr ""
-
 msgid "Top left"
 msgstr ""
 
 msgid "Top right"
+msgstr ""
+
+msgid "CARTO API key"
+msgstr ""
+
+msgid "CARTO Positron No Labels — API key required"
+msgstr ""
+
+msgid "CARTO Positron — API key required"
+msgstr ""
+
+msgid "CARTO Voyager — API key required"
+msgstr ""
+
+msgid "CARTO maps require your own API key."
+msgstr ""
+
+msgid "Card radius"
+msgstr ""
+
+msgid "Filters panel radius"
+msgstr ""
+
+msgid "Locations list"
+msgstr ""
+
+msgid "Request API key"
+msgstr ""
+
+msgid "Show Province / region"
+msgstr ""
+
+msgid "Show city"
+msgstr ""
+
+msgid "Show country"
+msgstr ""
+
+msgid "Show location type"
+msgstr ""
+
+msgid "Show search"
 msgstr ""

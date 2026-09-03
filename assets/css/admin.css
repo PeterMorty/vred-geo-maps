@@ -19,13 +19,6 @@
 	padding: 0
 }
 
-.vred-geo-admin__heading p {
-	margin: 0;
-
-	color: #646970
-}
-
-
 .vred-geo-admin__tabs {
 	margin-bottom: 18px
 }
@@ -306,6 +299,48 @@
 .vred-geo-admin-settings__section h2 {
 	margin: 0 0 14px;
 	padding: 0
+}
+
+.vred-geo-admin-settings-toggle {
+	margin: 0;
+	min-width: 0
+}
+
+.vred-geo-admin-settings-toggle > legend {
+	padding: 0 6px;
+
+	font-size: 1.3em;
+	font-weight: 600;
+	line-height: 1.4
+}
+
+.vred-geo-admin-settings-toggle > legend label {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px
+}
+
+.vred-geo-admin-settings-toggle > legend input {
+	margin: 0
+}
+
+.vred-geo-admin-settings-toggle__content {
+	display: grid;
+	gap: 14px;
+
+	padding-top: 8px
+}
+
+.vred-geo-admin-settings-toggle__content[hidden], [data-vred-geo-carto-api-key-field][hidden] {
+	display: none
+}
+
+.vred-geo-admin-settings-toggle__content > .vred-geo-admin-checks {
+	margin-top: 0
+}
+
+.vred-geo-admin-settings-slot {
+	display: contents
 }
 
 .vred-geo-admin-settings__section > p:not(.description) {

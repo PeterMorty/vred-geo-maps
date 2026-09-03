@@ -21,15 +21,8 @@ msgstr[0] "%d ubicación"
 msgstr[1] "%d ubicaciones"
 
 #, python-format
-msgid "%d locations"
-msgstr "%d ubicaciones"
-
-#, python-format
 msgid "%s copy"
 msgstr "Copia de %s"
-
-msgid "1 location"
-msgstr "1 ubicación"
 
 msgid "A location name is required."
 msgstr "El nombre de la ubicación es obligatorio."
@@ -42,12 +35,6 @@ msgstr "Acción"
 
 msgid "Add"
 msgstr "Añadir"
-
-msgid "Add location"
-msgstr "Añadir ubicación"
-
-msgid "Add type"
-msgstr "Añadir tipo"
 
 msgid "Added a grouped list style with addresses and configurable type indicators for grouped views."
 msgstr "Añadido un estilo de listado por grupos con direcciones e indicadores de tipo configurables para las vistas agrupadas."
@@ -106,9 +93,6 @@ msgstr "Radio del borde"
 
 msgid "Bottom"
 msgstr "Abajo"
-
-msgid "CARTO tile styles use external CARTO tiles with visible attribution and are subject to CARTO terms."
-msgstr "Los estilos CARTO usan teselas externas de CARTO con atribución visible y están sujetos a sus condiciones."
 
 msgid "Cards"
 msgstr "Tarjetas"
@@ -263,9 +247,6 @@ msgstr "Latitud"
 msgid "Latitude and longitude must both be valid decimal coordinates."
 msgstr "La latitud y la longitud deben ser coordenadas decimales válidas."
 
-msgid "Layout and filters"
-msgstr "Diseño y filtros"
-
 msgid "Left"
 msgstr "Izquierda"
 
@@ -322,9 +303,6 @@ msgstr "Ubicaciones"
 
 msgid "Longitude"
 msgstr "Longitud"
-
-msgid "Manage reusable locations, location types and shared map defaults."
-msgstr "Gestiona ubicaciones reutilizables, tipos de ubicación y ajustes comunes del mapa."
 
 msgid "Map"
 msgstr "Mapa"
@@ -439,9 +417,6 @@ msgstr ""
 msgid "Replace image"
 msgstr "Reemplazar imagen"
 
-msgid "Reset"
-msgstr "Restablecer"
-
 msgid "Reset filters"
 msgstr "Restablecer filtros"
 
@@ -493,26 +468,8 @@ msgstr "Shortcode"
 msgid "Show \"Get directions\" link"
 msgstr "Mostrar el enlace «Cómo llegar»"
 
-msgid "Show City filter"
-msgstr "Mostrar filtro de ciudad"
-
-msgid "Show Country filter"
-msgstr "Mostrar filtro de país"
-
-msgid "Show Location Type filter"
-msgstr "Mostrar filtro de tipos de ubicación"
-
-msgid "Show locations list"
-msgstr "Mostrar listado de ubicaciones"
-
-msgid "Show Province / region filter"
-msgstr "Mostrar filtro de provincia / región"
-
 msgid "Show specific location IDs"
 msgstr "Mostrar IDs de ubicaciones concretas"
-
-msgid "Show text search"
-msgstr "Mostrar búsqueda de texto"
 
 msgid "Size"
 msgstr "Tamaño"
@@ -620,9 +577,6 @@ msgstr "Posición de los filtros"
 msgid "In the list area"
 msgstr "En la zona del listado"
 
-msgid "List"
-msgstr "Listado"
-
 msgid "Map position"
 msgstr "Posición en el mapa"
 
@@ -630,16 +584,55 @@ msgid "On the map"
 msgstr "Sobre el mapa"
 
 msgid "On-map legend"
-msgstr "Leyenda sobre mapa"
+msgstr "Leyenda sobre el mapa"
 
 msgid "Position"
 msgstr "Posición"
-
-msgid "Show Location Types legend on map"
-msgstr "Mostrar leyenda de tipos sobre el mapa"
 
 msgid "Top left"
 msgstr "Superior izquierda"
 
 msgid "Top right"
 msgstr "Superior derecha"
+
+msgid "CARTO API key"
+msgstr "API key de CARTO"
+
+msgid "CARTO Positron No Labels — API key required"
+msgstr "CARTO Positron No Labels — requiere API key"
+
+msgid "CARTO Positron — API key required"
+msgstr "CARTO Positron — requiere API key"
+
+msgid "CARTO Voyager — API key required"
+msgstr "CARTO Voyager — requiere API key"
+
+msgid "CARTO maps require your own API key."
+msgstr "Los mapas de CARTO requieren una API key propia."
+
+msgid "Card radius"
+msgstr "Radio de las tarjetas"
+
+msgid "Filters panel radius"
+msgstr "Radio del panel de filtros"
+
+msgid "Locations list"
+msgstr "Listado de ubicaciones"
+
+msgid "Request API key"
+msgstr "Solicitar API key"
+
+msgid "Show Province / region"
+msgstr "Mostrar provincia / región"
+
+msgid "Show city"
+msgstr "Mostrar ciudad"
+
+msgid "Show country"
+msgstr "Mostrar país"
+
+msgid "Show location type"
+msgstr "Mostrar tipo de ubicación"
+
+msgid "Show search"
+msgstr "Mostrar buscador"

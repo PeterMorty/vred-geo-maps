@@ -168,14 +168,17 @@ final class Renderer {
 		$show_country_filter = ! empty( $settings['show_country_filter'] ) && self::has_location_value( $locations, 'country' );
 		$show_region_filter  = ! empty( $settings['show_region_filter'] ) && self::has_location_value( $locations, 'region' );
 		$show_city_filter    = ! empty( $settings['show_city_filter'] ) && self::has_location_value( $locations, 'city' );
-		$show_filters        = ! empty( $settings['show_search'] ) || ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) || $show_country_filter || $show_region_filter || $show_city_filter;
+		$show_filters        = ! empty( $settings['show_filters'] ) && ( ! empty( $settings['show_search'] ) || ( ! empty( $settings['show_type_filter'] ) && ! empty( $types ) ) || $show_country_filter || $show_region_filter || $show_city_filter );
 		$filters_position    = $settings['filters_position'];
 		$has_panel           = ! empty( $settings['show_list'] ) || ( $show_filters && 'panel' === $filters_position );
 		$has_map_overlays    = ( $show_filters && 'map' === $filters_position ) || ! empty( $settings['show_map_legend'] );
+		$carto_api_key       = trim( (string) $settings['carto_api_key'] );
+		$uses_carto          = in_array( $settings['tile_provider'], array( 'carto_positron', 'carto_positron_nolabels', 'carto_voyager' ), true );
+		$tile_provider       = $uses_carto && '' === $carto_api_key ? 'openstreetmap' : $settings['tile_provider'];
 
 		$config = array(
 			'id'           => $instance_id,
-			'tileProvider' => $settings['tile_provider'],
+			'tileProvider' => $tile_provider,
 			'appearance'   => $settings['appearance'],
 			'zoom'         => (int) $settings['initial_zoom'],
 			'autoFit'      => ! empty( $settings['auto_fit'] ),
@@ -185,6 +188,10 @@ final class Renderer {
 				'clusterUnavailable' => __( 'VRED Geo Maps: marker clustering is enabled but Leaflet.markercluster is unavailable.', 'vred-geo-maps' ),
 			),
 		);
+
+		if ( $uses_carto && '' !== $carto_api_key ) {
+			$config['cartoApiKey'] = $carto_api_key;
+		}
 
 		$styles = self::build_style_attribute( $settings );
 		$classes = array(
@@ -260,6 +267,7 @@ final class Renderer {
 		$settings = Data::get_settings();
 		$keys = array(
 			'tile_provider',
+			'carto_api_key',
 			'appearance',
 			'map_height',
 			'map_border_radius',
@@ -272,6 +280,7 @@ final class Renderer {
 			'list_position',
 			'filters_position',
 			'filters_map_position',
+			'show_filters',
 			'show_map_legend',
 			'map_legend_position',
 			'show_search',
