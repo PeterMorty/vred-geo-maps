@@ -229,11 +229,12 @@
 			options: { position: 'bottomright' },
 			onAdd: () => {
 				const container = window.L.DomUtil.create('div', 'leaflet-bar vred-geo-maps__location-control');
-				const button = window.L.DomUtil.create('button', 'vred-geo-maps__location-button', container);
+				const button = window.L.DomUtil.create('a', 'vred-geo-maps__action vred-geo-maps__location-button', container);
 				const status = window.L.DomUtil.create('span', 'vred-geo-maps__location-status', container);
 				const label = strings?.useMyLocation || 'Use my location';
 
-				button.type = 'button';
+				button.href = '#';
+				button.setAttribute('role', 'button');
 				button.title = label;
 				button.setAttribute('aria-label', label);
 				button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="7"></circle></svg>';
@@ -241,15 +242,27 @@
 				status.setAttribute('aria-live', 'polite');
 
 				window.L.DomEvent.disableClickPropagation(container);
-				window.L.DomEvent.on(button, 'click', () => {
+				window.L.DomEvent.on(button, 'keydown', (event) => {
+					if (event.key === ' ') {
+						event.preventDefault();
+						button.click();
+					}
+				});
+				window.L.DomEvent.on(button, 'click', (event) => {
+					window.L.DomEvent.preventDefault(event);
+
+					if (button.getAttribute('aria-busy') === 'true') {
+						return;
+					}
+
 					button.title = label;
 					button.setAttribute('aria-label', label);
-					button.disabled = true;
+					button.setAttribute('aria-disabled', 'true');
 					button.setAttribute('aria-busy', 'true');
 					status.textContent = '';
 
 					const finish = () => {
-						button.disabled = false;
+						button.removeAttribute('aria-disabled');
 						button.removeAttribute('aria-busy');
 					};
 
@@ -418,6 +431,7 @@
 
 		const markers = new Map();
 		const markerLayers = [];
+		const popupMaxWidth = Number.parseInt(config.popupWidth, 10) || 320;
 		const popupMaxHeight = Math.max(180, Math.min(420, canvas.clientHeight - 80));
 
 		config.locations.forEach((location) => {
@@ -428,7 +442,7 @@
 
 			if (location.action === 'popup' && location.popupHtml) {
 				marker.bindPopup(location.popupHtml, {
-					maxWidth: 520,
+					maxWidth: popupMaxWidth,
 					maxHeight: popupMaxHeight,
 					className: 'vred-geo-maps__leaflet-popup'
 				});

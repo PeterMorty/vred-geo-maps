@@ -79,7 +79,7 @@ final class Renderer {
 			wp_register_style(
 				self::FRONTEND_STYLE,
 				VRED_GEO_MAPS_URL . 'assets/css/frontend.css',
-				array( self::LEAFLET_STYLE ),
+				array( self::LEAFLET_STYLE, 'dashicons' ),
 				VRED_GEO_MAPS_VERSION
 			);
 		}
@@ -181,6 +181,7 @@ final class Renderer {
 			'tileProvider' => $tile_provider,
 			'appearance'   => $settings['appearance'],
 			'zoom'         => (int) $settings['initial_zoom'],
+			'popupWidth'   => (int) $settings['popup_width'],
 			'autoFit'      => ! empty( $settings['auto_fit'] ),
 			'clustering'   => ! empty( $settings['clustering'] ),
 			'locations'    => array_map(
@@ -401,7 +402,7 @@ final class Renderer {
 					</label>
 				<?php endif; ?>
 				<?php if ( 'map' === $context && $has_secondary_filters ) : ?>
-					<button type="button" class="vred-geo-maps__filter-toggle" data-vred-geo-filter-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $secondary_id ); ?>"><?php esc_html_e( 'Filters', 'vred-geo-maps' ); ?></button>
+					<button type="button" class="vred-geo-maps__action vred-geo-maps__filter-toggle" data-vred-geo-filter-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $secondary_id ); ?>"><?php esc_html_e( 'Filters', 'vred-geo-maps' ); ?></button>
 				<?php endif; ?>
 				<div class="vred-geo-maps__filter-secondary"<?php echo '' !== $secondary_id ? ' id="' . esc_attr( $secondary_id ) . '"' : ''; ?>>
 				<?php if ( $show_type_filter ) : ?>
@@ -440,7 +441,7 @@ final class Renderer {
 					</label>
 				<?php endif; ?>
 					<div class="vred-geo-maps__filter-meta">
-						<button type="button" class="vred-geo-maps__reset" data-vred-geo-reset>
+						<button type="button" class="vred-geo-maps__action vred-geo-maps__reset" data-vred-geo-reset>
 							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 								<path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
 								<path d="M3 3v5h5"></path>
@@ -464,7 +465,7 @@ final class Renderer {
 		<aside class="vred-geo-maps__map-legend" data-vred-geo-overlay-block data-vred-geo-map-legend data-visible-limit="<?php echo esc_attr( (string) $visible_limit ); ?>" aria-label="<?php echo esc_attr__( 'Location Types', 'vred-geo-maps' ); ?>">
 			<div class="vred-geo-maps__map-legend-header">
 				<strong class="vred-geo-maps__map-legend-title"><?php esc_html_e( 'Location Types', 'vred-geo-maps' ); ?></strong>
-				<button type="button" class="vred-geo-maps__map-legend-toggle" data-vred-geo-map-legend-toggle aria-expanded="true" aria-controls="<?php echo esc_attr( $body_id ); ?>" aria-label="<?php echo esc_attr__( 'Collapse map legend', 'vred-geo-maps' ); ?>">
+				<button type="button" class="vred-geo-maps__action vred-geo-maps__map-legend-toggle" data-vred-geo-map-legend-toggle aria-expanded="true" aria-controls="<?php echo esc_attr( $body_id ); ?>" aria-label="<?php echo esc_attr__( 'Collapse map legend', 'vred-geo-maps' ); ?>">
 					<span aria-hidden="true">&minus;</span>
 				</button>
 			</div>
@@ -472,7 +473,7 @@ final class Renderer {
 				<?php foreach ( $groups as $group ) : ?>
 					<?php if ( ! empty( $group['locations'] ) ) : ?>
 						<details class="vred-geo-maps__map-legend-group" data-vred-geo-map-legend-group data-type-id="<?php echo esc_attr( (string) $group['id'] ); ?>" open>
-							<summary class="vred-geo-maps__map-legend-summary" aria-label="<?php echo esc_attr( sprintf( __( 'Collapse %s', 'vred-geo-maps' ), $group['name'] ) ); ?>">
+							<summary class="vred-geo-maps__action vred-geo-maps__map-legend-summary" aria-label="<?php echo esc_attr( sprintf( __( 'Collapse %s', 'vred-geo-maps' ), $group['name'] ) ); ?>">
 								<span class="vred-geo-maps__legend-heading">
 									<?php self::render_type_indicator( $group, $type_indicator ); ?>
 									<strong><?php echo esc_html( $group['name'] ); ?></strong>
@@ -484,10 +485,10 @@ final class Renderer {
 							</summary>
 							<div class="vred-geo-maps__map-legend-locations">
 								<?php foreach ( $group['locations'] as $location_index => $location ) : ?>
-									<button type="button" class="vred-geo-maps__map-legend-location" data-vred-geo-location-item data-vred-geo-map-legend-location data-location-id="<?php echo esc_attr( (string) $location['id'] ); ?>" data-type-id="<?php echo esc_attr( (string) $location['type_id'] ); ?>" data-vred-geo-location-select<?php echo $location_index >= $visible_limit ? ' hidden' : ''; ?>><?php echo esc_html( $location['title'] ); ?></button>
+									<button type="button" class="vred-geo-maps__action vred-geo-maps__map-legend-location" data-vred-geo-location-item data-vred-geo-map-legend-location data-location-id="<?php echo esc_attr( (string) $location['id'] ); ?>" data-type-id="<?php echo esc_attr( (string) $location['type_id'] ); ?>" data-vred-geo-location-select<?php echo $location_index >= $visible_limit ? ' hidden' : ''; ?>><?php echo esc_html( $location['title'] ); ?></button>
 								<?php endforeach; ?>
 							</div>
-							<button type="button" class="vred-geo-maps__map-legend-limit" data-vred-geo-map-legend-limit aria-expanded="false"<?php echo count( $group['locations'] ) > $visible_limit ? '' : ' hidden'; ?>><?php echo esc_html( sprintf( __( 'View all (%d)', 'vred-geo-maps' ), count( $group['locations'] ) ) ); ?></button>
+							<button type="button" class="vred-geo-maps__action vred-geo-maps__map-legend-limit" data-vred-geo-map-legend-limit aria-expanded="false"<?php echo count( $group['locations'] ) > $visible_limit ? '' : ' hidden'; ?>><?php echo esc_html( sprintf( __( 'View all (%d)', 'vred-geo-maps' ), count( $group['locations'] ) ) ); ?></button>
 						</details>
 					<?php endif; ?>
 				<?php endforeach; ?>
@@ -520,7 +521,7 @@ final class Renderer {
 		?>
 		<?php if ( $has_details ) : ?>
 			<details class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location ); ?>>
-				<summary class="vred-geo-maps__card-summary" data-vred-geo-location-select>
+				<summary class="vred-geo-maps__action vred-geo-maps__card-summary" data-vred-geo-location-select>
 					<?php self::render_location_identity( $location, $type_indicator, 'card' ); ?>
 					<span class="vred-geo-maps__card-chevron" aria-hidden="true"></span>
 				</summary>
@@ -528,7 +529,7 @@ final class Renderer {
 			</details>
 		<?php else : ?>
 			<article class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location ); ?>>
-				<a href="#" class="vred-geo-maps__card-summary" data-vred-geo-location-select>
+				<a href="#" class="vred-geo-maps__action vred-geo-maps__card-summary" data-vred-geo-location-select>
 					<?php self::render_location_identity( $location, $type_indicator, 'card' ); ?>
 				</a>
 			</article>
@@ -540,7 +541,7 @@ final class Renderer {
 	private static function render_compact_location( array $location, string $type_indicator ): void {
 		?>
 		<article class="vred-geo-maps__compact-item" <?php self::render_location_item_attributes( $location ); ?>>
-			<a href="#" class="vred-geo-maps__compact-link" data-vred-geo-location-select>
+			<a href="#" class="vred-geo-maps__action vred-geo-maps__compact-link" data-vred-geo-location-select>
 				<?php self::render_location_identity( $location, $type_indicator, 'compact' ); ?>
 			</a>
 			<?php if ( '' !== $location['directions_url'] ) : ?>
@@ -571,7 +572,7 @@ final class Renderer {
 					</div>
 			<?php else : ?>
 				<details class="vred-geo-maps__legend-group<?php echo $show_addresses ? ' is-detailed' : ''; ?>" data-vred-geo-legend-group data-type-id="<?php echo esc_attr( (string) $group['id'] ); ?>"<?php echo 1 === $group_index ? ' open' : ''; ?>>
-					<summary class="vred-geo-maps__legend-summary">
+					<summary class="vred-geo-maps__action vred-geo-maps__legend-summary">
 						<?php self::render_group_heading( $group, $type_indicator, true ); ?>
 					</summary>
 			<?php endif; ?>
@@ -579,13 +580,13 @@ final class Renderer {
 					<?php foreach ( $group['locations'] as $location ) : ?>
 						<?php if ( '' !== $location['directions_url'] ) : ?>
 							<div class="vred-geo-maps__legend-location" <?php self::render_location_item_attributes( $location ); ?>>
-								<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" data-vred-geo-location-select>
+								<a href="#" class="vred-geo-maps__action vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" data-vred-geo-location-select>
 									<?php self::render_grouped_location_content( $location, $show_addresses ); ?>
 								</a>
 								<?php self::render_directions_link( $location['directions_url'], 'vred-geo-maps__directions-link--legend' ); ?>
 							</div>
 						<?php else : ?>
-							<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" <?php self::render_location_item_attributes( $location ); ?> data-vred-geo-location-select>
+							<a href="#" class="vred-geo-maps__action vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" <?php self::render_location_item_attributes( $location ); ?> data-vred-geo-location-select>
 								<?php self::render_grouped_location_content( $location, $show_addresses ); ?>
 							</a>
 						<?php endif; ?>
@@ -748,24 +749,23 @@ final class Renderer {
 			<?php if ( '' !== $location['phone'] ) : ?>
 				<div class="vred-geo-maps__metadata-row">
 					<?php self::render_metadata_icon( 'phone' ); ?>
-					<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $location['phone'] ) ); ?>"><?php echo esc_html( $location['phone'] ); ?></a>
+					<a class="vred-geo-maps__action" href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $location['phone'] ) ); ?>"><?php echo esc_html( $location['phone'] ); ?></a>
 				</div>
 			<?php endif; ?>
 			<?php if ( '' !== $location['email'] ) : ?>
 				<div class="vred-geo-maps__metadata-row">
 					<?php self::render_metadata_icon( 'email' ); ?>
-					<a href="mailto:<?php echo esc_attr( $location['email'] ); ?>"><?php echo esc_html( $location['email'] ); ?></a>
+					<a class="vred-geo-maps__action" href="mailto:<?php echo esc_attr( $location['email'] ); ?>"><?php echo esc_html( $location['email'] ); ?></a>
 				</div>
 			<?php endif; ?>
 			<?php if ( '' !== $location['website'] ) : ?>
 				<div class="vred-geo-maps__metadata-row">
 					<?php self::render_metadata_icon( 'website' ); ?>
-					<a href="<?php echo esc_url( $location['website'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Website', 'vred-geo-maps' ); ?></a>
+					<a class="vred-geo-maps__action" href="<?php echo esc_url( $location['website'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Website', 'vred-geo-maps' ); ?></a>
 				</div>
 			<?php endif; ?>
 			<?php if ( '' !== $location['directions_url'] ) : ?>
-				<div class="vred-geo-maps__metadata-row">
-					<?php self::render_metadata_icon( 'directions' ); ?>
+				<div class="vred-geo-maps__metadata-row vred-geo-maps__metadata-row--directions">
 					<?php self::render_directions_link( $location['directions_url'] ); ?>
 				</div>
 			<?php endif; ?>
@@ -773,22 +773,20 @@ final class Renderer {
 		<?php
 	}
 
-	/** Render one static decorative metadata icon. */
+	/** Render one decorative metadata Dashicon. */
 	private static function render_metadata_icon( string $icon ): void {
-		$paths = array(
-			'phone'      => '<path d="M7.3 3.5 9.6 7 8.1 8.8a15.2 15.2 0 0 0 7.1 7.1l1.8-1.5 3.5 2.3-1 3a2 2 0 0 1-2.1 1.3A17.4 17.4 0 0 1 3 6.6a2 2 0 0 1 1.3-2.1l3-1Z"></path>',
-			'email'      => '<rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path>',
-			'website'    => '<circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"></path>',
-			'directions' => '<path d="m12 3 9 9-9 9-9-9 9-9Z"></path><path d="M8 13v-2h7M13 8l3 3-3 3"></path>',
+		$classes = array(
+			'phone'      => 'dashicons-phone',
+			'email'      => 'dashicons-email-alt',
+			'website'    => 'dashicons-admin-site-alt3',
+			'directions' => 'dashicons-location-alt',
 		);
 
-		if ( ! isset( $paths[ $icon ] ) ) {
+		if ( ! isset( $classes[ $icon ] ) ) {
 			return;
 		}
 		?>
-		<span class="vred-geo-maps__metadata-icon" aria-hidden="true">
-			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><?php echo $paths[ $icon ]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG paths defined above. ?></svg>
-		</span>
+		<span class="vred-geo-maps__metadata-icon dashicons <?php echo esc_attr( $classes[ $icon ] ); ?>" aria-hidden="true"></span>
 		<?php
 	}
 
@@ -806,9 +804,12 @@ final class Renderer {
 
 	/** Render a safe external directions link without affecting location selection. */
 	private static function render_directions_link( string $url, string $class = '' ): void {
-		$classes = trim( 'vred-geo-maps__directions-link ' . $class );
+		$classes = trim( 'vred-geo-maps__action vred-geo-maps__directions-link ' . $class );
 		?>
-		<a class="<?php echo esc_attr( $classes ); ?>" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get directions', 'vred-geo-maps' ); ?></a>
+		<a class="<?php echo esc_attr( $classes ); ?>" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer">
+			<?php self::render_metadata_icon( 'directions' ); ?>
+			<span><?php esc_html_e( 'Get directions', 'vred-geo-maps' ); ?></span>
+		</a>
 		<?php
 	}
 
