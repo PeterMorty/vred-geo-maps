@@ -383,7 +383,6 @@ final class Renderer {
 				'--vred-geo-popup-bg:' . $settings['popup_background'],
 				'--vred-geo-popup-border:' . $settings['popup_border_color'],
 				'--vred-geo-popup-radius:' . (int) $settings['popup_border_radius'] . 'px',
-				'--vred-geo-popup-width:' . (int) $settings['popup_width'] . 'px',
 			)
 		);
 	}
@@ -536,7 +535,7 @@ final class Renderer {
 					<?php self::render_location_identity( $location, $type_indicator, 'card' ); ?>
 					<span class="vred-geo-maps__card-chevron" aria-hidden="true"></span>
 				</summary>
-				<?php self::render_location_metadata( $location, 'card' ); ?>
+				<?php self::render_location_metadata( $location ); ?>
 			</details>
 		<?php else : ?>
 			<article class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location ); ?>>
@@ -732,7 +731,7 @@ final class Renderer {
 		<?php
 	}
 
-	/** Render the location identity shared by cards, compact rows and automatic popups. */
+	/** Render the location identity shared by cards and compact rows. */
 	private static function render_location_identity( array $location, string $type_indicator, string $context ): void {
 		$marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed';
 		?>
@@ -756,29 +755,26 @@ final class Renderer {
 		return '' !== $location['phone'] || '' !== $location['email'] || '' !== $location['website'] || '' !== $location['directions_url'];
 	}
 
-	/** Render metadata rows shared by expanded cards and automatic popups. */
-	private static function render_location_metadata( array $location, string $context ): void {
+	/** Render metadata rows for an expanded card. */
+	private static function render_location_metadata( array $location ): void {
 		if ( ! self::location_has_metadata( $location ) ) {
 			return;
 		}
 		?>
-		<div class="vred-geo-maps__location-metadata vred-geo-maps__location-metadata--<?php echo esc_attr( $context ); ?>">
+		<div class="vred-geo-maps__location-metadata vred-geo-maps__location-metadata--card">
 			<?php if ( '' !== $location['phone'] ) : ?>
 				<div class="vred-geo-maps__metadata-row">
-					<?php self::render_metadata_icon( 'phone' ); ?>
-					<a class="vred-geo-maps__action" href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $location['phone'] ) ); ?>"><?php echo esc_html( $location['phone'] ); ?></a>
+					<?php self::render_contact_link( 'phone', $location['phone'] ); ?>
 				</div>
 			<?php endif; ?>
 			<?php if ( '' !== $location['email'] ) : ?>
 				<div class="vred-geo-maps__metadata-row">
-					<?php self::render_metadata_icon( 'email' ); ?>
-					<a class="vred-geo-maps__action" href="mailto:<?php echo esc_attr( $location['email'] ); ?>"><?php echo esc_html( $location['email'] ); ?></a>
+					<?php self::render_contact_link( 'email', $location['email'] ); ?>
 				</div>
 			<?php endif; ?>
 			<?php if ( '' !== $location['website'] ) : ?>
 				<div class="vred-geo-maps__metadata-row">
-					<?php self::render_metadata_icon( 'website' ); ?>
-					<a class="vred-geo-maps__action" href="<?php echo esc_url( $location['website'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Website', 'vred-geo-maps' ); ?></a>
+					<?php self::render_contact_link( 'website', $location['website'] ); ?>
 				</div>
 			<?php endif; ?>
 			<?php if ( '' !== $location['directions_url'] ) : ?>
@@ -787,6 +783,29 @@ final class Renderer {
 				</div>
 			<?php endif; ?>
 		</div>
+		<?php
+	}
+
+	/** Render one shared phone, email or website link with its icon. */
+	private static function render_contact_link( string $type, string $value ): void {
+		$is_external = false;
+
+		if ( 'phone' === $type ) {
+			$href  = 'tel:' . preg_replace( '/[^0-9+]/', '', $value );
+			$label = $value;
+		} elseif ( 'email' === $type ) {
+			$href  = 'mailto:' . $value;
+			$label = $value;
+		} elseif ( 'website' === $type ) {
+			$href        = $value;
+			$label       = __( 'Website', 'vred-geo-maps' );
+			$is_external = true;
+		} else {
+			return;
+		}
+		?>
+		<?php self::render_metadata_icon( $type ); ?>
+		<a class="vred-geo-maps__action vred-geo-maps__contact-link" href="<?php echo $is_external ? esc_url( $href ) : esc_attr( $href ); ?>"<?php if ( $is_external ) : ?> target="_blank" rel="noopener noreferrer"<?php endif; ?>><?php echo esc_html( $label ); ?></a>
 		<?php
 	}
 
@@ -815,13 +834,49 @@ final class Renderer {
 		<?php
 	}
 
-	/** Build the automatic popup from the same presentation helpers used by cards. */
+	/** Build the automatic popup with a dedicated Leaflet-friendly layout. */
 	private static function build_automatic_popup( array $location, string $type_indicator ): string {
+		$marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed';
+
 		ob_start();
 		?>
-		<div class="vred-geo-maps__popup-content">
-			<?php self::render_location_identity( $location, $type_indicator, 'popup' ); ?>
-			<?php self::render_location_metadata( $location, 'popup' ); ?>
+		<div class="vred-geo-maps__popup-content" style="--vred-geo-location-color:<?php echo esc_attr( $marker_color ); ?>">
+			<div class="vred-geo-maps__popup-header">
+				<?php self::render_type_indicator( $location, $type_indicator, 'popup' ); ?>
+				<div class="vred-geo-maps__popup-identity">
+					<strong class="vred-geo-maps__popup-title"><?php echo esc_html( $location['title'] ); ?></strong>
+					<?php if ( '' !== $location['type_name'] ) : ?>
+						<span class="vred-geo-maps__popup-type"><?php echo esc_html( $location['type_name'] ); ?></span>
+					<?php endif; ?>
+					<?php if ( '' !== $location['address'] ) : ?>
+						<span class="vred-geo-maps__popup-address"><?php echo esc_html( $location['address'] ); ?></span>
+					<?php endif; ?>
+				</div>
+			</div>
+			<?php if ( self::location_has_metadata( $location ) ) : ?>
+				<div class="vred-geo-maps__popup-metadata">
+					<?php if ( '' !== $location['phone'] ) : ?>
+						<div class="vred-geo-maps__popup-metadata-row">
+							<?php self::render_contact_link( 'phone', $location['phone'] ); ?>
+						</div>
+					<?php endif; ?>
+					<?php if ( '' !== $location['email'] ) : ?>
+						<div class="vred-geo-maps__popup-metadata-row">
+							<?php self::render_contact_link( 'email', $location['email'] ); ?>
+						</div>
+					<?php endif; ?>
+					<?php if ( '' !== $location['website'] ) : ?>
+						<div class="vred-geo-maps__popup-metadata-row">
+							<?php self::render_contact_link( 'website', $location['website'] ); ?>
+						</div>
+					<?php endif; ?>
+					<?php if ( '' !== $location['directions_url'] ) : ?>
+						<div class="vred-geo-maps__popup-metadata-row vred-geo-maps__popup-metadata-row--directions">
+							<?php self::render_directions_link( $location['directions_url'] ); ?>
+						</div>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
 		</div>
 		<?php
 		return (string) ob_get_clean();
