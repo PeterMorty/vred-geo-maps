@@ -183,7 +183,10 @@ final class Renderer {
 			'zoom'         => (int) $settings['initial_zoom'],
 			'autoFit'      => ! empty( $settings['auto_fit'] ),
 			'clustering'   => ! empty( $settings['clustering'] ),
-			'locations'    => array_map( array( self::class, 'get_js_location' ), $locations ),
+			'locations'    => array_map(
+				static fn( array $location ): array => self::get_js_location( $location, $settings['list_type_indicator'] ),
+				$locations
+			),
 			'strings'      => array(
 				'clusterUnavailable' => __( 'VRED Geo Maps: marker clustering is enabled but Leaflet.markercluster is unavailable.', 'vred-geo-maps' ),
 				'viewAll'             => __( 'View all (%d)', 'vred-geo-maps' ),
@@ -276,6 +279,7 @@ final class Renderer {
 		$keys = array(
 			'tile_provider',
 			'carto_api_key',
+			'theme_color',
 			'appearance',
 			'map_height',
 			'map_border_radius',
@@ -339,7 +343,7 @@ final class Renderer {
 		$settings['popup_border_radius'] = Data::clamp_int( $settings['popup_border_radius'], 0, 40 );
 		$settings['popup_width']         = Data::clamp_int( $settings['popup_width'], 180, 520 );
 
-		foreach ( array( 'popup_text_color', 'popup_background', 'popup_border_color' ) as $color_key ) {
+		foreach ( array( 'theme_color', 'popup_text_color', 'popup_background', 'popup_border_color' ) as $color_key ) {
 			$settings[ $color_key ] = sanitize_hex_color( $settings[ $color_key ] ) ?: Data::get_default_settings()[ $color_key ];
 		}
 
@@ -356,6 +360,7 @@ final class Renderer {
 			array(
 				'--vred-geo-map-height:' . (int) $settings['map_height'] . 'px',
 				'--vred-geo-map-radius:' . (int) $settings['map_border_radius'] . 'px',
+				'--vred-geo-theme-color:' . $settings['theme_color'],
 				'--vred-geo-list-width:' . (int) $settings['list_width'] . 'px',
 				'--vred-geo-gap:' . (int) $settings['gap'] . 'px',
 				'--vred-geo-filters-radius:' . (int) $settings['filters_radius'] . 'px',
@@ -500,61 +505,31 @@ final class Renderer {
 
 		foreach ( $locations as $location ) {
 			if ( 'compact' === $list_style ) {
-				self::render_compact_location( $location );
+				self::render_compact_location( $location, $type_indicator );
 				continue;
 			}
 
-			self::render_location_card( $location );
+			self::render_location_card( $location, $type_indicator );
 		}
 	}
 
 	/** Render one card-style location item. */
-	private static function render_location_card( array $location ): void {
-		$marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed';
-		$has_details  = '' !== $location['phone'] || '' !== $location['email'] || '' !== $location['website'] || '' !== $location['directions_url'];
+	private static function render_location_card( array $location, string $type_indicator ): void {
+		$has_details  = self::location_has_metadata( $location );
 		$card_classes = 'vred-geo-maps__card' . ( $has_details ? ' has-details' : '' );
 		?>
 		<?php if ( $has_details ) : ?>
-			<details class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location, $marker_color ); ?>>
+			<details class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location ); ?>>
 				<summary class="vred-geo-maps__card-summary" data-vred-geo-location-select>
-					<span class="vred-geo-maps__card-copy">
-						<?php self::render_location_identity( $location ); ?>
-					</span>
+					<?php self::render_location_identity( $location, $type_indicator, 'card' ); ?>
 					<span class="vred-geo-maps__card-chevron" aria-hidden="true"></span>
 				</summary>
-				<dl class="vred-geo-maps__card-details">
-					<?php if ( '' !== $location['phone'] ) : ?>
-						<div class="vred-geo-maps__card-detail">
-							<dt><?php esc_html_e( 'Phone', 'vred-geo-maps' ); ?>:</dt>
-							<dd><a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $location['phone'] ) ); ?>"><?php echo esc_html( $location['phone'] ); ?></a></dd>
-						</div>
-					<?php endif; ?>
-					<?php if ( '' !== $location['email'] ) : ?>
-						<div class="vred-geo-maps__card-detail">
-							<dt><?php esc_html_e( 'Email', 'vred-geo-maps' ); ?>:</dt>
-							<dd><a href="mailto:<?php echo esc_attr( $location['email'] ); ?>"><?php echo esc_html( $location['email'] ); ?></a></dd>
-						</div>
-					<?php endif; ?>
-					<?php if ( '' !== $location['website'] ) : ?>
-						<div class="vred-geo-maps__card-detail vred-geo-maps__card-detail--web">
-							<dt><?php esc_html_e( 'Web', 'vred-geo-maps' ); ?>:</dt>
-							<dd><a href="<?php echo esc_url( $location['website'] ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $location['website'] ); ?></a></dd>
-						</div>
-					<?php endif; ?>
-					<?php if ( '' !== $location['directions_url'] ) : ?>
-						<div class="vred-geo-maps__card-detail vred-geo-maps__card-detail--directions">
-							<dt><?php esc_html_e( 'Address', 'vred-geo-maps' ); ?>:</dt>
-							<dd><?php self::render_directions_link( $location['directions_url'] ); ?></dd>
-						</div>
-					<?php endif; ?>
-				</dl>
+				<?php self::render_location_metadata( $location, 'card' ); ?>
 			</details>
 		<?php else : ?>
-			<article class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location, $marker_color ); ?>>
+			<article class="<?php echo esc_attr( $card_classes ); ?>" <?php self::render_location_item_attributes( $location ); ?>>
 				<a href="#" class="vred-geo-maps__card-summary" data-vred-geo-location-select>
-					<span class="vred-geo-maps__card-copy">
-						<?php self::render_location_identity( $location ); ?>
-					</span>
+					<?php self::render_location_identity( $location, $type_indicator, 'card' ); ?>
 				</a>
 			</article>
 		<?php endif; ?>
@@ -562,21 +537,11 @@ final class Renderer {
 	}
 
 	/** Render one compact location row. */
-	private static function render_compact_location( array $location ): void {
-		$marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed';
+	private static function render_compact_location( array $location, string $type_indicator ): void {
 		?>
-		<article class="vred-geo-maps__compact-item" <?php self::render_location_item_attributes( $location, $marker_color ); ?>>
+		<article class="vred-geo-maps__compact-item" <?php self::render_location_item_attributes( $location ); ?>>
 			<a href="#" class="vred-geo-maps__compact-link" data-vred-geo-location-select>
-				<span class="vred-geo-maps__compact-dot" aria-hidden="true"></span>
-				<span class="vred-geo-maps__compact-copy">
-					<?php if ( '' !== $location['type_name'] ) : ?>
-						<span class="vred-geo-maps__compact-type"><?php echo esc_html( $location['type_name'] ); ?></span>
-					<?php endif; ?>
-					<strong class="vred-geo-maps__compact-title"><?php echo esc_html( $location['title'] ); ?></strong>
-					<?php if ( '' !== $location['address'] ) : ?>
-						<span class="vred-geo-maps__compact-address"><?php echo esc_html( $location['address'] ); ?></span>
-					<?php endif; ?>
-				</span>
+				<?php self::render_location_identity( $location, $type_indicator, 'compact' ); ?>
 			</a>
 			<?php if ( '' !== $location['directions_url'] ) : ?>
 				<?php self::render_directions_link( $location['directions_url'], 'vred-geo-maps__directions-link--compact' ); ?>
@@ -612,16 +577,15 @@ final class Renderer {
 			<?php endif; ?>
 				<div class="vred-geo-maps__legend-items">
 					<?php foreach ( $group['locations'] as $location ) : ?>
-						<?php $marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed'; ?>
 						<?php if ( '' !== $location['directions_url'] ) : ?>
-							<div class="vred-geo-maps__legend-location" <?php self::render_location_item_attributes( $location, $marker_color ); ?>>
+							<div class="vred-geo-maps__legend-location" <?php self::render_location_item_attributes( $location ); ?>>
 								<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" data-vred-geo-location-select>
 									<?php self::render_grouped_location_content( $location, $show_addresses ); ?>
 								</a>
 								<?php self::render_directions_link( $location['directions_url'], 'vred-geo-maps__directions-link--legend' ); ?>
 							</div>
 						<?php else : ?>
-							<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" <?php self::render_location_item_attributes( $location, $marker_color ); ?> data-vred-geo-location-select>
+							<a href="#" class="vred-geo-maps__legend-item<?php echo $show_addresses ? ' vred-geo-maps__legend-item--detailed' : ''; ?>" <?php self::render_location_item_attributes( $location ); ?> data-vred-geo-location-select>
 								<?php self::render_grouped_location_content( $location, $show_addresses ); ?>
 							</a>
 						<?php endif; ?>
@@ -642,12 +606,11 @@ final class Renderer {
 
 		foreach ( $types as $type ) {
 			$groups[ (int) $type['id'] ] = array(
-				'id'          => (int) $type['id'],
-				'name'        => $type['name'],
-				'color'       => sanitize_hex_color( $type['marker']['color'] ?? '' ) ?: '#2f6fed',
-				'marker'      => $type['marker'],
-				'custom_icon' => $type['custom_icon'] ?? array(),
-				'locations'   => array(),
+				'id'        => (int) $type['id'],
+				'name'      => $type['name'],
+				'color'     => sanitize_hex_color( $type['marker']['color'] ?? '' ) ?: '#2f6fed',
+				'marker'    => $type['marker'],
+				'locations' => array(),
 			);
 		}
 
@@ -666,12 +629,11 @@ final class Renderer {
 
 		if ( $untyped ) {
 			$groups[0] = array(
-				'id'          => 0,
-				'name'        => __( 'Other locations', 'vred-geo-maps' ),
-				'color'       => sanitize_hex_color( $untyped[0]['marker']['color'] ?? '' ) ?: '#2f6fed',
-				'marker'      => $untyped[0]['marker'],
-				'custom_icon' => array(),
-				'locations'   => $untyped,
+				'id'        => 0,
+				'name'      => __( 'Other locations', 'vred-geo-maps' ),
+				'color'     => sanitize_hex_color( $untyped[0]['marker']['color'] ?? '' ) ?: '#2f6fed',
+				'marker'    => $untyped[0]['marker'],
+				'locations' => $untyped,
 			);
 		}
 
@@ -704,67 +666,142 @@ final class Renderer {
 		<?php
 	}
 
-	/** Render the visual indicator used by grouped list headings. */
-	private static function render_type_indicator( array $group, string $type_indicator ): void {
-		$custom_icon = is_array( $group['custom_icon'] ?? null ) ? $group['custom_icon'] : array();
-		$marker      = is_array( $group['marker'] ?? null ) ? $group['marker'] : array();
-		$custom_url  = esc_url_raw( $custom_icon['image_url'] ?? '' );
-		$custom_svg  = Data::sanitize_svg( $custom_icon['svg'] ?? '' );
+	/** Render a type indicator from a resolved marker payload. */
+	private static function render_type_indicator( array $visual, string $type_indicator, string $context = 'legend' ): void {
+		$marker      = is_array( $visual['marker'] ?? null ) ? $visual['marker'] : array();
 		$marker_url  = esc_url_raw( $marker['image_url'] ?? '' );
 		$marker_svg  = Data::sanitize_svg( $marker['svg'] ?? '' );
-		$color       = sanitize_hex_color( $group['color'] ?? '' ) ?: '#2f6fed';
+		$color       = sanitize_hex_color( $marker['color'] ?? ( $visual['color'] ?? '' ) ) ?: '#2f6fed';
+		$context     = in_array( $context, array( 'legend', 'card', 'compact', 'popup' ), true ) ? $context : 'legend';
 
 		if ( 'color' === $type_indicator ) {
-			self::render_type_color_indicator( $color );
+			self::render_type_color_indicator( $color, $context );
 			return;
 		}
 
 		if ( 'auto' === $type_indicator ) {
-			if ( '' !== $custom_url || '' !== $custom_svg ) {
-				self::render_type_icon_indicator( $custom_url, $custom_svg, $color );
+			if ( '' !== $marker_url || '' !== $marker_svg ) {
+				self::render_type_icon_indicator( $marker_url, $marker_svg, $color, $context );
 				return;
 			}
 
-			self::render_type_color_indicator( $color );
+			self::render_type_color_indicator( $color, $context );
 			return;
 		}
 
-		self::render_type_icon_indicator( $marker_url, $marker_svg, $color );
+		self::render_type_icon_indicator( $marker_url, $marker_svg, $color, $context );
 	}
 
-	/** Render a grouped list color indicator. */
-	private static function render_type_color_indicator( string $color ): void {
+	/** Render a color type indicator. */
+	private static function render_type_color_indicator( string $color, string $context ): void {
 		?>
-		<span class="vred-geo-maps__legend-dot" aria-hidden="true" style="--vred-geo-legend-color:<?php echo esc_attr( $color ); ?>"></span>
+		<span class="vred-geo-maps__type-indicator vred-geo-maps__type-indicator--color vred-geo-maps__type-indicator--<?php echo esc_attr( $context ); ?>" aria-hidden="true" style="--vred-geo-location-color:<?php echo esc_attr( $color ); ?>"></span>
 		<?php
 	}
 
-	/** Render a grouped list icon indicator with a built-in fallback. */
-	private static function render_type_icon_indicator( string $image_url, string $svg, string $color ): void {
+	/** Render an icon type indicator with a built-in fallback. */
+	private static function render_type_icon_indicator( string $image_url, string $svg, string $color, string $context ): void {
 		?>
-		<span class="vred-geo-maps__legend-icon" aria-hidden="true" style="--vred-geo-legend-color:<?php echo esc_attr( $color ); ?>">
+		<span class="vred-geo-maps__type-indicator vred-geo-maps__type-indicator--icon vred-geo-maps__type-indicator--<?php echo esc_attr( $context ); ?>" aria-hidden="true" style="--vred-geo-location-color:<?php echo esc_attr( $color ); ?>">
 			<?php if ( '' !== $image_url ) : ?>
 				<img src="<?php echo esc_url( $image_url ); ?>" alt="">
 			<?php elseif ( '' !== $svg ) : ?>
 				<?php echo $svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sanitized by Data::sanitize_svg(). ?>
 			<?php else : ?>
-				<svg viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"></path></svg>
+				<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"></path></svg>
 			<?php endif; ?>
 		</span>
 		<?php
 	}
 
-	/** Render shared location identity for card-style items. */
-	private static function render_location_identity( array $location ): void {
+	/** Render the location identity shared by cards, compact rows and automatic popups. */
+	private static function render_location_identity( array $location, string $type_indicator, string $context ): void {
+		$marker_color = sanitize_hex_color( $location['marker']['color'] ?? '' ) ?: '#2f6fed';
 		?>
-		<?php if ( '' !== $location['type_name'] ) : ?>
-			<span class="vred-geo-maps__card-type"><span class="vred-geo-maps__card-dot" aria-hidden="true"></span><?php echo esc_html( $location['type_name'] ); ?></span>
-		<?php endif; ?>
-		<strong class="vred-geo-maps__card-title"><?php echo esc_html( $location['title'] ); ?></strong>
-		<?php if ( '' !== $location['address'] ) : ?>
-			<span class="vred-geo-maps__card-address"><?php echo esc_html( $location['address'] ); ?></span>
-		<?php endif; ?>
+		<span class="vred-geo-maps__location-identity vred-geo-maps__location-identity--<?php echo esc_attr( $context ); ?>" style="--vred-geo-location-color:<?php echo esc_attr( $marker_color ); ?>">
+			<?php self::render_type_indicator( $location, $type_indicator, $context ); ?>
+			<span class="vred-geo-maps__location-copy">
+				<strong class="vred-geo-maps__location-title"><?php echo esc_html( $location['title'] ); ?></strong>
+				<?php if ( '' !== $location['type_name'] ) : ?>
+					<span class="vred-geo-maps__location-type"><?php echo esc_html( $location['type_name'] ); ?></span>
+				<?php endif; ?>
+				<?php if ( '' !== $location['address'] ) : ?>
+					<span class="vred-geo-maps__location-address"><?php echo esc_html( $location['address'] ); ?></span>
+				<?php endif; ?>
+			</span>
+		</span>
 		<?php
+	}
+
+	/** Return whether the location has metadata shown in an expanded card or automatic popup. */
+	private static function location_has_metadata( array $location ): bool {
+		return '' !== $location['phone'] || '' !== $location['email'] || '' !== $location['website'] || '' !== $location['directions_url'];
+	}
+
+	/** Render metadata rows shared by expanded cards and automatic popups. */
+	private static function render_location_metadata( array $location, string $context ): void {
+		if ( ! self::location_has_metadata( $location ) ) {
+			return;
+		}
+		?>
+		<div class="vred-geo-maps__location-metadata vred-geo-maps__location-metadata--<?php echo esc_attr( $context ); ?>">
+			<?php if ( '' !== $location['phone'] ) : ?>
+				<div class="vred-geo-maps__metadata-row">
+					<?php self::render_metadata_icon( 'phone' ); ?>
+					<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $location['phone'] ) ); ?>"><?php echo esc_html( $location['phone'] ); ?></a>
+				</div>
+			<?php endif; ?>
+			<?php if ( '' !== $location['email'] ) : ?>
+				<div class="vred-geo-maps__metadata-row">
+					<?php self::render_metadata_icon( 'email' ); ?>
+					<a href="mailto:<?php echo esc_attr( $location['email'] ); ?>"><?php echo esc_html( $location['email'] ); ?></a>
+				</div>
+			<?php endif; ?>
+			<?php if ( '' !== $location['website'] ) : ?>
+				<div class="vred-geo-maps__metadata-row">
+					<?php self::render_metadata_icon( 'website' ); ?>
+					<a href="<?php echo esc_url( $location['website'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Website', 'vred-geo-maps' ); ?></a>
+				</div>
+			<?php endif; ?>
+			<?php if ( '' !== $location['directions_url'] ) : ?>
+				<div class="vred-geo-maps__metadata-row">
+					<?php self::render_metadata_icon( 'directions' ); ?>
+					<?php self::render_directions_link( $location['directions_url'] ); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/** Render one static decorative metadata icon. */
+	private static function render_metadata_icon( string $icon ): void {
+		$paths = array(
+			'phone'      => '<path d="M7.3 3.5 9.6 7 8.1 8.8a15.2 15.2 0 0 0 7.1 7.1l1.8-1.5 3.5 2.3-1 3a2 2 0 0 1-2.1 1.3A17.4 17.4 0 0 1 3 6.6a2 2 0 0 1 1.3-2.1l3-1Z"></path>',
+			'email'      => '<rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path>',
+			'website'    => '<circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"></path>',
+			'directions' => '<path d="m12 3 9 9-9 9-9-9 9-9Z"></path><path d="M8 13v-2h7M13 8l3 3-3 3"></path>',
+		);
+
+		if ( ! isset( $paths[ $icon ] ) ) {
+			return;
+		}
+		?>
+		<span class="vred-geo-maps__metadata-icon" aria-hidden="true">
+			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><?php echo $paths[ $icon ]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG paths defined above. ?></svg>
+		</span>
+		<?php
+	}
+
+	/** Build the automatic popup from the same presentation helpers used by cards. */
+	private static function build_automatic_popup( array $location, string $type_indicator ): string {
+		ob_start();
+		?>
+		<div class="vred-geo-maps__popup-content">
+			<?php self::render_location_identity( $location, $type_indicator, 'popup' ); ?>
+			<?php self::render_location_metadata( $location, 'popup' ); ?>
+		</div>
+		<?php
+		return (string) ob_get_clean();
 	}
 
 	/** Render a safe external directions link without affecting location selection. */
@@ -787,18 +824,21 @@ final class Renderer {
 	}
 
 	/** Render data attributes shared by all list modes. */
-	private static function render_location_item_attributes( array $location, string $marker_color ): void {
+	private static function render_location_item_attributes( array $location ): void {
 		printf(
-			'data-vred-geo-location-item data-location-id="%1$s" data-type-id="%2$s" data-search="%3$s" style="--vred-geo-card-marker-color:%4$s"',
+			'data-vred-geo-location-item data-location-id="%1$s" data-type-id="%2$s" data-search="%3$s"',
 			esc_attr( (string) $location['id'] ),
 			esc_attr( (string) $location['type_id'] ),
-			esc_attr( $location['search_text'] ),
-			esc_attr( $marker_color )
+			esc_attr( $location['search_text'] )
 		);
 	}
 
 	/** Return only data needed by JavaScript. */
-	private static function get_js_location( array $location ): array {
+	private static function get_js_location( array $location, string $type_indicator ): array {
+		$popup_html = ! empty( $location['popup_custom'] )
+			? $location['popup_html']
+			: self::build_automatic_popup( $location, $type_indicator );
+
 		return array(
 			'id'          => (int) $location['id'],
 			'title'       => $location['title'],
@@ -812,7 +852,7 @@ final class Renderer {
 			'marker'      => $location['marker'],
 			'action'      => $location['action'],
 			'website'     => $location['website'],
-			'popupHtml'   => $location['popup_html'],
+			'popupHtml'   => $popup_html,
 		);
 	}
 }

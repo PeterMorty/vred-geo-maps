@@ -492,6 +492,9 @@ msgstr "Espaciado"
 msgid "Text color"
 msgstr "Color del texto"
 
+msgid "Theme color"
+msgstr "Color del tema"
+
 msgid "The geocoding service returned invalid coordinates."
 msgstr "El servicio de geocodificación devolvió coordenadas no válidas."
 
@@ -670,8 +673,8 @@ msgstr "Usar mi ubicación"
 msgid "View all (%d)"
 msgstr "Ver todos (%d)"
 
-msgid "Visible locations per type"
-msgstr "Ubicaciones visibles por tipo"
+msgid "Visible locations"
+msgstr "Ubicaciones visibles"
 
 msgid "Your location could not be determined."
 msgstr "No se ha podido determinar tu ubicación."

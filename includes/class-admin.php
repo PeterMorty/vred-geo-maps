@@ -489,8 +489,9 @@ final class Admin {
 						<?php self::settings_number( 'map_border_radius', __( 'Border radius', 'vred-geo-maps' ), $settings['map_border_radius'], 0, 40, 'px' ); ?>
 						<?php self::settings_number( 'initial_zoom', __( 'Initial zoom', 'vred-geo-maps' ), $settings['initial_zoom'], 1, 19 ); ?>
 					</div>
-					<div class="vred-geo-admin-settings-fields" data-vred-geo-carto-api-key-field<?php echo $uses_carto ? '' : ' hidden'; ?>>
-						<div class="vred-geo-admin-field vred-geo-admin-field--select">
+					<div class="vred-geo-admin-settings-fields">
+						<?php self::settings_color( 'theme_color', __( 'Theme color', 'vred-geo-maps' ), $settings['theme_color'] ); ?>
+						<div class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-carto-api-key-field<?php echo $uses_carto ? '' : ' hidden'; ?>>
 							<label for="vred-geo-carto-api-key"><span><?php esc_html_e( 'CARTO API key', 'vred-geo-maps' ); ?></span></label>
 							<input type="text" id="vred-geo-carto-api-key" name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[carto_api_key]" value="<?php echo esc_attr( $settings['carto_api_key'] ); ?>" autocomplete="off" spellcheck="false">
 							<p class="description"><?php esc_html_e( 'CARTO maps require your own API key.', 'vred-geo-maps' ); ?> <a href="https://carto.com/basemaps/apikey/" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Request API key', 'vred-geo-maps' ); ?></a></p>
@@ -511,14 +512,14 @@ final class Admin {
 					<div class="vred-geo-admin-settings-fields">
 						<label class="vred-geo-admin-field vred-geo-admin-field--select">
 							<span><?php esc_html_e( 'List style', 'vred-geo-maps' ); ?></span>
-							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[list_style]" data-vred-geo-list-style-setting>
+							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[list_style]">
 								<option value="cards" <?php selected( $settings['list_style'], 'cards' ); ?>><?php esc_html_e( 'Cards', 'vred-geo-maps' ); ?></option>
 								<option value="compact" <?php selected( $settings['list_style'], 'compact' ); ?>><?php esc_html_e( 'Compact', 'vred-geo-maps' ); ?></option>
 								<option value="legend" <?php selected( $settings['list_style'], 'legend' ); ?>><?php esc_html_e( 'Legend', 'vred-geo-maps' ); ?></option>
 								<option value="grouped" <?php selected( $settings['list_style'], 'grouped' ); ?>><?php esc_html_e( 'Grouped', 'vred-geo-maps' ); ?></option>
 							</select>
 						</label>
-						<label class="vred-geo-admin-field vred-geo-admin-field--select" data-vred-geo-list-type-indicator-field<?php echo in_array( $settings['list_style'], array( 'legend', 'grouped' ), true ) ? '' : ' hidden'; ?>>
+						<label class="vred-geo-admin-field vred-geo-admin-field--select">
 							<span><?php esc_html_e( 'Type indicator', 'vred-geo-maps' ); ?></span>
 							<select name="<?php echo esc_attr( VRED_GEO_MAPS_OPTION ); ?>[list_type_indicator]">
 								<option value="auto" <?php selected( $settings['list_type_indicator'], 'auto' ); ?>><?php esc_html_e( 'Automatic', 'vred-geo-maps' ); ?></option>
@@ -576,7 +577,7 @@ final class Admin {
 								<option value="color" <?php selected( $settings['map_legend_type_indicator'], 'color' ); ?>><?php esc_html_e( 'Color', 'vred-geo-maps' ); ?></option>
 							</select>
 						</label>
-						<?php self::settings_number( 'map_legend_visible_locations_per_type', __( 'Visible locations per type', 'vred-geo-maps' ), $settings['map_legend_visible_locations_per_type'], 1, 20 ); ?>
+						<?php self::settings_number( 'map_legend_visible_locations_per_type', __( 'Visible locations', 'vred-geo-maps' ), $settings['map_legend_visible_locations_per_type'], 1, 20 ); ?>
 						<?php self::settings_number( 'map_legend_border_radius', __( 'Legend border radius', 'vred-geo-maps' ), $settings['map_legend_border_radius'], 0, 40, 'px' ); ?>
 						<?php self::settings_number( 'map_legend_background_transparency', __( 'Background transparency', 'vred-geo-maps' ), $settings['map_legend_background_transparency'], 0, 100, '%' ); ?>
 					</div>

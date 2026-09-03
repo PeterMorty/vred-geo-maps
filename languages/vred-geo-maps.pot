@@ -468,6 +468,9 @@ msgstr ""
 msgid "Text color"
 msgstr ""
 
+msgid "Theme color"
+msgstr ""
+
 msgid "The geocoding service returned invalid coordinates."
 msgstr ""
 
@@ -642,7 +645,7 @@ msgstr ""
 msgid "View all (%d)"
 msgstr ""
 
-msgid "Visible locations per type"
+msgid "Visible locations"
 msgstr ""
 
 msgid "Your location could not be determined."

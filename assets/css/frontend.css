@@ -6,6 +6,7 @@
 	--vred-geo-map-radius: 18px;
 	--vred-geo-list-width: 360px;
 	--vred-geo-gap: 20px;
+	--vred-geo-theme-color: #2f6fed;
 	--vred-geo-filters-radius: 16px;
 	--vred-geo-filters-background: #fff;
 	--vred-geo-card-radius: 14px;
@@ -36,6 +37,15 @@
 	justify-content: space-between;
 	gap: 12px;
 	flex-wrap: wrap
+}
+
+.vred-geo-maps__filters--flow, .vred-geo-maps__filters--panel {
+	padding: 0;
+
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none
 }
 
 .vred-geo-maps__filter-controls {
@@ -92,8 +102,8 @@
 }
 
 .vred-geo-maps__field input:focus, .vred-geo-maps__field select:focus {
-	border-color: #6f7873;
-	box-shadow: 0 0 0 2px rgba(32, 33, 36, .08)
+	border-color: var(--vred-geo-theme-color);
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--vred-geo-theme-color) 16%, transparent)
 }
 
 .vred-geo-maps__filter-meta {
@@ -120,7 +130,7 @@
 	font-size: 13px !important;
 	font-weight: 500 !important;
 	line-height: 1.2 !important;
-	color: #657069 !important;
+	color: var(--vred-geo-theme-color) !important;
 
 	border: 0 !important;
 	border-radius: 0 !important;
@@ -144,7 +154,8 @@
 }
 
 .vred-geo-maps__reset:hover, .vred-geo-maps__reset:focus, .vred-geo-maps__reset:active {
-	color: #202124 !important;
+	color: var(--vred-geo-theme-color) !important;
+	opacity: .78;
 	background: transparent !important;
 	box-shadow: none !important;
 	transform: none !important
@@ -155,7 +166,7 @@
 }
 
 .vred-geo-maps__reset:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--vred-geo-theme-color);
 	outline-offset: 2px
 }
 
@@ -383,13 +394,15 @@
 	place-items: center;
 	flex: 0 0 auto;
 
-	margin: 0;
-	padding: 0;
-	width: 28px;
-	height: 28px;
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 26px !important;
+	min-width: 26px !important;
+	height: 26px !important;
+	min-height: 26px !important;
 
 	font: inherit;
-	font-size: 20px;
+	font-size: 18px;
 	line-height: 1;
 	color: #3f4943;
 
@@ -402,15 +415,15 @@
 }
 
 .vred-geo-maps__map-legend-toggle:hover, .vred-geo-maps__map-legend-toggle:focus, .vred-geo-maps__map-legend-toggle:active {
-	color: #202124;
+	color: var(--vred-geo-theme-color);
 
-	background: #eef2ef;
+	background: transparent;
 	box-shadow: none;
 	transform: none
 }
 
 .vred-geo-maps__map-legend-toggle:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--vred-geo-theme-color);
 	outline-offset: 2px
 }
 
@@ -461,8 +474,13 @@
 }
 
 .vred-geo-maps__map-legend-summary:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--vred-geo-theme-color);
 	outline-offset: -2px
+}
+
+.vred-geo-maps__map-legend-summary:hover, .vred-geo-maps__map-legend-summary:focus, .vred-geo-maps__map-legend-summary:active {
+	background: transparent;
+	transform: none
 }
 
 .vred-geo-maps__map-legend-summary .vred-geo-maps__legend-heading {
@@ -494,8 +512,7 @@
 
 	border-right: 1px solid currentColor;
 	border-bottom: 1px solid currentColor;
-	transform: rotate(45deg) translate(-2px, -2px);
-	transition: transform .16s ease
+	transform: rotate(45deg) translate(-2px, -2px)
 }
 
 .vred-geo-maps__map-legend-group:not([open]) .vred-geo-maps__map-legend-chevron {
@@ -531,25 +548,26 @@
 }
 
 .vred-geo-maps__map-legend-location:hover, .vred-geo-maps__map-legend-location:focus, .vred-geo-maps__map-legend-location:active, .vred-geo-maps__map-legend-location.is-active {
-	color: #202124;
+	color: var(--vred-geo-theme-color);
 
-	background: rgba(238, 242, 239, .9);
+	background: transparent;
 	box-shadow: none;
 	transform: none
 }
 
 .vred-geo-maps__map-legend-location:focus-visible, .vred-geo-maps__map-legend-limit:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--vred-geo-theme-color);
 	outline-offset: -2px
 }
 
 .vred-geo-maps__map-legend-limit {
-	color: #2f6fed;
-	text-decoration: underline
+	color: var(--vred-geo-theme-color);
+	text-decoration: none
 }
 
 .vred-geo-maps__map-legend-limit:hover, .vred-geo-maps__map-legend-limit:focus, .vred-geo-maps__map-legend-limit:active {
-	color: #1f55bd;
+	color: var(--vred-geo-theme-color);
+	opacity: .78;
 
 	background: transparent;
 	box-shadow: none;
@@ -598,8 +616,8 @@
 	background: #fff
 }
 
-.vred-geo-maps__card.is-active {
-	border-color: #9da6a1
+.vred-geo-maps__card.is-active, .vred-geo-maps__card[open] {
+	border-color: var(--vred-geo-theme-color)
 }
 
 .vred-geo-maps__card-summary {
@@ -630,61 +648,108 @@
 }
 
 .vred-geo-maps__card-summary:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--vred-geo-theme-color);
 	outline-offset: -3px
 }
 
-.vred-geo-maps__card-copy {
-	display: flex;
+.vred-geo-maps__card-summary:hover, .vred-geo-maps__card-summary:focus, .vred-geo-maps__card-summary:active {
+	color: inherit;
+	text-decoration: none;
+	background: transparent;
+	transform: none
+}
+
+.vred-geo-maps__location-identity {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	align-items: center;
+	gap: 12px;
 	flex: 1 1 auto;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 5px;
 
 	min-width: 0
 }
 
-.vred-geo-maps__card-type {
-	display: inline-flex;
-	align-items: center;
-	gap: 7px;
+.vred-geo-maps__location-copy {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
 
+	min-width: 0
+}
+
+.vred-geo-maps__location-type {
 	max-width: 100%;
 
 	font-size: 11px;
 	font-weight: 700;
 	line-height: 1.25;
 	letter-spacing: .02em;
-	color: #5f6963;
+	color: var(--vred-geo-location-color);
+	overflow-wrap: anywhere;
 	text-transform: uppercase
 }
 
-.vred-geo-maps__card-dot {
+.vred-geo-maps__type-indicator {
 	display: block;
 	flex: 0 0 auto;
-
-	width: 9px;
-	height: 9px;
-
-	border-radius: 50%;
-	background: var(--vred-geo-card-marker-color, #2f6fed)
+	color: var(--vred-geo-location-color)
 }
 
-.vred-geo-maps__card-title {
+.vred-geo-maps__type-indicator--color {
+	width: 10px;
+	height: 10px;
+
+	border-radius: 50%;
+	background: var(--vred-geo-location-color)
+}
+
+.vred-geo-maps__type-indicator--icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+
+	width: 22px;
+	height: 22px
+}
+
+.vred-geo-maps__type-indicator--icon img, .vred-geo-maps__type-indicator--icon svg {
+	display: block;
+
+	width: 100%;
+	height: 100%;
+
+	object-fit: contain
+}
+
+.vred-geo-maps__type-indicator--card, .vred-geo-maps__type-indicator--popup {
+	width: 40px;
+	height: 40px
+}
+
+.vred-geo-maps__type-indicator--card.vred-geo-maps__type-indicator--color, .vred-geo-maps__type-indicator--popup.vred-geo-maps__type-indicator--color {
+	width: 10px;
+	height: 10px
+}
+
+.vred-geo-maps__location-title {
 	max-width: 100%;
 
 	font-size: 16px;
 	font-weight: 700;
 	line-height: 1.3;
-	color: #202124
+	color: #202124;
+	overflow-wrap: anywhere
 }
 
-.vred-geo-maps__card-address {
+.vred-geo-maps__location-address {
 	max-width: 100%;
 
 	font-size: 13px;
 	line-height: 1.4;
-	color: #68726c
+	color: #68726c;
+	overflow-wrap: anywhere
 }
 
 .vred-geo-maps__card-chevron {
@@ -696,8 +761,7 @@
 
 	border-right: 2px solid #78817c;
 	border-bottom: 2px solid #78817c;
-	transform: rotate(45deg);
-	transition: transform .18s ease
+	transform: rotate(45deg)
 }
 
 .vred-geo-maps__card[open] .vred-geo-maps__card-chevron {
@@ -708,62 +772,84 @@
 	padding-bottom: 7px
 }
 
-.vred-geo-maps__card-details {
+.vred-geo-maps__location-metadata {
 	display: grid;
-	gap: 2px;
+	gap: 9px;
 
-	margin: 6px 0 0;
-	padding: 0 16px 15px;
+	min-width: 0;
 
 	font-size: 13px;
-	line-height: 1.35;
+	line-height: 1.4;
 	color: #68726c
 }
 
-.vred-geo-maps__card-detail {
+.vred-geo-maps__location-metadata--card {
+	margin-top: 7px;
+	padding: 0 16px 16px
+}
+
+.vred-geo-maps__metadata-row {
 	display: grid;
-	grid-template-columns: max-content minmax(0, 1fr);
-	gap: 6px
+	grid-template-columns: 18px minmax(0, 1fr);
+	align-items: center;
+	gap: 10px;
+	min-width: 0
 }
 
-.vred-geo-maps__card-detail dt, .vred-geo-maps__card-detail dd {
-	margin: 0
+.vred-geo-maps__metadata-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 18px;
+	height: 18px;
+
+	color: #68726c
 }
 
-.vred-geo-maps__card-detail dt {
-	font-size: inherit;
-	font-weight: 600;
-	color: inherit
+.vred-geo-maps__metadata-icon svg {
+	display: block;
+
+	width: 16px;
+	height: 16px;
+
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.7;
+	stroke-linecap: round;
+	stroke-linejoin: round
 }
 
-.vred-geo-maps__card-detail dd {
+.vred-geo-maps__location-metadata a {
+	min-width: 0;
+
 	font-size: inherit;
 	font-weight: 400;
-	color: inherit
-}
-
-.vred-geo-maps__card-details a {
-	font-size: inherit;
-	font-weight: 400;
-	color: inherit !important;
-	text-decoration: none;
+	color: var(--vred-geo-theme-color) !important;
+	text-decoration: none !important;
 	overflow-wrap: anywhere
 }
 
-.vred-geo-maps__card-detail--web a, .vred-geo-maps__card-detail--directions a {
-	text-decoration: underline;
-	text-decoration-thickness: 1px;
-	text-underline-offset: 2px
+.vred-geo-maps__location-metadata a:hover, .vred-geo-maps__location-metadata a:focus, .vred-geo-maps__location-metadata a:active {
+	color: var(--vred-geo-theme-color) !important;
+	text-decoration: none !important;
+	opacity: .78;
+	background: transparent !important;
+	box-shadow: none !important;
+	transform: none !important
+}
+
+.vred-geo-maps__location-metadata a:focus-visible {
+	outline: 2px solid var(--vred-geo-theme-color);
+	outline-offset: 2px
 }
 
 .vred-geo-maps__directions-link {
 	padding: 0 !important;
 
 	font: inherit;
-	color: inherit !important;
-	text-decoration: underline !important;
-	text-decoration-thickness: 1px !important;
-	text-underline-offset: 2px;
+	color: var(--vred-geo-theme-color) !important;
+	text-decoration: none !important;
 
 	border: 0 !important;
 	background: transparent !important;
@@ -771,8 +857,9 @@
 }
 
 .vred-geo-maps__directions-link:hover, .vred-geo-maps__directions-link:focus, .vred-geo-maps__directions-link:active {
-	color: inherit !important;
-	text-decoration: underline !important;
+	color: var(--vred-geo-theme-color) !important;
+	text-decoration: none !important;
+	opacity: .78;
 
 	background: transparent !important;
 	box-shadow: none !important;
@@ -802,7 +889,7 @@
 }
 
 .vred-geo-maps__compact-item.is-active {
-	background: #f6f7f7
+	background: color-mix(in srgb, var(--vred-geo-theme-color) 6%, transparent)
 }
 
 .vred-geo-maps__compact-link {
@@ -827,7 +914,7 @@
 }
 
 .vred-geo-maps__compact-link:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--vred-geo-theme-color);
 	outline-offset: -2px
 }
 
@@ -839,44 +926,38 @@
 	font-size: 12px
 }
 
-.vred-geo-maps__compact-dot {
-	display: block;
-	flex: 0 0 auto;
-
-	width: 9px;
-	height: 9px;
-	margin-top: 5px;
-
-	border-radius: 50%;
-	background: var(--vred-geo-card-marker-color, #2f6fed)
+.vred-geo-maps__location-identity--compact {
+	align-items: start;
+	gap: 10px
 }
 
-.vred-geo-maps__compact-copy {
-	display: grid;
-	gap: 2px;
-	min-width: 0
+.vred-geo-maps__location-identity--compact .vred-geo-maps__location-copy {
+	gap: 2px
 }
 
-.vred-geo-maps__compact-type {
-	font-size: 10px;
-	font-weight: 700;
-	line-height: 1.25;
-	letter-spacing: .02em;
-	color: #68726c;
-	text-transform: uppercase
+.vred-geo-maps__location-identity--compact .vred-geo-maps__type-indicator--icon {
+	width: 25px;
+	height: 25px
 }
 
-.vred-geo-maps__compact-title {
+.vred-geo-maps__location-identity--compact .vred-geo-maps__type-indicator--color {
+	width: 8px;
+	height: 8px;
+	margin-top: 5px
+}
+
+.vred-geo-maps__location-identity--compact .vred-geo-maps__location-type {
+	font-size: 10px
+}
+
+.vred-geo-maps__location-identity--compact .vred-geo-maps__location-title {
 	font-size: 14px;
-	font-weight: 650;
-	line-height: 1.3;
-	color: #202124
+	font-weight: 650
 }
 
-.vred-geo-maps__compact-address {
+.vred-geo-maps__location-identity--compact .vred-geo-maps__location-address {
 	font-size: 12px;
-	line-height: 1.35;
-	color: #68726c
+	line-height: 1.35
 }
 
 /* Legend list */
@@ -920,7 +1001,7 @@
 }
 
 .vred-geo-maps__legend-summary:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--vred-geo-theme-color);
 	outline-offset: -2px
 }
 
@@ -943,39 +1024,6 @@
 	line-height: 1.3;
 	text-overflow: ellipsis;
 	white-space: nowrap
-}
-
-.vred-geo-maps__legend-dot {
-	display: block;
-	flex: 0 0 auto;
-
-	width: 10px;
-	height: 10px;
-
-	border-radius: 50%;
-	background: var(--vred-geo-legend-color, #2f6fed)
-}
-
-.vred-geo-maps__legend-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	flex: 0 0 auto;
-	overflow: hidden;
-
-	width: 22px;
-	height: 22px;
-
-	color: var(--vred-geo-legend-color, #2f6fed)
-}
-
-.vred-geo-maps__legend-icon img, .vred-geo-maps__legend-icon svg {
-	display: block;
-
-	width: 100%;
-	height: 100%;
-
-	object-fit: contain
 }
 
 .vred-geo-maps__legend-count {
@@ -1054,7 +1102,7 @@
 }
 
 .vred-geo-maps__legend-location.is-active {
-	background: #f6f7f7
+	background: transparent
 }
 
 .vred-geo-maps__directions-link--legend {
@@ -1074,12 +1122,13 @@
 }
 
 .vred-geo-maps__legend-item:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--vred-geo-theme-color);
 	outline-offset: -2px
 }
 
 .vred-geo-maps__legend-item.is-active {
-	background: #f6f7f7 !important
+	color: var(--vred-geo-theme-color) !important;
+	background: transparent !important
 }
 
 .vred-geo-maps__legend-item-title {
@@ -1153,28 +1202,26 @@
 
 /* Leaflet controls */
 .vred-geo-maps .vred-geo-maps__location-control {
-	position: relative;
-
-	border: 0;
-	background: transparent;
-	box-shadow: none
+	position: relative
 }
 
 .vred-geo-maps .vred-geo-maps__location-button {
 	display: grid;
 	place-items: center;
 
-	margin: 0;
-	padding: 0;
-	width: 30px;
-	height: 30px;
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 26px !important;
+	min-width: 26px !important;
+	height: 26px !important;
+	min-height: 26px !important;
 
 	color: #111;
 
 	border: 0;
 	border-radius: 4px;
 	background: #fff;
-	box-shadow: 0 1px 5px rgba(0, 0, 0, .35);
+	box-shadow: none;
 
 	cursor: pointer
 }
@@ -1183,13 +1230,13 @@
 	color: #111;
 
 	background: #f4f4f4;
-	box-shadow: 0 1px 5px rgba(0, 0, 0, .35);
+	box-shadow: none;
 	transform: none
 }
 
 .vred-geo-maps .vred-geo-maps__location-button:focus-visible {
-	outline: 2px solid #2271b1;
-	outline-offset: 2px
+	outline: 2px solid var(--vred-geo-theme-color);
+	outline-offset: -2px
 }
 
 .vred-geo-maps .vred-geo-maps__location-button:disabled {
@@ -1198,12 +1245,19 @@
 }
 
 .vred-geo-maps .vred-geo-maps__location-button svg {
-	width: 18px;
-	height: 18px;
+	width: 16px;
+	height: 16px;
 
 	fill: none;
 	stroke: currentColor;
 	stroke-width: 1.7
+}
+
+.leaflet-touch .vred-geo-maps .vred-geo-maps__location-button {
+	width: 30px !important;
+	min-width: 30px !important;
+	height: 30px !important;
+	min-height: 30px !important
 }
 
 .vred-geo-maps__location-status {
@@ -1346,7 +1400,7 @@
 }
 
 .vred-geo-maps .vred-geo-marker-image.is-active {
-	filter: drop-shadow(0 0 5px rgba(47, 111, 237, .45)) drop-shadow(0 4px 9px rgba(22, 37, 29, .3))
+	filter: drop-shadow(0 0 5px color-mix(in srgb, var(--vred-geo-theme-color) 45%, transparent)) drop-shadow(0 4px 9px rgba(22, 37, 29, .3))
 }
 
 /* Cluster */
@@ -1354,12 +1408,13 @@
 	font-size: 13px;
 	font-weight: 700;
 	color: #fff;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, .28);
 
-	background: #2f6fed
+	background: var(--vred-geo-theme-color)
 }
 
 .vred-geo-maps .marker-cluster-small, .vred-geo-maps .marker-cluster-medium, .vred-geo-maps .marker-cluster-large {
-	background: rgba(47, 111, 237, .26)
+	background: color-mix(in srgb, var(--vred-geo-theme-color) 26%, transparent)
 }
 
 /* Popup */
@@ -1391,6 +1446,54 @@
 	text-decoration: underline
 }
 
+.vred-geo-maps__popup-content {
+	display: grid;
+	gap: 14px;
+	min-width: 0
+}
+
+.vred-geo-maps__location-identity--popup {
+	align-items: center
+}
+
+.vred-geo-maps__location-identity--popup .vred-geo-maps__location-title, .vred-geo-maps__location-identity--popup .vred-geo-maps__location-address {
+	color: inherit
+}
+
+.vred-geo-maps__location-identity--popup .vred-geo-maps__location-address {
+	opacity: .72
+}
+
+.vred-geo-maps__location-metadata--popup {
+	padding-top: 13px;
+	color: var(--vred-geo-popup-text);
+
+	border-top: 1px solid color-mix(in srgb, var(--vred-geo-popup-text) 14%, transparent)
+}
+
+.vred-geo-maps__location-metadata--popup .vred-geo-maps__metadata-icon {
+	color: inherit;
+	opacity: .72
+}
+
+.vred-geo-maps .vred-geo-maps__popup-content a {
+	color: var(--vred-geo-theme-color);
+	text-decoration: none
+}
+
+.vred-geo-maps .vred-geo-maps__popup-content a:hover, .vred-geo-maps .vred-geo-maps__popup-content a:focus, .vred-geo-maps .vred-geo-maps__popup-content a:active {
+	color: var(--vred-geo-theme-color);
+	text-decoration: none;
+	opacity: .78;
+	background: transparent;
+	transform: none
+}
+
+.vred-geo-maps .vred-geo-maps__popup-content a:focus-visible {
+	outline: 2px solid var(--vred-geo-theme-color);
+	outline-offset: 2px
+}
+
 .vred-geo-maps .leaflet-popup-content img {
 	display: block;
 
@@ -1404,13 +1507,6 @@
 
 .vred-geo-maps .leaflet-popup-tip {
 	background: var(--vred-geo-popup-bg)
-}
-
-.vred-geo-maps__card-summary:hover, .vred-geo-maps__card-summary:active {
-	color: inherit;
-	text-decoration: none;
-	background: transparent;
-	transform: none
 }
 
 @media (max-width: 767px) {
@@ -1534,8 +1630,14 @@
 	}
 
 	.vred-geo-maps__filter-toggle:focus-visible {
-		outline: 2px solid #2271b1;
+		outline: 2px solid var(--vred-geo-theme-color);
 		outline-offset: 2px
+	}
+
+	.vred-geo-maps__filter-toggle:hover, .vred-geo-maps__filter-toggle:focus, .vred-geo-maps__filter-toggle:active {
+		border-color: var(--vred-geo-theme-color);
+		background: #fff;
+		transform: none
 	}
 
 	.vred-geo-maps__map-legend {

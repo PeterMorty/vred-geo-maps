@@ -89,6 +89,7 @@ final class Data {
 		return array(
 			'tile_provider'        => 'openstreetmap',
 			'carto_api_key'        => '',
+			'theme_color'          => '#2f6fed',
 			'appearance'           => 'default',
 			'map_height'           => 560,
 			'map_border_radius'    => 18,
@@ -176,6 +177,7 @@ final class Data {
 		$settings = array(
 			'tile_provider'       => in_array( $input['tile_provider'] ?? '', $tile_providers, true ) ? $input['tile_provider'] : $defaults['tile_provider'],
 			'carto_api_key'       => trim( sanitize_text_field( (string) ( $input['carto_api_key'] ?? '' ) ) ),
+			'theme_color'         => sanitize_hex_color( $input['theme_color'] ?? '' ) ?: $defaults['theme_color'],
 			'appearance'          => in_array( $input['appearance'] ?? '', $appearances, true ) ? $input['appearance'] : $defaults['appearance'],
 			'map_height'          => self::clamp_int( $input['map_height'] ?? $defaults['map_height'], 240, 900 ),
 			'map_border_radius'   => self::clamp_int( $input['map_border_radius'] ?? $defaults['map_border_radius'], 0, 40 ),
@@ -393,7 +395,7 @@ final class Data {
 		$action            = (string) get_post_meta( $post->ID, self::META_ACTION, true );
 		$popup             = (string) get_post_meta( $post->ID, self::META_POPUP_CONTENT, true );
 		$popup_custom_meta = (string) get_post_meta( $post->ID, self::META_POPUP_CUSTOM, true );
-		$popup_custom      = '1' === $popup_custom_meta || ( '' === $popup_custom_meta && '' !== trim( $popup ) );
+		$popup_custom      = ( '1' === $popup_custom_meta || ( '' === $popup_custom_meta && '' !== trim( $popup ) ) ) && '' !== trim( $popup );
 
 		if ( ! in_array( $action, array( 'none', 'link', 'popup' ), true ) ) {
 			$action = 'popup';
@@ -401,8 +403,8 @@ final class Data {
 
 		$directions_url = $show_directions_link && '' !== trim( $address ) ? self::get_directions_url( $latitude, $longitude ) : '';
 
-		if ( ! $popup_custom || '' === trim( $popup ) ) {
-			$popup = self::build_default_popup( $post->post_title, $address, $phone, $email, $website, $directions_url );
+		if ( ! $popup_custom ) {
+			$popup = '';
 		}
 
 		$search_text = implode(
@@ -437,6 +439,7 @@ final class Data {
 			'marker'      => $marker,
 			'action'      => $action,
 			'directions_url' => $directions_url,
+			'popup_custom' => $popup_custom,
 			'popup_html'  => wp_kses_post( $popup ),
 			'search_text' => wp_strip_all_tags( $search_text ),
 		);
@@ -444,19 +447,13 @@ final class Data {
 
 	/** Normalize one type for filters and grouped navigation. */
 	public static function normalize_type( \WP_Term $term ): array {
-		$type_id       = (int) $term->term_id;
-		$type_image_id = self::sanitize_attachment_id( get_term_meta( $type_id, self::TERM_META_MARKER_IMAGE_ID, true ) );
-		$type_svg      = $type_image_id > 0 ? '' : self::sanitize_svg( get_term_meta( $type_id, self::TERM_META_MARKER_SVG, true ) );
+		$type_id = (int) $term->term_id;
 
 		return array(
 			'id'     => $type_id,
 			'name'   => $term->name,
 			'slug'   => $term->slug,
 			'marker' => self::resolve_marker( 0, $type_id ),
-			'custom_icon' => array(
-				'image_url' => self::get_attachment_url( $type_image_id ),
-				'svg'       => $type_svg,
-			),
 		);
 	}
 
@@ -658,33 +655,4 @@ final class Data {
 		return 'https://www.google.com/maps/dir/?api=1&destination=' . rawurlencode( (string) $latitude ) . ',' . rawurlencode( (string) $longitude );
 	}
 
-	/** Build a useful default popup when custom content is empty. */
-	private static function build_default_popup( string $title, string $address, string $phone, string $email, string $website, string $directions_url ): string {
-		$html = '<div class="vred-geo-maps__popup-content">';
-		$html .= '<strong>' . esc_html( $title ) . '</strong>';
-
-		if ( '' !== trim( $address ) ) {
-			$html .= '<p>' . esc_html( $address ) . '</p>';
-		}
-
-		if ( '' !== trim( $phone ) ) {
-			$html .= '<p><a href="tel:' . esc_attr( preg_replace( '/[^0-9+]/', '', $phone ) ) . '">' . esc_html( $phone ) . '</a></p>';
-		}
-
-		if ( is_email( $email ) ) {
-			$html .= '<p><a href="mailto:' . esc_attr( sanitize_email( $email ) ) . '">' . esc_html( sanitize_email( $email ) ) . '</a></p>';
-		}
-
-		if ( esc_url_raw( $website ) ) {
-			$html .= '<p><a href="' . esc_url( $website ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Website', 'vred-geo-maps' ) . '</a></p>';
-		}
-
-		if ( '' !== $directions_url ) {
-			$html .= '<p><a href="' . esc_url( $directions_url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Get directions', 'vred-geo-maps' ) . '</a></p>';
-		}
-
-		$html .= '</div>';
-
-		return $html;
-	}
 }

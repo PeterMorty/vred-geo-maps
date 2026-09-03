@@ -17,10 +17,8 @@
 	const cartoApiKeyField = root.querySelector('[data-vred-geo-carto-api-key-field]');
 	const showListSetting = root.querySelector('[data-vred-geo-show-list-setting]');
 	const listSettings = root.querySelector('[data-vred-geo-list-settings]');
-	const listStyleSetting = root.querySelector('[data-vred-geo-list-style-setting]');
 	const listPositionSetting = root.querySelector('[data-vred-geo-list-position-setting]');
 	const listWidthField = root.querySelector('[data-vred-geo-list-width-field]');
-	const listTypeIndicatorField = root.querySelector('[data-vred-geo-list-type-indicator-field]');
 	const filtersPositionSetting = root.querySelector('[data-vred-geo-filters-position-setting]');
 	const filtersMapPositionField = root.querySelector('[data-vred-geo-filters-map-position-field]');
 	const filtersTransparencyField = root.querySelector('[data-vred-geo-filters-transparency-field]');
@@ -33,7 +31,6 @@
 		const listEnabled = Boolean(showListSetting?.checked);
 		const filtersEnabled = Boolean(showFiltersSetting?.checked);
 		const mapLegendEnabled = Boolean(showMapLegendSetting?.checked);
-		const listNeedsIndicator = listEnabled && ['legend', 'grouped'].includes(listStyleSetting?.value || '');
 
 		if (listSettings) {
 			listSettings.hidden = !listEnabled;
@@ -45,10 +42,6 @@
 
 		if (mapLegendSettings) {
 			mapLegendSettings.hidden = !mapLegendEnabled;
-		}
-
-		if (listTypeIndicatorField) {
-			listTypeIndicatorField.hidden = !listNeedsIndicator;
 		}
 
 		if (listWidthField) {
@@ -761,7 +754,7 @@
 	root.querySelectorAll('[data-vred-geo-edit-form]').forEach(syncActionFields);
 	root.querySelectorAll('[data-vred-geo-override-toggle]').forEach(syncOverride);
 	syncLayoutSettings();
-	[tileProviderSetting, showListSetting, listStyleSetting, listPositionSetting, showMapLegendSetting, showFiltersSetting, filtersPositionSetting].forEach((setting) => {
+	[tileProviderSetting, showListSetting, listPositionSetting, showMapLegendSetting, showFiltersSetting, filtersPositionSetting].forEach((setting) => {
 		setting?.addEventListener('change', syncLayoutSettings);
 	});
 	updateEmptyState();

@@ -318,7 +318,7 @@
 	gap: 16px
 }
 
-.vred-geo-admin-block__content[hidden], [data-vred-geo-carto-api-key-field][hidden], [data-vred-geo-list-type-indicator-field][hidden], [data-vred-geo-filters-map-position-field][hidden], [data-vred-geo-filters-transparency-field][hidden] {
+.vred-geo-admin-block__content[hidden], [data-vred-geo-carto-api-key-field][hidden], [data-vred-geo-filters-map-position-field][hidden], [data-vred-geo-filters-transparency-field][hidden] {
 	display: none
 }
 
